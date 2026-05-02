@@ -1,0 +1,257 @@
+---
+import { getPlayerEloTrajectory, getPlayerEloPeaks, type EloPoint, type EloPeaks } from '../lib/libDb';
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+
+let data: EloPoint[] = [];
+let peaks: EloPeaks | null = null;
+try {
+  [data, peaks] = await Promise.all([
+    getPlayerEloTrajectory(slug),
+    getPlayerEloPeaks(slug),
+  ]);
+} catch (e) {
+  console.error('[cmpEloCareerArc] DB query failed:', e);
+}
+
+// ----- chart geometry --------------------------------------------------------
+const W = 1000;
+const H = 340;
+const PAD = { top: 20, right: 24, bottom: 36, left: 56 };
+const innerW = W - PAD.left - PAD.right;
+const innerH = H - PAD.top - PAD.bottom;
+
+type SurfaceKey = 'elo_overall' | 'elo_hard' | 'elo_clay' | 'elo_grass';
+type PeakKey = 'peak_overall' | 'peak_hard' | 'peak_clay' | 'peak_grass';
+type PeakDtKey = 'peak_overall_dt' | 'peak_hard_dt' | 'peak_clay_dt' | 'peak_grass_dt';
+
+interface SurfaceMeta {
+  key: SurfaceKey;
+  peakKey: PeakKey;
+  peakDtKey: PeakDtKey;
+  label: string;
+  color: string;
+  strokeWidth: number;
+}
+const SURFACES: SurfaceMeta[] = [
+  { key: 'elo_overall', peakKey: 'peak_overall', peakDtKey: 'peak_overall_dt', label: 'Overall', color: 'var(--ink)',     strokeWidth: 2.2 },
+  { key: 'elo_hard',    peakKey: 'peak_hard',    peakDtKey: 'peak_hard_dt',    label: 'Hard',    color: '#3a6da9',         strokeWidth: 1.4 },
+  { key: 'elo_clay',    peakKey: 'peak_clay',    peakDtKey: 'peak_clay_dt',    label: 'Clay',    color: 'var(--clay)',     strokeWidth: 1.4 },
+  { key: 'elo_grass',   peakKey: 'peak_grass',   peakDtKey: 'peak_grass_dt',   label: 'Grass',   color: 'var(--grass)',    strokeWidth: 1.4 },
+];
+
+const dateMs = (d: EloPoint): number => new Date(d.as_of_dt as unknown as string | number).getTime();
+
+let xMin = 0;
+let xMax = 0;
+let yMin = 1500;
+let yMax = 1900;
+const pathByKey: Record<SurfaceKey, string> = { elo_overall: '', elo_hard: '', elo_clay: '', elo_grass: '' };
+const peakMarkers: Array<{ x: number; y: number; color: string }> = [];
+const xTicks: Array<{ x: number; label: string }> = [];
+const yTicks: Array<{ y: number; label: string }> = [];
+
+if (data.length > 0) {
+  xMin = dateMs(data[0]!);
+  xMax = dateMs(data[data.length - 1]!);
+
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (const d of data) {
+    for (const s of SURFACES) {
+      const v = d[s.key];
+      if (v !== null && v !== undefined) {
+        if (v < lo) lo = v;
+        if (v > hi) hi = v;
+      }
+    }
+  }
+  yMin = Math.floor(lo / 100) * 100;
+  yMax = Math.ceil(hi / 100) * 100;
+  if (yMax - yMin < 400) yMax = yMin + 400;
+
+  const xScale = (ms: number): number => PAD.left + ((ms - xMin) / (xMax - xMin || 1)) * innerW;
+  const yScale = (v: number): number => PAD.top + ((yMax - v) / (yMax - yMin || 1)) * innerH;
+
+  // build per-surface paths; gaps (null values) restart the path so we don't draw through nulls
+  for (const s of SURFACES) {
+    let path = '';
+    let pendingMove = true;
+    for (const d of data) {
+      const v = d[s.key];
+      if (v === null || v === undefined) {
+        pendingMove = true;
+        continue;
+      }
+      const x = xScale(dateMs(d));
+      const y = yScale(v);
+      path += `${pendingMove ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+      pendingMove = false;
+    }
+    pathByKey[s.key] = path;
+  }
+
+  // peak markers
+  if (peaks) {
+    for (const s of SURFACES) {
+      const peakV = peaks[s.peakKey];
+      const peakDt = peaks[s.peakDtKey];
+      if (peakV !== null && peakV !== undefined && peakDt !== null && peakDt !== undefined) {
+        peakMarkers.push({
+          x: xScale(new Date(peakDt as unknown as string | number).getTime()),
+          y: yScale(peakV),
+          color: s.color,
+        });
+      }
+    }
+  }
+
+  // x ticks (year intervals scaled to range)
+  const startYear = new Date(xMin).getFullYear();
+  const endYear = new Date(xMax).getFullYear();
+  const span = endYear - startYear;
+  const tickStep = span > 25 ? 5 : span > 12 ? 3 : span > 6 ? 2 : 1;
+  const startTick = Math.ceil(startYear / tickStep) * tickStep;
+  for (let y = startTick; y <= endYear; y += tickStep) {
+    const ms = new Date(`${y}-01-01T00:00:00Z`).getTime();
+    if (ms >= xMin && ms <= xMax) {
+      xTicks.push({ x: xScale(ms), label: y.toString() });
+    }
+  }
+
+  // y ticks every 100
+  for (let v = yMin; v <= yMax; v += 100) {
+    yTicks.push({ y: yScale(v), label: v.toString() });
+  }
+}
+
+const peakLookup: Record<SurfaceKey, number | null> = {
+  elo_overall: peaks?.peak_overall ?? null,
+  elo_hard:    peaks?.peak_hard ?? null,
+  elo_clay:    peaks?.peak_clay ?? null,
+  elo_grass:   peaks?.peak_grass ?? null,
+};
+---
+
+{data.length === 0 ? null : (
+  <section class="fs-section fs-elo">
+    <div class="fs-section__title">
+      <h2>Career arc</h2>
+      <span class="fs-eyebrow">Elo · {data.length.toLocaleString()} match-day snapshots</span>
+    </div>
+
+    <ul class="fs-elo__legend">
+      {SURFACES.map((s) => (
+        <li class="fs-elo__legend-item">
+          <span class="fs-elo__legend-dot" style={`background:${s.color}`}></span>
+          <span class="fs-elo__legend-label">{s.label}</span>
+          {peakLookup[s.key] !== null && (
+            <span class="fs-elo__legend-value">peak {peakLookup[s.key]}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+
+    <div class="fs-elo__chart">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={`Career Elo trajectory for ${slug}`}>
+        {yTicks.map((t) => (
+          <g>
+            <line x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y} stroke="var(--rule)" stroke-width="0.5" />
+            <text x={PAD.left - 8} y={t.y + 4} text-anchor="end" class="fs-elo__tick">{t.label}</text>
+          </g>
+        ))}
+
+        {xTicks.map((t) => (
+          <g>
+            <line x1={t.x} y1={H - PAD.bottom} x2={t.x} y2={H - PAD.bottom + 4} stroke="var(--ink-muted)" stroke-width="0.6" />
+            <text x={t.x} y={H - PAD.bottom + 18} text-anchor="middle" class="fs-elo__tick">{t.label}</text>
+          </g>
+        ))}
+
+        <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={H - PAD.bottom} stroke="var(--ink-muted)" stroke-width="0.8" />
+        <line x1={PAD.left} y1={H - PAD.bottom} x2={W - PAD.right} y2={H - PAD.bottom} stroke="var(--ink-muted)" stroke-width="0.8" />
+
+        {SURFACES.slice(1).map((s) => (
+          <path d={pathByKey[s.key]} fill="none" stroke={s.color} stroke-width={s.strokeWidth} stroke-linejoin="round" stroke-linecap="round" opacity="0.85" />
+        ))}
+        <path d={pathByKey.elo_overall} fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" />
+
+        {peakMarkers.map((m) => (
+          <circle cx={m.x} cy={m.y} r="3.5" fill={m.color} stroke="var(--bg)" stroke-width="1.5" />
+        ))}
+      </svg>
+    </div>
+
+    <p class="fs-elo__note">
+      Elo computed from {data.length.toLocaleString()} match results in Sackmann's open dataset (1968-present).
+      K-factor 64 → 40 → 32 across the first 30 matches; surface tracks update only on matches of that surface.
+      Peak markers show the all-time high for each track.
+    </p>
+  </section>
+)}
+
+<style>
+  .fs-elo__legend {
+    list-style: none;
+    margin: 0 0 0.75rem 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    align-items: center;
+    font-family: var(--sans);
+    font-size: 0.86rem;
+  }
+  .fs-elo__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .fs-elo__legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+  }
+  .fs-elo__legend-label {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .fs-elo__legend-value {
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .fs-elo__chart {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius, 6px);
+    padding: 0.5rem 0.5rem 0.25rem;
+  }
+  .fs-elo__chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .fs-elo__tick {
+    font-family: var(--sans);
+    font-size: 11px;
+    fill: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .fs-elo__note {
+    margin-top: 0.75rem;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    max-width: 70ch;
+  }
+</style>

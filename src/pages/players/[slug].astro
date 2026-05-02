@@ -8,6 +8,7 @@ import CmpCareerLedger from '../../components/cmpCareerLedger.astro';
 import CmpAccessories from '../../components/cmpAccessories.astro';
 import CmpQuotes from '../../components/cmpQuotes.astro';
 import CmpProjection from '../../components/cmpProjection.astro';
+import CmpEloCareerArc from '../../components/cmpEloCareerArc.astro';
 import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel, getPlayerImagePath } from '../../lib/libPlayers';
 import '../../styles/styPlayerProfile.css';
 
@@ -102,6 +103,8 @@ const isApprox = player.dataConfidence === 'approximate';
         />
       </div>
     </section>
+
+    <CmpEloCareerArc slug={player.slug} />
 
     <CmpTrophyCase player={player} />
 
