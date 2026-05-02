@@ -1,0 +1,10 @@
+#!/bin/bash
+# Quick commit and push for FirstStrings
+# Usage: ./f "commit message"
+
+if [ -z "$1" ]; then
+  echo "Usage: ./f \"commit message\""
+  exit 1
+fi
+
+git add . && git commit -m "$1" && git push origin main

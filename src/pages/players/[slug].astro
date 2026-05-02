@@ -1,0 +1,151 @@
+---
+import LayBase from '../../layouts/layBase.astro';
+import CmpStatTile from '../../components/cmpStatTile.astro';
+import CmpShotPalette from '../../components/cmpShotPalette.astro';
+import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel } from '../../lib/libPlayers';
+import '../../styles/styPlayerProfile.css';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/');
+
+const player = getPlayerBySlug(slug);
+if (!player) {
+  return new Response('Player not found', { status: 404 });
+}
+
+const handLabel = player.handedness === 'right' ? 'Right-handed' : 'Left-handed';
+const bhLabel = player.backhandStyle === 'one-handed' ? 'One-handed backhand' : 'Two-handed backhand';
+
+const bornDisplay = new Date(player.bornIso).toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+const ageOrRetired = player.status === 'active'
+  ? `Age ${formatAge(player.bornIso)}`
+  : player.career.retiredYear ? `Retired ${player.career.retiredYear}` : 'Retired';
+
+// resolve rivalries
+const allPlayers = getAllPlayers();
+const rivalEntries = (player.rivalries ?? []).map((rivalSlug) => {
+  const rival = allPlayers.find((p) => p.slug === rivalSlug);
+  return { slug: rivalSlug, rival };
+});
+
+const isApprox = player.dataConfidence === 'approximate';
+---
+<LayBase title={player.fullName} description={player.bio.slice(0, 160)}>
+  <header class="fs-hero">
+    <div class="fs-container">
+      <div class="fs-hero__tour">{player.tour} · {player.era.map(eraLabel).join(' / ')}</div>
+      <h1 class="fs-hero__name">
+        {player.fullName}
+        {isApprox && <span class="fs-approximate" title="Stats may have moved since this profile was last verified">approx.</span>}
+      </h1>
+
+      <div class="fs-hero__meta">
+        <div class="fs-hero__meta-cell">
+          <span class="fs-hero__meta-label">Born</span>
+          <span class="fs-hero__meta-value">{bornDisplay}</span>
+        </div>
+        <div class="fs-hero__meta-cell">
+          <span class="fs-hero__meta-label">From</span>
+          <span class="fs-hero__meta-value">{player.birthplace}</span>
+        </div>
+        <div class="fs-hero__meta-cell">
+          <span class="fs-hero__meta-label">Height</span>
+          <span class="fs-hero__meta-value">{formatHeight(player.heightCm)}</span>
+        </div>
+        <div class="fs-hero__meta-cell">
+          <span class="fs-hero__meta-label">Plays</span>
+          <span class="fs-hero__meta-value">{handLabel}</span>
+        </div>
+        <div class="fs-hero__meta-cell">
+          <span class="fs-hero__meta-label">Backhand</span>
+          <span class="fs-hero__meta-value">{bhLabel}</span>
+        </div>
+        <div class="fs-hero__meta-cell">
+          <span class="fs-hero__meta-label">Status</span>
+          <span class="fs-hero__meta-value">{ageOrRetired}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <article class="fs-container">
+    <p class="fs-bio">{player.bio}</p>
+
+    <section class="fs-section">
+      <div class="fs-section__title">
+        <h2>Career</h2>
+        <span class="fs-eyebrow">{player.status === 'active' ? 'In progress' : 'Final ledger'}</span>
+      </div>
+      <div class="fs-stats">
+        <CmpStatTile label="Grand Slams" value={player.career.grandSlams} />
+        <CmpStatTile label="Career-high" value={`#${player.career.careerHighRanking}`} small />
+        <CmpStatTile label="Weeks at #1" value={player.career.weeksAtNumberOne} />
+        <CmpStatTile label="Year-end #1" value={player.career.yearEndNumberOne} />
+        <CmpStatTile label="Turned pro" value={player.career.turnedPro} small />
+        <CmpStatTile
+          label={player.status === 'active' ? 'Status' : 'Retired'}
+          value={player.status === 'active' ? 'Active' : player.career.retiredYear}
+          small
+        />
+      </div>
+    </section>
+
+    <section class="fs-section">
+      <div class="fs-section__title">
+        <h2>Shot Palette</h2>
+        <span class="fs-eyebrow">Typical-match values</span>
+      </div>
+      <CmpShotPalette palette={player.shotPalette} />
+    </section>
+
+    <section class="fs-section">
+      <div class="fs-section__title">
+        <h2>Style &amp; Surfaces</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem;">
+        <div>
+          <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Style of play</div>
+          <ul class="fs-tag-list">
+            {player.styleOfPlay.map((s) => <li class="fs-tag fs-tag--solid">{s}</li>)}
+          </ul>
+        </div>
+        <div>
+          <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Surface strengths</div>
+          <ul class="fs-tag-list">
+            {player.surfaceStrengths.map((s) => (
+              <li class={`fs-tag ${s === 'clay' ? 'fs-tag--clay' : s === 'grass' ? 'fs-tag--grass' : ''}`}>{s}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    {player.signatureMatch && (
+      <section class="fs-section">
+        <div class="fs-signature">
+          <div class="fs-signature__label">Signature match</div>
+          {player.signatureMatch}
+        </div>
+      </section>
+    )}
+
+    {rivalEntries.length > 0 && (
+      <section class="fs-section">
+        <div class="fs-section__title">
+          <h2>Rivalries</h2>
+        </div>
+        <ul class="fs-rivals">
+          {rivalEntries.map((r) => (
+            r.rival
+              ? <li><a href={`/players/${r.rival.slug}`}>{r.rival.fullName}</a></li>
+              : <li><span class="fs-rivals__missing">{r.slug.replace(/-/g, ' ')}</span></li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <a href="/" class="fs-back">← Back to roster</a>
+  </article>
+</LayBase>

@@ -1,0 +1,46 @@
+---
+import '../styles/styBase.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'A reverence for the game — profiles, comparisons, and lore from the legends of tennis.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title} · First Strings</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="fs-nav">
+      <div class="fs-container fs-nav__inner">
+        <a href="/" class="fs-brand">First<span class="fs-brand__mark">·</span>Strings</a>
+        <div class="fs-nav__links">
+          <a href="/">Roster</a>
+          <a href="/?tour=ATP">ATP</a>
+          <a href="/?tour=WTA">WTA</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="fs-foot">
+      <div class="fs-container fs-foot__inner">
+        <span>First Strings — a tennis fandom project.</span>
+        <span>Depth over speed.</span>
+      </div>
+    </footer>
+  </body>
+</html>

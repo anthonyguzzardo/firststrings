@@ -1,0 +1,48 @@
+---
+import type { ShotPalette } from '../lib/libPlayers';
+
+interface Props {
+  palette: ShotPalette;
+}
+
+const { palette } = Astro.props;
+
+interface Metric { label: string; value?: number; unit: string; }
+const metrics: Metric[] = [
+  { label: 'Serve speed', value: palette.serveSpeedKmh, unit: 'km/h' },
+  { label: 'Forehand speed', value: palette.forehandSpeedKmh, unit: 'km/h' },
+  { label: 'Backhand speed', value: palette.backhandSpeedKmh, unit: 'km/h' },
+  { label: 'Forehand RPM', value: palette.forehandRpm, unit: 'rpm' },
+  { label: 'Backhand RPM', value: palette.backhandRpm, unit: 'rpm' },
+];
+
+const present = metrics.filter((m): m is Metric & { value: number } => m.value !== undefined);
+---
+{present.length > 0 && (
+  <div class="fs-palette">
+    {present.map((m) => (
+      <div class="fs-palette__card">
+        <div class="fs-palette__label">{m.label}</div>
+        <div class="fs-palette__value">{m.value}<span class="fs-palette__unit">{m.unit}</span></div>
+      </div>
+    ))}
+  </div>
+)}
+
+{palette.signatureShots.length > 0 && (
+  <div class="fs-shots">
+    <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Signature shots</div>
+    <ul class="fs-tag-list">
+      {palette.signatureShots.map((shot) => (
+        <li class="fs-tag fs-tag--clay">{shot}</li>
+      ))}
+    </ul>
+  </div>
+)}
+
+{palette.weakness && (
+  <div class="fs-weakness">
+    <span class="fs-weakness__label">Soft spot</span>
+    {palette.weakness}
+  </div>
+)}

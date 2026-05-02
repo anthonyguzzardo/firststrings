@@ -1,0 +1,201 @@
+/* ----- design tokens ----- */
+:root {
+  --bg: #faf6ee;
+  --bg-elevated: #f0e9da;
+  --bg-deep: #ece4d2;
+  --ink: #1a1a1a;
+  --ink-muted: #6b655d;
+  --ink-soft: #908a80;
+  --rule: #d8d2c5;
+  --clay: #b85a3a;
+  --grass: #355c2f;
+  --gold: #b8893a;
+  --indigo: #2f3a64;
+
+  --serif: 'EB Garamond', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --rhythm: 1.5rem;
+  --content-max: 1100px;
+  --radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14110c;
+    --bg-elevated: #1d1a14;
+    --bg-deep: #25211a;
+    --ink: #f4eee0;
+    --ink-muted: #a39e92;
+    --ink-soft: #6b655d;
+    --rule: #2e2920;
+    --clay: #d97a55;
+    --grass: #6f9d65;
+    --gold: #d4a655;
+    --indigo: #6c7bb0;
+  }
+}
+
+/* ----- reset ----- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+/* ----- base ----- */
+html {
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+h1 { font-size: clamp(2.5rem, 5vw, 4.25rem); }
+h2 { font-size: clamp(1.75rem, 3vw, 2.25rem); }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.1rem; }
+
+p { margin: 0 0 var(--rhythm); }
+
+/* ----- layout ----- */
+.fs-container {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.fs-narrow {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ----- nav ----- */
+.fs-nav {
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 0;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: saturate(140%) blur(6px);
+}
+
+.fs-nav__inner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.fs-brand {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.fs-brand__mark { color: var(--clay); }
+
+.fs-nav__links {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+
+.fs-nav__links a:hover { color: var(--clay); }
+
+/* ----- footer ----- */
+.fs-foot {
+  border-top: 1px solid var(--rule);
+  margin-top: 6rem;
+  padding: 2rem 0 3rem;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.fs-foot__inner {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* ----- meta utilities ----- */
+.fs-eyebrow {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.fs-rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 3rem 0;
+}
+
+.fs-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-muted);
+  background: transparent;
+}
+
+.fs-tag--clay { color: var(--clay); border-color: var(--clay); }
+.fs-tag--grass { color: var(--grass); border-color: var(--grass); }
+.fs-tag--gold { color: var(--gold); border-color: var(--gold); }
+.fs-tag--solid {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.fs-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* approximate-data badge */
+.fs-approximate {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  border: 1px dashed var(--rule);
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
