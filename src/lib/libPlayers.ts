@@ -151,32 +151,63 @@ export interface RacketSpec {
   model: string;
   weightG?: number;
   headSizeSqIn?: number;
+  stringPattern?: string;
+  frameMaterial?: string;
+  notes?: string;
+  [extra: string]: unknown;
 }
 
 export interface StringSpec {
-  mains: string;
+  mains?: string;
   crosses?: string;
+  brand?: string;
   tensionLbsMains?: number;
   tensionLbsCrosses?: number;
+  gauge?: string;
+  notes?: string;
+  [extra: string]: unknown;
 }
 
 export interface ShoeSpec {
   brand: string;
   model: string;
+  designer?: string;
+  notes?: string;
+  [extra: string]: unknown;
+}
+
+export type SponsorEntry =
+  | string
+  | string[]
+  | { brand: string; category?: string; since?: number; notes?: string; [extra: string]: unknown };
+
+export function sponsorBrand(s: SponsorEntry): string {
+  if (typeof s === 'string') return s;
+  if (Array.isArray(s)) return s.join(', ');
+  return s.brand;
+}
+
+export function sponsorMeta(s: SponsorEntry): string | undefined {
+  if (typeof s === 'string' || Array.isArray(s)) return undefined;
+  const parts = [s.category, s.since ? `since ${s.since}` : null, s.notes].filter(Boolean) as string[];
+  return parts.length > 0 ? parts.join(' · ') : undefined;
 }
 
 export interface Equipment {
   racket: RacketSpec;
   strings?: StringSpec;
   shoes?: ShoeSpec;
-  apparelSponsor?: string;
-  otherSponsors?: string[];
+  apparelSponsor?: SponsorEntry;
+  otherSponsors?: SponsorEntry[];
   notes?: string;
+  [extra: string]: unknown;
 }
 
 export interface MatchRecord {
-  wins: number;
-  losses: number;
+  wins?: number;
+  losses?: number;
+  winPct?: number;
+  [extra: string]: unknown;
 }
 
 export interface SurfaceSplits {
@@ -187,11 +218,12 @@ export interface SurfaceSplits {
 }
 
 export interface CareerLedger {
-  prizeMoneyUsd?: number;
-  matchRecord?: MatchRecord;
+  prizeMoneyUsd?: number | null;
+  matchRecord?: MatchRecord | null;
   surfaceSplits?: SurfaceSplits;
   asOfIso?: string;
-  source?: string;
+  source?: string | string[];
+  [extra: string]: unknown;
 }
 
 export function formatPrizeMoneyUsd(amount: number): string {
@@ -203,10 +235,13 @@ export function formatPrizeMoneyUsd(amount: number): string {
   return `$${amount.toLocaleString('en-US')}`;
 }
 
-export function winPct(record?: MatchRecord): string | undefined {
-  if (!record || record.wins + record.losses === 0) return undefined;
-  const pct = (record.wins / (record.wins + record.losses)) * 100;
-  return `${pct.toFixed(1)}%`;
+export function winPct(record?: MatchRecord | null): string | undefined {
+  if (!record) return undefined;
+  if (typeof record.winPct === 'number') return `${record.winPct.toFixed(1)}%`;
+  if (record.wins === undefined || record.losses === undefined) return undefined;
+  const total = record.wins + record.losses;
+  if (total === 0) return undefined;
+  return `${((record.wins / total) * 100).toFixed(1)}%`;
 }
 // @endregion equipment-and-ledger
 

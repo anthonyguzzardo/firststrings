@@ -6373,6 +6373,540 @@ export const players: Player[] = [
       "source": "ATP + Wikipedia + Tennis Warehouse vintage racquet pages + Agassi 'Open' (2009)"
     },
 
+    titles: [
+      {
+        "year": 1987,
+        "tournament": "Sul America Open",
+        "city": "Itaparica",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Luiz Mattar",
+        "score": "7-6, 6-2"
+      },
+      {
+        "year": 1988,
+        "tournament": "U.S. National Indoor",
+        "city": "Memphis",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Mikael Pernfors",
+        "score": "6-4, 6-4, 7-5"
+      },
+      {
+        "year": 1988,
+        "tournament": "U.S. Men's Clay Court Championships",
+        "city": "Charleston",
+        "surface": "clay",
+        "tier": "atp-250",
+        "opponent": "Jimmy Arias",
+        "score": "6-2, 6-2"
+      },
+      {
+        "year": 1988,
+        "tournament": "WCT Tournament of Champions",
+        "city": "Forest Hills",
+        "surface": "clay",
+        "tier": "atp-500",
+        "opponent": "Slobodan Zivojinovic",
+        "score": "7-5, 7-6(2), 7-5"
+      },
+      {
+        "year": 1988,
+        "tournament": "Mercedes Cup",
+        "city": "Stuttgart",
+        "surface": "clay",
+        "tier": "atp-250",
+        "opponent": "Andres Gomez",
+        "score": "6-4, 6-2"
+      },
+      {
+        "year": 1988,
+        "tournament": "Volvo International",
+        "city": "Stratton Mountain",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Paul Annacone",
+        "score": "6-2, 6-4"
+      },
+      {
+        "year": 1988,
+        "tournament": "Livingston Open",
+        "city": "Livingston",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Jeff Tarango",
+        "score": "6-2, 6-2"
+      },
+      {
+        "year": 1989,
+        "tournament": "Prudential-Bache Securities Classic",
+        "city": "Orlando",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Brad Gilbert",
+        "score": "6-2, 6-1"
+      },
+      {
+        "year": 1990,
+        "tournament": "Volvo Tennis San Francisco",
+        "city": "San Francisco",
+        "surface": "carpet",
+        "tier": "atp-250",
+        "opponent": "Todd Witsken",
+        "score": "6-1, 6-3"
+      },
+      {
+        "year": 1990,
+        "tournament": "Lipton International Players Championships",
+        "city": "Key Biscayne",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Stefan Edberg",
+        "score": "6-1, 6-4, 0-6, 6-2"
+      },
+      {
+        "year": 1990,
+        "tournament": "Sovran Bank Classic",
+        "city": "Washington, D.C.",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Jim Grabb",
+        "score": "6-1, 6-4"
+      },
+      {
+        "year": 1990,
+        "tournament": "ATP Tour World Championships",
+        "city": "Frankfurt",
+        "surface": "carpet",
+        "tier": "atp-finals",
+        "opponent": "Stefan Edberg",
+        "score": "5-7, 7-6(5), 7-5, 6-2"
+      },
+      {
+        "year": 1991,
+        "tournament": "Prudential-Bache Securities Classic",
+        "city": "Orlando",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Derrick Rostagno",
+        "score": "6-2, 1-6, 6-3"
+      },
+      {
+        "year": 1991,
+        "tournament": "Sovran Bank Classic",
+        "city": "Washington, D.C.",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Petr Korda",
+        "score": "6-3, 6-4"
+      },
+      {
+        "year": 1992,
+        "tournament": "AT&T Challenge",
+        "city": "Atlanta",
+        "surface": "clay",
+        "tier": "atp-250",
+        "opponent": "Pete Sampras",
+        "score": "7-5, 6-4"
+      },
+      {
+        "year": 1992,
+        "tournament": "The Championships, Wimbledon",
+        "city": "London",
+        "surface": "grass",
+        "tier": "grand-slam",
+        "opponent": "Goran Ivanisevic",
+        "score": "6-7(8), 6-4, 6-4, 1-6, 6-4"
+      },
+      {
+        "year": 1992,
+        "tournament": "Canadian Open",
+        "city": "Toronto",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Ivan Lendl",
+        "score": "3-6, 6-2, 6-0"
+      },
+      {
+        "year": 1993,
+        "tournament": "Volvo Tennis San Francisco",
+        "city": "San Francisco",
+        "surface": "carpet",
+        "tier": "atp-250",
+        "opponent": "Brad Gilbert",
+        "score": "6-2, 6-7(4), 6-2"
+      },
+      {
+        "year": 1993,
+        "tournament": "Purex Tennis Championships",
+        "city": "Scottsdale",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Marcos Ondruska",
+        "score": "6-2, 3-6, 6-3"
+      },
+      {
+        "year": 1994,
+        "tournament": "Scottsdale Open",
+        "city": "Scottsdale",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Luiz Mattar",
+        "score": "7-6(5), 6-3"
+      },
+      {
+        "year": 1994,
+        "tournament": "Canadian Open",
+        "city": "Toronto",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Jason Stoltenberg",
+        "score": "6-4, 6-4"
+      },
+      {
+        "year": 1994,
+        "tournament": "US Open",
+        "city": "New York",
+        "surface": "hard",
+        "tier": "grand-slam",
+        "opponent": "Michael Stich",
+        "score": "6-1, 7-6(5), 7-5"
+      },
+      {
+        "year": 1994,
+        "tournament": "CA Tennis Trophy",
+        "city": "Vienna",
+        "surface": "carpet",
+        "tier": "atp-500",
+        "opponent": "Michael Stich",
+        "score": "7-6(4), 4-6, 6-2, 6-3"
+      },
+      {
+        "year": 1994,
+        "tournament": "Paris Open",
+        "city": "Paris",
+        "surface": "carpet",
+        "tier": "masters-1000",
+        "opponent": "Marc Rosset",
+        "score": "6-3, 6-3, 4-6, 7-5"
+      },
+      {
+        "year": 1995,
+        "tournament": "Australian Open",
+        "city": "Melbourne",
+        "surface": "hard",
+        "tier": "grand-slam",
+        "opponent": "Pete Sampras",
+        "score": "4-6, 6-1, 7-6(6), 6-4"
+      },
+      {
+        "year": 1995,
+        "tournament": "Sybase Open",
+        "city": "San Jose",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Michael Chang",
+        "score": "6-2, 1-6, 6-3"
+      },
+      {
+        "year": 1995,
+        "tournament": "Lipton Championships",
+        "city": "Key Biscayne",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Pete Sampras",
+        "score": "3-6, 6-2, 7-6(3)"
+      },
+      {
+        "year": 1995,
+        "tournament": "Legg Mason Tennis Classic",
+        "city": "Washington, D.C.",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Stefan Edberg",
+        "score": "6-4, 2-6, 7-5"
+      },
+      {
+        "year": 1995,
+        "tournament": "Canadian Open",
+        "city": "Montreal",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Pete Sampras",
+        "score": "3-6, 6-2, 6-3"
+      },
+      {
+        "year": 1995,
+        "tournament": "Thriftway ATP Championships",
+        "city": "Cincinnati",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Michael Chang",
+        "score": "7-5, 6-2"
+      },
+      {
+        "year": 1995,
+        "tournament": "Volvo International",
+        "city": "New Haven",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Richard Krajicek",
+        "score": "3-6, 7-6(3), 6-3"
+      },
+      {
+        "year": 1996,
+        "tournament": "Lipton Championships",
+        "city": "Key Biscayne",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Goran Ivanisevic",
+        "score": "3-0 ret."
+      },
+      {
+        "year": 1996,
+        "tournament": "Olympic Games",
+        "city": "Atlanta",
+        "surface": "hard",
+        "tier": "olympics-gold",
+        "opponent": "Sergi Bruguera",
+        "score": "6-2, 6-3, 6-1"
+      },
+      {
+        "year": 1996,
+        "tournament": "Western & Southern Financial Group Masters",
+        "city": "Cincinnati",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Michael Chang",
+        "score": "7-6(4), 6-4"
+      },
+      {
+        "year": 1998,
+        "tournament": "Sybase Open",
+        "city": "San Jose",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Pete Sampras",
+        "score": "6-2, 6-4"
+      },
+      {
+        "year": 1998,
+        "tournament": "Franklin Templeton Classic",
+        "city": "Scottsdale",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Jason Stoltenberg",
+        "score": "6-4, 6-2"
+      },
+      {
+        "year": 1998,
+        "tournament": "Legg Mason Tennis Classic",
+        "city": "Washington, D.C.",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Scott Draper",
+        "score": "6-2, 6-0"
+      },
+      {
+        "year": 1998,
+        "tournament": "Mercedes-Benz Cup",
+        "city": "Los Angeles",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Tim Henman",
+        "score": "6-7(4), 6-3, 6-4"
+      },
+      {
+        "year": 1998,
+        "tournament": "Czech Indoor",
+        "city": "Ostrava",
+        "surface": "carpet",
+        "tier": "atp-250",
+        "opponent": "Jiri Novak",
+        "score": "6-1, 6-2"
+      },
+      {
+        "year": 1999,
+        "tournament": "Salem Open",
+        "city": "Hong Kong",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Boris Becker",
+        "score": "6-7(4), 6-4, 6-4"
+      },
+      {
+        "year": 1999,
+        "tournament": "French Open",
+        "city": "Paris",
+        "surface": "clay",
+        "tier": "grand-slam",
+        "opponent": "Andrei Medvedev",
+        "score": "1-6, 2-6, 6-4, 6-3, 6-4"
+      },
+      {
+        "year": 1999,
+        "tournament": "Legg Mason Tennis Classic",
+        "city": "Washington, D.C.",
+        "surface": "hard",
+        "tier": "atp-500",
+        "opponent": "Yevgeny Kafelnikov",
+        "score": "7-6(3), 6-1"
+      },
+      {
+        "year": 1999,
+        "tournament": "US Open",
+        "city": "New York",
+        "surface": "hard",
+        "tier": "grand-slam",
+        "opponent": "Todd Martin",
+        "score": "6-4, 6-7(5), 6-7(2), 6-3, 6-2"
+      },
+      {
+        "year": 1999,
+        "tournament": "Paris Open",
+        "city": "Paris",
+        "surface": "carpet",
+        "tier": "masters-1000",
+        "opponent": "Marat Safin",
+        "score": "7-6(5), 6-2, 4-6, 6-4"
+      },
+      {
+        "year": 2000,
+        "tournament": "Australian Open",
+        "city": "Melbourne",
+        "surface": "hard",
+        "tier": "grand-slam",
+        "opponent": "Yevgeny Kafelnikov",
+        "score": "3-6, 6-3, 6-2, 6-4"
+      },
+      {
+        "year": 2001,
+        "tournament": "Australian Open",
+        "city": "Melbourne",
+        "surface": "hard",
+        "tier": "grand-slam",
+        "opponent": "Arnaud Clement",
+        "score": "6-4, 6-2, 6-2"
+      },
+      {
+        "year": 2001,
+        "tournament": "Indian Wells Masters",
+        "city": "Indian Wells",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Pete Sampras",
+        "score": "7-6(5), 7-5, 6-1"
+      },
+      {
+        "year": 2001,
+        "tournament": "Ericsson Open",
+        "city": "Key Biscayne",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Jan-Michael Gambill",
+        "score": "7-6(4), 6-1, 6-0"
+      },
+      {
+        "year": 2001,
+        "tournament": "Mercedes-Benz Cup",
+        "city": "Los Angeles",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Pete Sampras",
+        "score": "6-4, 6-2"
+      },
+      {
+        "year": 2002,
+        "tournament": "Franklin Templeton Classic",
+        "city": "Scottsdale",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Nicolas Escude",
+        "score": "6-2, 7-5"
+      },
+      {
+        "year": 2002,
+        "tournament": "NASDAQ-100 Open",
+        "city": "Key Biscayne",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Roger Federer",
+        "score": "6-3, 6-3, 3-6, 6-4"
+      },
+      {
+        "year": 2002,
+        "tournament": "Italian Open",
+        "city": "Rome",
+        "surface": "clay",
+        "tier": "masters-1000",
+        "opponent": "Tommy Haas",
+        "score": "6-3, 6-3, 6-0"
+      },
+      {
+        "year": 2002,
+        "tournament": "Madrid Masters",
+        "city": "Madrid",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Jiri Novak",
+        "score": "w/o"
+      },
+      {
+        "year": 2003,
+        "tournament": "Australian Open",
+        "city": "Melbourne",
+        "surface": "hard",
+        "tier": "grand-slam",
+        "opponent": "Rainer Schuettler",
+        "score": "6-2, 6-2, 6-1"
+      },
+      {
+        "year": 2003,
+        "tournament": "Siebel Open",
+        "city": "San Jose",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Davide Sanguinetti",
+        "score": "6-3, 6-1"
+      },
+      {
+        "year": 2003,
+        "tournament": "NASDAQ-100 Open",
+        "city": "Key Biscayne",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Carlos Moya",
+        "score": "6-3, 6-3"
+      },
+      {
+        "year": 2003,
+        "tournament": "U.S. Men's Clay Court Championships",
+        "city": "Houston",
+        "surface": "clay",
+        "tier": "atp-250",
+        "opponent": "Andy Roddick",
+        "score": "3-6, 6-3, 6-4"
+      },
+      {
+        "year": 2004,
+        "tournament": "Western & Southern Financial Group Masters",
+        "city": "Cincinnati",
+        "surface": "hard",
+        "tier": "masters-1000",
+        "opponent": "Lleyton Hewitt",
+        "score": "6-3, 3-6, 6-2"
+      },
+      {
+        "year": 2005,
+        "tournament": "Mercedes-Benz Cup",
+        "city": "Los Angeles",
+        "surface": "hard",
+        "tier": "atp-250",
+        "opponent": "Gilles Muller",
+        "score": "6-4, 7-5"
+      }
+    ],
+
   },
   {
     slug: 'bjorn-borg',

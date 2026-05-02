@@ -605,6 +605,12 @@ details.fs-tier > summary { cursor: pointer; }
   color: var(--ink-muted);
 }
 
+.fs-bag__sublabel {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin-top: 0.2rem;
+}
+
 /* career ledger */
 .fs-ledger__top {
   display: grid;

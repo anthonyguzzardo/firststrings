@@ -9,6 +9,8 @@ interface Props {
 
 const { ledger, status } = Astro.props;
 const { prizeMoneyUsd, matchRecord, surfaceSplits, asOfIso, source } = ledger;
+const hasPrize = prizeMoneyUsd !== null && prizeMoneyUsd !== undefined;
+const hasRecord = matchRecord !== null && matchRecord !== undefined;
 
 const surfaces: Array<{ key: 'hard' | 'clay' | 'grass' | 'carpet'; label: string; record?: MatchRecord }> = [
   { key: 'hard',   label: 'Hard',   record: surfaceSplits?.hard },
@@ -28,21 +30,21 @@ const asOfFormatted = asOfIso
   </div>
 
   <div class="fs-ledger__top">
-    {prizeMoneyUsd !== undefined && (
+    {hasPrize && (
       <div class="fs-ledger__hero">
-        <div class="fs-ledger__hero-value">{formatPrizeMoneyUsd(prizeMoneyUsd)}</div>
+        <div class="fs-ledger__hero-value">{formatPrizeMoneyUsd(prizeMoneyUsd!)}</div>
         <div class="fs-ledger__hero-label">Career prize money (USD)</div>
       </div>
     )}
 
-    {matchRecord && (
+    {hasRecord && (
       <div class="fs-ledger__record">
         <div class="fs-ledger__record-label">Career record (singles)</div>
         <div class="fs-ledger__record-value">
-          <span class="fs-ledger__wins">{matchRecord.wins.toLocaleString('en-US')}</span>
+          <span class="fs-ledger__wins">{matchRecord!.wins.toLocaleString('en-US')}</span>
           <span class="fs-ledger__sep">–</span>
-          <span class="fs-ledger__losses">{matchRecord.losses.toLocaleString('en-US')}</span>
-          {winPct(matchRecord) && <span class="fs-ledger__pct">{winPct(matchRecord)}</span>}
+          <span class="fs-ledger__losses">{matchRecord!.losses.toLocaleString('en-US')}</span>
+          {winPct(matchRecord!) && <span class="fs-ledger__pct">{winPct(matchRecord!)}</span>}
         </div>
       </div>
     )}
@@ -71,7 +73,7 @@ const asOfFormatted = asOfIso
     <p class="fs-ledger__footer">
       {asOfFormatted && <span>As of {asOfFormatted}</span>}
       {asOfFormatted && source && <span> · </span>}
-      {source && <span>{source}</span>}
+      {source && <span>{Array.isArray(source) ? `${source.length} sources` : source}</span>}
     </p>
   )}
 </section>
