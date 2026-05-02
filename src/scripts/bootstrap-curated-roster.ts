@@ -77,9 +77,11 @@ async function main() {
     if (was_insert) inserted++;
     else updated++;
 
-    const xref = await sql`
+    // String() cast: postgres.js's strict type doesn't include bigint as a
+    // direct param, but Postgres auto-coerces text → BIGINT on cast.
+    const xref = await sql<{ external_id_pk: bigint }[]>`
       INSERT INTO tm_player_external_id (player_id, source_id, external_id, created_by, modified_by)
-      VALUES (${player_id}, ${SOURCE_MANUAL}, ${p.slug}, 'bootstrap-curated-roster', 'bootstrap-curated-roster')
+      VALUES (${String(player_id)}::bigint, ${SOURCE_MANUAL}, ${p.slug}, 'bootstrap-curated-roster', 'bootstrap-curated-roster')
       ON CONFLICT (player_id, source_id) DO NOTHING
       RETURNING external_id_pk
     `;

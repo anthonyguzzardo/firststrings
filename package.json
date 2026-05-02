@@ -15,7 +15,9 @@
     "db:psql": "docker exec -it first_strings_pg psql -U first_strings -d first_strings",
     "bootstrap": "tsx --env-file=.env src/scripts/bootstrap-curated-roster.ts",
     "ingest:atp": "tsx --env-file=.env src/scripts/ingest-sackmann-atp.ts",
-    "ingest:wta": "tsx --env-file=.env src/scripts/ingest-sackmann-wta.ts"
+    "ingest:wta": "tsx --env-file=.env src/scripts/ingest-sackmann-wta.ts",
+    "ingest:mcp": "tsx --env-file=.env src/scripts/ingest-sackmann-mcp.ts",
+    "refresh:elo": "tsx --env-file=.env src/scripts/refresh-elo.ts"
   },
   "dependencies": {
     "@astrojs/node": "^9.0.0",

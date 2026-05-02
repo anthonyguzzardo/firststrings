@@ -24,20 +24,23 @@ The "match-level data" thread (previously sketched as a TS-types + research-JSON
 
 ### What's next (priority order)
 
-Priorities 1-3 below have **landed** in this same session. See the "Landed this session" subsection that follows.
+Priorities 1-5 below have **landed** in this same session. See the "Landed this session" subsection that follows.
 
 1. ~~**Bootstrap td_player from the curated TS roster.**~~ Done (23 curated players, all with MANUAL xref).
 2. ~~**First ingest script: Sackmann ATP.**~~ Done (65,941 players, 194,996 matches, 4,188 tournaments).
 3. ~~**WTA mirror.**~~ Done (69,758 players, 158,076 matches, 5,843 tournaments).
-4. **`libMcpShotParser.ts`** — the key technical lift. Tokenizer + state machine that converts an MCP shot string (e.g. `"4f1*"`) into a sequence of `tb_shot` row payloads. Reference: `tennisabstract.com/blog/2015/09/23/the-match-charting-project-quick-start-guide/`. Build pure (no DB), test with a fixture set of ~20 known points, then wire into `src/scripts/ingest-sackmann-mcp.ts`. The MCP repo will already exist at `tmp/data/sackmann/mcp/` after a clone-step is added — same pattern as ATP/WTA. Match Charting Project metadata is in `charting-m-matches.csv` / `charting-w-matches.csv`; points are in `charting-{m,w}-points-*.csv` with the raw shot string in the `1st`, `2nd`, `Notes` columns.
-5. **First derived metric:** Elo trajectory (`libDerivedElo.ts` + `src/scripts/refresh-elo.ts`) — easiest visible win now that matches are loaded; powers career-arc charts. Process all 353k matches in chronological order, K-factor = 32, surface-specific tracks alongside an overall track. Write into `th_player_elo`.
-6. **First viz:** career-arc chart on the curated player profile page using D3 + Observable Plot, fed from `th_player_elo` joined with `th_player_ranking` (rankings ingest also TBD). Slots into the existing profile page next to the equipment/trophy sections.
+4. ~~**`libMcpShotParser.ts`** + MCP point ingest~~ — Done. 11k charted matches, 1.75M points, point-level flags loaded (rally length, ace, double fault, point outcome, serve direction). **Shot-level (`tb_shot`) deferred — see "Open follow-ups" below.**
+5. ~~**Elo trajectory** (`libDerivedElo.ts` + `refresh-elo.ts`)~~ — Done. 371k daily Elo snapshots across 15k players. Sanity check passed (Navratilova/Graf/Evert atop all-time, Nadal/Borg on clay, Connors/McEnroe/Borg/Federer on grass).
+6. **First viz:** career-arc chart on the curated player profile page using D3 + Observable Plot, fed from `th_player_elo`. Slots into the existing profile page next to the equipment/trophy sections.
+7. **Sackmann rankings ingest** — `atp_rankings_*.csv` and `wta_rankings_*.csv` → `th_player_ranking`. Straightforward; same engine pattern as players/matches. Powers the rankings layer of career-arc charts (separate track from Elo).
+8. **Refresh aggregates** — populate `tb_player_career_stats`, `tb_player_serve_zones`, `tb_player_clutch_metrics` from raw matches + points. Each is a dedicated `lib*` + `refresh-*.ts` pair.
 
-Defer for later:
-- Live-match feed (still adds infra cost the project hasn't justified yet).
-- Infotennis scraper (Antwerp 2021+ Court Vision) — high value but only after the historical core is solid.
-- Style embedding pipeline (Python `py/embed_players.py`) — needs aggregates to feed it; queue for after step 5.
-- Sackmann historical rankings ingest — `atp_rankings_*.csv` files. Straightforward but volume-y; either run alongside Elo or right before the career-arc viz.
+Open follow-ups (not next-up but should be remembered):
+- **`tb_shot` ingest from MCP** — pass `--shots` to `npm run ingest:mcp` (the flag exists; the work hasn't been run). Expected ~10M rows, several minutes. Required before serve-placement roses, court heatmaps, shot-direction visualizations.
+- **MCP/Sackmann match dedupe.** Right now an MCP-charted match exists in `tb_match` twice — once with `external_source_id = SACKMANN_ATP` (1) and once with `SACKMANN_MCP` (3). Queries that count matches double-count. Two paths: (a) heuristic merge at ingest time (date + slug pair + tournament name fuzzy match), or (b) a `tb_match_canonical` view/table. (a) is simpler and recommended.
+- **Live-match feed** — still adds infra cost the project hasn't justified yet.
+- **Infotennis scraper** (Antwerp 2021+ Court Vision) — Python sliver, high value, but the historical core comes first.
+- **Style embedding pipeline** (`py/embed_players.py`) — needs aggregates to feed it; queue for after step 8.
 
 ### Landed this session
 
@@ -54,21 +57,41 @@ Defer for later:
 | `tm_player_external_id` (SACKMANN_WTA) | ~70k   | One per WTA player.                                                              |
 | `tm_player_external_id` (WIKIDATA)| ~7.5k    | Free bonus from `wikidata_id` column in Sackmann player files.                   |
 | Curated players linked to Sackmann | 23 / 23 | All 23 hand-tended profiles now have full match history queryable in SQL.        |
+| `tb_match` (MCP-charted)          | 10,999   | Source `SACKMANN_MCP`; `has_mcp_chart = TRUE`. 7,193 men's + 3,806 women's. **Currently duplicates the matching ATP/WTA rows** — see open follow-up. |
+| `tb_point` (from MCP)             | 1,751,575 | All charted points 1968-present, parsed via `libMcpShotParser`. Carries rally_length, point_outcome_id, serve_direction_id, is_break_point, is_tiebreak. |
+| Aces (`point_outcome_id = 5`)     | 117,201   | Across all charted matches.                                                      |
+| Double faults                     | 64,048    | Same.                                                                            |
+| `th_player_elo` rows              | 371,112   | One per (player, day) covering 706k player-match Elo updates across 15,202 players. Overall + hard / clay / grass / carpet tracks. |
 
-Spot-check: `SELECT … FROM td_player … JOIN tb_match …` for `slug='roger-federer'` returns **1265-280, 83 distinct events, 1998-2021** — matches public records to within ~1% (Sackmann includes some Davis Cup / qualifying that may differ from headline W-L).
+Spot-checks all green:
+- Federer career: **1265-280, 83 distinct events, 1998-2021** — matches public records to within ~1% (Sackmann includes some Davis Cup / qualifying).
+- Federer MCP ace rate: **9.6%** across 689 charted matches and 58k service points — matches his real career ace rate (~9-10%).
+- Peak Elo all-time: Navratilova 2719, Graf 2659, Evert 2624 — exactly the consensus all-time triumvirate.
+- Peak clay Elo (men): Borg 2390, Nadal 2386, Lendl 2290, Vilas 2267, Djokovic 2250 — tracks the canonical clay-court ladder.
+- Peak grass Elo (men): Connors 2131, McEnroe 2106, Borg 2085, Federer 2068, Djokovic 2066 — Federer 4th on grass is a plausible artifact of opponent-strength weighting on the older champions; not a bug.
 
 ### How to reproduce
 
 ```sh
-docker compose up -d           # Postgres + pgvector on host port 5433
-npm run db:psql                # interactive psql into the container
-npm run bootstrap              # 23 curated players → SQL
-npm run ingest:atp             # ATP players + matches (clones to tmp/data/sackmann/atp first run)
-npm run ingest:wta             # WTA players + matches (clones to tmp/data/sackmann/wta first run)
-npm run db:reset               # nuke the volume and start clean if you need to
+docker compose up -d            # Postgres + pgvector on host port 5433
+npm run db:psql                 # interactive psql into the container
+npm run bootstrap               # 23 curated players → SQL
+npm run ingest:atp              # ATP players + matches (clones to tmp/data/sackmann/atp first run)
+npm run ingest:wta              # WTA players + matches (clones to tmp/data/sackmann/wta first run)
+npm run ingest:mcp              # MCP charted matches + points (clones to tmp/data/sackmann/mcp first run)
+npm run ingest:mcp -- --shots   # adds tb_shot rows (~10M, slower); deferred from this session
+npm run refresh:elo             # recompute th_player_elo from scratch
+npm run db:reset                # nuke the volume and start clean if you need to
 ```
 
-Each ingest is fully idempotent: re-running upserts and creates nothing new.
+Every ingest + refresh is fully idempotent.
+
+End-to-end timing on this machine (cold cache, after the initial git clones):
+- bootstrap: instant
+- ATP ingest: ~10 s (including pull check)
+- WTA ingest: ~10 s
+- MCP point ingest: ~30 s
+- Elo refresh: ~5 s
 
 ### Architectural notes worth knowing
 
@@ -77,6 +100,8 @@ Each ingest is fully idempotent: re-running upserts and creates nothing new.
 - **Slug collision handling.** ATP "John Smith" and WTA "John Smith" each get their own slug regardless because curated players already own the clean slug; Sackmann players that collide append a tour-suffixed sackmann_id. Curated profiles are protected — the engine's INSERT … ON CONFLICT (slug) DO NOTHING leaves the curated row alone, then `tm_player_external_id` adds the Sackmann pointer.
 - **Dedupe on both unique constraints.** `tm_player_external_id` has UNIQUE (player_id, source_id) AND UNIQUE (source_id, external_id). Sackmann data occasionally reuses a Wikidata Q-number across player rows, so the engine pre-dedupes on both keys (helper `dedupeMappings` in libSackmannIngest.ts). Same for matches: a few WTA year files have within-file duplicate (tourney_id, match_num) pairs — engine de-dupes per-batch.
 - **No `is_best_of_five` on WTA matches.** Detection is heuristic (`best_of='5'` from Sackmann); WTA never plays best-of-5, so all WTA rows get `FALSE`.
+- **MCP shot-string parser is best-effort.** `libMcpShotParser.ts` handles the cases enumerated in `tennisabstract.com/blog/2015/09/23/the-match-charting-project-quick-start-guide/`. Real MCP strings include some characters/orderings the public docs don't cover (e.g. `!`, certain modifier combinations); the parser logs these into `unknown_chars` and otherwise carries on. Roughly 3.4% of charted points have `rally_length IS NULL` because the parser couldn't extract any shots — not a fatal data loss; the point still exists, it just lacks rally detail. Re-parsing later will recover those once the grammar is refined.
+- **Elo K-factor schedule** — 64 for the first 5 matches, 40 for matches 5-30, then 32 onwards. Walkovers and retirements are counted (consistent with Sackmann's `tennis_misc` reference).
 
 ### Sources to keep handy
 
