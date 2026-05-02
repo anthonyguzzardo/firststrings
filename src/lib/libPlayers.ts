@@ -25,6 +25,99 @@ export interface CareerStats {
   retiredYear?: number;
 }
 
+// @region titles
+export type TitleTier =
+  | 'grand-slam'
+  | 'olympics-gold'
+  | 'atp-finals' | 'wta-finals'
+  | 'masters-1000' | 'wta-1000'
+  | 'atp-500' | 'wta-500'
+  | 'atp-250' | 'wta-250'
+  | 'next-gen-finals'
+  | 'pre-open-major';
+
+export interface Title {
+  year: number;
+  tournament: string;
+  city?: string;
+  surface?: Surface;
+  tier: TitleTier;
+  opponent?: string;
+  score?: string;
+}
+
+export const TIER_ORDER: TitleTier[] = [
+  'grand-slam',
+  'olympics-gold',
+  'atp-finals', 'wta-finals',
+  'next-gen-finals',
+  'masters-1000', 'wta-1000',
+  'atp-500', 'wta-500',
+  'atp-250', 'wta-250',
+  'pre-open-major',
+];
+
+export function tierLabel(tier: TitleTier): string {
+  switch (tier) {
+    case 'grand-slam': return 'Grand Slam';
+    case 'olympics-gold': return 'Olympic Gold';
+    case 'atp-finals': return 'ATP Finals';
+    case 'wta-finals': return 'WTA Finals';
+    case 'masters-1000': return 'ATP Masters 1000';
+    case 'wta-1000': return 'WTA 1000';
+    case 'atp-500': return 'ATP 500';
+    case 'wta-500': return 'WTA 500';
+    case 'atp-250': return 'ATP 250';
+    case 'wta-250': return 'WTA 250';
+    case 'next-gen-finals': return 'Next Gen ATP Finals';
+    case 'pre-open-major': return 'Pre-Open Era Major';
+  }
+}
+
+export function tierShort(tier: TitleTier): string {
+  switch (tier) {
+    case 'grand-slam': return 'Slam';
+    case 'olympics-gold': return 'Olympic Gold';
+    case 'atp-finals': case 'wta-finals': return 'YE Finals';
+    case 'masters-1000': case 'wta-1000': return '1000';
+    case 'atp-500': case 'wta-500': return '500';
+    case 'atp-250': case 'wta-250': return '250';
+    case 'next-gen-finals': return 'Next Gen';
+    case 'pre-open-major': return 'Pre-Open Major';
+  }
+}
+
+export type SlamKey = 'ao' | 'rg' | 'wim' | 'uso';
+
+export function slamKeyOf(tournament: string): SlamKey | null {
+  const t = tournament.toLowerCase();
+  if (t.includes('australian')) return 'ao';
+  if (t.includes('french') || t.includes('roland')) return 'rg';
+  if (t.includes('wimbledon')) return 'wim';
+  if (t.includes('us open') || t.includes('united states')) return 'uso';
+  return null;
+}
+
+export function slamLabel(key: SlamKey): string {
+  return { ao: 'Australian Open', rg: 'Roland Garros', wim: 'Wimbledon', uso: 'US Open' }[key];
+}
+
+export function groupTitlesByTier(titles: Title[]): Map<TitleTier, Title[]> {
+  const map = new Map<TitleTier, Title[]>();
+  for (const tier of TIER_ORDER) map.set(tier, []);
+  for (const t of titles) {
+    const arr = map.get(t.tier) ?? [];
+    arr.push(t);
+    map.set(t.tier, arr);
+  }
+  for (const [k, arr] of map) {
+    arr.sort((a, b) => a.year - b.year || a.tournament.localeCompare(b.tournament));
+    map.set(k, arr);
+  }
+  return map;
+}
+// @endregion titles
+
 export interface Player {
   slug: string;
   fullName: string;
@@ -45,6 +138,8 @@ export interface Player {
   rivalries?: string[];
   status: PlayerStatus;
   dataConfidence?: 'verified' | 'approximate';
+  imagePath?: string;
+  titles?: Title[];
 }
 // @endregion types
 
@@ -95,6 +190,10 @@ export function formatHeight(cm: number): string {
   const feet = Math.floor(inches / 12);
   const remainingInches = Math.round(inches - feet * 12);
   return `${cm} cm · ${feet}'${remainingInches}"`;
+}
+
+export function getPlayerImagePath(player: Player): string {
+  return player.imagePath ?? '/players/_placeholder.svg';
 }
 
 export function eraLabel(era: Era): string {

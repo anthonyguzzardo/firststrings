@@ -3,6 +3,36 @@
   border-bottom: 1px solid var(--rule);
 }
 
+.fs-hero__inner {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .fs-hero__inner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.fs-hero__photo-wrap {
+  aspect-ratio: 5 / 6;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
+}
+
+.fs-hero__photo-wrap img,
+.fs-hero__photo-wrap svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .fs-hero__tour {
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -248,6 +278,235 @@
 }
 .fs-back:hover { color: var(--clay); }
 
+/* trophy case */
+.fs-trophy__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 2rem;
+  align-items: baseline;
+}
+
+.fs-tally {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--ink);
+  padding: 0.4rem 0.85rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.fs-tally em {
+  font-style: normal;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+.fs-tally--slam {
+  background: var(--gold);
+  color: #1a1a1a;
+  border-color: var(--gold);
+}
+.fs-tally--slam em { color: #1a1a1a; opacity: 0.7; }
+.fs-tally--soft {
+  background: transparent;
+  color: var(--ink-muted);
+}
+
+/* slam groups */
+.fs-trophy__slams {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.fs-slam-group {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.fs-slam-group__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #fff;
+}
+.fs-slam-group__head--ao { background: var(--slam-ao); }
+.fs-slam-group__head--rg { background: var(--slam-rg); }
+.fs-slam-group__head--wim { background: var(--slam-wim); }
+.fs-slam-group__head--uso { background: var(--slam-uso); }
+
+.fs-slam-group__count {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+}
+
+.fs-slam-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+}
+
+.fs-slam {
+  background: var(--bg);
+  padding: 1rem 1.15rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.fs-slam__year {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  line-height: 1;
+  font-weight: 500;
+}
+.fs-slam--ao .fs-slam__year { color: var(--slam-ao); }
+.fs-slam--rg .fs-slam__year { color: var(--slam-rg); }
+.fs-slam--wim .fs-slam__year { color: var(--slam-wim); }
+.fs-slam--uso .fs-slam__year { color: var(--slam-uso); }
+.fs-slam__name {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+.fs-slam__surface {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+.fs-slam__final {
+  margin-top: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--rule);
+}
+.fs-slam__final-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.fs-slam__opponent {
+  font-family: var(--serif);
+  font-size: 1rem;
+  margin-top: 0.15rem;
+}
+.fs-slam__score {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin-top: 0.2rem;
+}
+
+/* tiers (non-slam) */
+.fs-tier {
+  margin-bottom: 1.75rem;
+}
+.fs-tier__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 0.85rem;
+  list-style: none;
+  cursor: default;
+}
+details.fs-tier__head summary,
+details.fs-tier > summary { list-style: none; }
+details.fs-tier > summary::-webkit-details-marker { display: none; }
+details.fs-tier > summary { cursor: pointer; }
+
+.fs-tier__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-family: var(--serif);
+  font-weight: 500;
+}
+.fs-tier__count {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.fs-tier__hint {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.fs-chip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+.fs-chip {
+  background: var(--bg);
+  padding: 0.55rem 0.9rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.fs-chip__year {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--clay);
+  flex-shrink: 0;
+  min-width: 2.5em;
+}
+.fs-chip__name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fs-chip__city {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.fs-chip-list--soft { background: var(--rule); }
+.fs-chip-list--soft .fs-chip { background: var(--bg-elevated); }
+.fs-chip-list--soft .fs-chip__year { color: var(--ink-muted); }
+.fs-chip-list--mastersnnn .fs-chip__year, .fs-chip-list--masters1000 .fs-chip__year { color: var(--gold); }
+.fs-chip-list--atpfinals .fs-chip__year, .fs-chip-list--wtafinals .fs-chip__year { color: var(--gold); }
+.fs-chip-list--olympicsgold .fs-chip__year { color: var(--gold); }
+
 /* roster */
 .fs-roster-hero {
   padding: 5rem 0 3rem;
@@ -335,6 +594,24 @@
   text-align: left;
   width: 100%;
 }
+
+.fs-card__photo {
+  width: 56px;
+  height: 64px;
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
+}
+.fs-card__photo img, .fs-card__photo svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.fs-card__topwrap { display: flex; gap: 0.9rem; align-items: flex-start; }
+.fs-card__topwrap > div:last-child { flex: 1; min-width: 0; }
 
 .fs-card:hover {
   background: var(--bg-elevated);

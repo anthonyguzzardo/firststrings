@@ -12,6 +12,11 @@
   --gold: #b8893a;
   --indigo: #2f3a64;
 
+  --slam-ao: #2c8fc9;
+  --slam-rg: #b85a3a;
+  --slam-wim: #355c2f;
+  --slam-uso: #1f2c5e;
+
   --serif: 'EB Garamond', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
   --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   --mono: 'SFMono-Regular', Menlo, Consolas, monospace;
@@ -34,6 +39,11 @@
     --grass: #6f9d65;
     --gold: #d4a655;
     --indigo: #6c7bb0;
+
+    --slam-ao: #4ea8d8;
+    --slam-rg: #d97a55;
+    --slam-wim: #6f9d65;
+    --slam-uso: #6b7ec0;
   }
 }
 

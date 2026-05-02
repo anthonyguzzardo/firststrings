@@ -1,0 +1,114 @@
+---
+import type { Player, Title, TitleTier } from '../lib/libPlayers';
+import { groupTitlesByTier, tierLabel, slamKeyOf, slamLabel } from '../lib/libPlayers';
+import CmpSlamCard from './cmpSlamCard.astro';
+import CmpTitleChip from './cmpTitleChip.astro';
+
+interface Props {
+  player: Player;
+}
+
+const { player } = Astro.props;
+const titles: Title[] = player.titles ?? [];
+
+if (titles.length === 0) {
+  // render nothing — caller decides whether to show empty state
+}
+
+const grouped = groupTitlesByTier(titles);
+
+// Slams further sub-grouped by tournament
+const slams = grouped.get('grand-slam') ?? [];
+const slamGroups: Record<string, Title[]> = { ao: [], rg: [], wim: [], uso: [] };
+for (const t of slams) {
+  const k = slamKeyOf(t.tournament);
+  if (k) slamGroups[k]!.push(t);
+}
+
+const featuredTiers: TitleTier[] = [
+  'olympics-gold',
+  'atp-finals', 'wta-finals',
+  'next-gen-finals',
+  'masters-1000', 'wta-1000',
+];
+
+const compactTiers: TitleTier[] = ['atp-500', 'wta-500', 'atp-250', 'wta-250', 'pre-open-major'];
+
+const totalCount = titles.length;
+const slamCount = slams.length;
+const featuredCounts = featuredTiers.map((t) => ({ tier: t, count: (grouped.get(t) ?? []).length }))
+  .filter((x) => x.count > 0);
+const compactCounts = compactTiers.map((t) => ({ tier: t, count: (grouped.get(t) ?? []).length }))
+  .filter((x) => x.count > 0);
+---
+{titles.length > 0 && (
+  <section class="fs-section fs-trophy">
+    <div class="fs-section__title">
+      <h2>Trophy Case</h2>
+      <span class="fs-eyebrow">{totalCount} career title{totalCount === 1 ? '' : 's'}</span>
+    </div>
+
+    <div class="fs-trophy__summary">
+      {slamCount > 0 && <span class="fs-tally fs-tally--slam">{slamCount} <em>Grand Slams</em></span>}
+      {featuredCounts.map(({ tier, count }) => (
+        <span class="fs-tally">{count} <em>{tierLabel(tier)}{count === 1 ? '' : 's'}</em></span>
+      ))}
+      {compactCounts.map(({ tier, count }) => (
+        <span class="fs-tally fs-tally--soft">{count} <em>{tierLabel(tier)}{count === 1 ? '' : 's'}</em></span>
+      ))}
+    </div>
+
+    {slams.length > 0 && (
+      <div class="fs-trophy__slams">
+        {(['ao', 'rg', 'wim', 'uso'] as const).map((k) => (
+          slamGroups[k].length > 0 && (
+            <div class="fs-slam-group">
+              <div class={`fs-slam-group__head fs-slam-group__head--${k}`}>
+                <span>{slamLabel(k)}</span>
+                <span class="fs-slam-group__count">{slamGroups[k].length}</span>
+              </div>
+              <div class="fs-slam-grid">
+                {slamGroups[k].map((t) => <CmpSlamCard title={t} />)}
+              </div>
+            </div>
+          )
+        ))}
+      </div>
+    )}
+
+    {featuredTiers.map((tier) => {
+      const arr = grouped.get(tier) ?? [];
+      if (arr.length === 0) return null;
+      return (
+        <div class="fs-tier">
+          <div class="fs-tier__head">
+            <h3 class="fs-tier__title">{tierLabel(tier)}</h3>
+            <span class="fs-tier__count">{arr.length}</span>
+          </div>
+          <ul class={`fs-chip-list fs-chip-list--${tier.replace(/[^a-z]/g, '')}`}>
+            {arr.map((t) => <CmpTitleChip title={t} />)}
+          </ul>
+        </div>
+      );
+    })}
+
+    {compactTiers.map((tier) => {
+      const arr = grouped.get(tier) ?? [];
+      if (arr.length === 0) return null;
+      const collapseId = `tier-${tier.replace(/[^a-z0-9]/g, '-')}`;
+      const collapse = arr.length > 8;
+      return (
+        <details class="fs-tier fs-tier--compact" open={!collapse}>
+          <summary class="fs-tier__head">
+            <h3 class="fs-tier__title">{tierLabel(tier)}</h3>
+            <span class="fs-tier__count">{arr.length}</span>
+            {collapse && <span class="fs-tier__hint">click to expand</span>}
+          </summary>
+          <ul class="fs-chip-list fs-chip-list--soft">
+            {arr.map((t) => <CmpTitleChip title={t} />)}
+          </ul>
+        </details>
+      );
+    })}
+  </section>
+)}

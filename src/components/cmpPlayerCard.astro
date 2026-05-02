@@ -1,6 +1,6 @@
 ---
 import type { Player } from '../lib/libPlayers';
-import { formatAge } from '../lib/libPlayers';
+import { formatAge, getPlayerImagePath } from '../lib/libPlayers';
 
 interface Props {
   player: Player;
@@ -12,14 +12,21 @@ const bhLabel = player.backhandStyle === 'one-handed' ? '1HBH' : '2HBH';
 const status = player.status === 'active' ? `Age ${formatAge(player.bornIso)}` : 'Retired';
 ---
 <a href={`/players/${player.slug}`} class="fs-card">
-  <div class="fs-card__top">
-    <div class="fs-card__name">{player.fullName}</div>
-    <div class="fs-card__tour">{player.tour}</div>
-  </div>
-  <div class="fs-card__meta">
-    <span>{handLabel} · {bhLabel}</span>
-    <span>{status}</span>
-    <span>{player.birthplace.split(',').slice(-1)[0]?.trim()}</span>
+  <div class="fs-card__topwrap">
+    <div class="fs-card__photo">
+      <img src={getPlayerImagePath(player)} alt="" loading="lazy" />
+    </div>
+    <div>
+      <div class="fs-card__top">
+        <div class="fs-card__name">{player.fullName}</div>
+        <div class="fs-card__tour">{player.tour}</div>
+      </div>
+      <div class="fs-card__meta">
+        <span>{handLabel} · {bhLabel}</span>
+        <span>{status}</span>
+        <span>{player.birthplace.split(',').slice(-1)[0]?.trim()}</span>
+      </div>
+    </div>
   </div>
   <div class="fs-card__slams">
     <span class="fs-card__slams-value">{player.career.grandSlams}</span>

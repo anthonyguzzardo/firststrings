@@ -2,7 +2,8 @@
 import LayBase from '../../layouts/layBase.astro';
 import CmpStatTile from '../../components/cmpStatTile.astro';
 import CmpShotPalette from '../../components/cmpShotPalette.astro';
-import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel } from '../../lib/libPlayers';
+import CmpTrophyCase from '../../components/cmpTrophyCase.astro';
+import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel, getPlayerImagePath } from '../../lib/libPlayers';
 import '../../styles/styPlayerProfile.css';
 
 const { slug } = Astro.params;
@@ -34,7 +35,11 @@ const isApprox = player.dataConfidence === 'approximate';
 ---
 <LayBase title={player.fullName} description={player.bio.slice(0, 160)}>
   <header class="fs-hero">
-    <div class="fs-container">
+    <div class="fs-container fs-hero__inner">
+      <div class="fs-hero__photo-wrap">
+        <img src={getPlayerImagePath(player)} alt={`Portrait of ${player.fullName}`} loading="eager" />
+      </div>
+      <div>
       <div class="fs-hero__tour">{player.tour} · {player.era.map(eraLabel).join(' / ')}</div>
       <h1 class="fs-hero__name">
         {player.fullName}
@@ -67,6 +72,7 @@ const isApprox = player.dataConfidence === 'approximate';
           <span class="fs-hero__meta-value">{ageOrRetired}</span>
         </div>
       </div>
+      </div>
     </div>
   </header>
 
@@ -91,6 +97,8 @@ const isApprox = player.dataConfidence === 'approximate';
         />
       </div>
     </section>
+
+    <CmpTrophyCase player={player} />
 
     <section class="fs-section">
       <div class="fs-section__title">

@@ -1,0 +1,14 @@
+---
+import type { Title } from '../lib/libPlayers';
+
+interface Props {
+  title: Title;
+}
+
+const { title } = Astro.props;
+---
+<li class="fs-chip" title={title.score ? `${title.tournament} ${title.year} — def. ${title.opponent ?? '—'} ${title.score}` : `${title.tournament} ${title.year}`}>
+  <span class="fs-chip__year">{title.year}</span>
+  <span class="fs-chip__name">{title.tournament}</span>
+  {title.city && <span class="fs-chip__city">{title.city}</span>}
+</li>

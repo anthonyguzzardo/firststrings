@@ -1,0 +1,23 @@
+---
+import type { Title } from '../lib/libPlayers';
+import { slamKeyOf } from '../lib/libPlayers';
+
+interface Props {
+  title: Title;
+}
+
+const { title } = Astro.props;
+const slamKey = slamKeyOf(title.tournament) ?? 'wim';
+---
+<article class={`fs-slam fs-slam--${slamKey}`}>
+  <div class="fs-slam__year">{title.year}</div>
+  <div class="fs-slam__name">{title.tournament}</div>
+  {title.surface && <div class="fs-slam__surface">{title.surface}</div>}
+  {title.opponent && (
+    <div class="fs-slam__final">
+      <div class="fs-slam__final-label">Final</div>
+      <div class="fs-slam__opponent">def. {title.opponent}</div>
+      {title.score && <div class="fs-slam__score">{title.score}</div>}
+    </div>
+  )}
+</article>
