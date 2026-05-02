@@ -1,6 +1,6 @@
 ---
 import type { CareerLedger, MatchRecord } from '../lib/libPlayers';
-import { formatPrizeMoneyUsd, winPct } from '../lib/libPlayers';
+import { formatPrizeMoneyUsd, winPct, formatMilesTraveled } from '../lib/libPlayers';
 
 interface Props {
   ledger: CareerLedger;
@@ -8,9 +8,10 @@ interface Props {
 }
 
 const { ledger, status } = Astro.props;
-const { prizeMoneyUsd, matchRecord, surfaceSplits, asOfIso, source } = ledger;
+const { prizeMoneyUsd, matchRecord, surfaceSplits, asOfIso, source, estimatedMilesTraveled, milesTraveledNote } = ledger;
 const hasPrize = prizeMoneyUsd !== null && prizeMoneyUsd !== undefined;
 const hasRecord = matchRecord !== null && matchRecord !== undefined;
+const hasMiles = typeof estimatedMilesTraveled === 'number' && estimatedMilesTraveled > 0;
 
 const surfaces: Array<{ key: 'hard' | 'clay' | 'grass' | 'carpet'; label: string; record?: MatchRecord }> = [
   { key: 'hard',   label: 'Hard',   record: surfaceSplits?.hard },
@@ -66,6 +67,16 @@ const asOfFormatted = asOfIso
           </div>
         ))}
       </div>
+    </div>
+  )}
+
+  {hasMiles && (
+    <div class="fs-ledger__miles">
+      <div class="fs-ledger__miles-head">
+        <span class="fs-eyebrow">Estimated miles traveled (round trips to title cities)</span>
+      </div>
+      <div class="fs-ledger__miles-value">{formatMilesTraveled(estimatedMilesTraveled!)}</div>
+      {milesTraveledNote && <p class="fs-ledger__miles-note">{milesTraveledNote}</p>}
     </div>
   )}
 

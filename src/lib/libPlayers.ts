@@ -142,8 +142,54 @@ export interface Player {
   titles?: Title[];
   equipment?: Equipment;
   ledger?: CareerLedger;
+  accessories?: Accessories;
+  quotes?: Quote[];
+  projection?: Projection;
 }
 // @endregion types
+
+// @region accessories-quotes-projection
+export interface Accessories {
+  headband?: string;
+  bandana?: string;
+  wristband?: string;
+  sleeves?: string;
+  cap?: string;
+  socks?: string;
+  notes?: string;
+  [extra: string]: unknown;
+}
+
+export interface QuoteObject {
+  text?: string;
+  quote?: string;
+  source?: string;
+  year?: number | string;
+  context?: string;
+  [extra: string]: unknown;
+}
+
+export type Quote = string | QuoteObject;
+
+export function quoteText(q: Quote): string {
+  if (typeof q === 'string') return q;
+  return q.text ?? q.quote ?? '';
+}
+
+export function quoteAttr(q: Quote): { source?: string; year?: number | string; context?: string } {
+  if (typeof q === 'string') return {};
+  return { source: q.source, year: q.year, context: q.context };
+}
+
+export interface Projection {
+  asOfIso?: string;
+  projectedSlamCeiling?: { low: number; high: number; median?: number; [extra: string]: unknown };
+  projectedYearsRemaining?: { low: number; high: number; median?: number; [extra: string]: unknown };
+  notes?: string;
+  confidence?: 'low' | 'medium' | 'high';
+  [extra: string]: unknown;
+}
+// @endregion accessories-quotes-projection
 
 // @region equipment-and-ledger
 export interface RacketSpec {
@@ -223,7 +269,15 @@ export interface CareerLedger {
   surfaceSplits?: SurfaceSplits;
   asOfIso?: string;
   source?: string | string[];
+  estimatedMilesTraveled?: number;
+  milesTraveledNote?: string;
   [extra: string]: unknown;
+}
+
+export function formatMilesTraveled(m: number): string {
+  if (m >= 1_000_000) return `${(m / 1_000_000).toFixed(2)}M mi`;
+  if (m >= 1_000) return `${Math.round(m / 1_000).toLocaleString('en-US')}K mi`;
+  return `${Math.round(m).toLocaleString('en-US')} mi`;
 }
 
 export function formatPrizeMoneyUsd(amount: number): string {

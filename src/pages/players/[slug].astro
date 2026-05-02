@@ -5,6 +5,9 @@ import CmpShotPalette from '../../components/cmpShotPalette.astro';
 import CmpTrophyCase from '../../components/cmpTrophyCase.astro';
 import CmpEquipmentBag from '../../components/cmpEquipmentBag.astro';
 import CmpCareerLedger from '../../components/cmpCareerLedger.astro';
+import CmpAccessories from '../../components/cmpAccessories.astro';
+import CmpQuotes from '../../components/cmpQuotes.astro';
+import CmpProjection from '../../components/cmpProjection.astro';
 import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel, getPlayerImagePath } from '../../lib/libPlayers';
 import '../../styles/styPlayerProfile.css';
 
@@ -104,7 +107,22 @@ const isApprox = player.dataConfidence === 'approximate';
 
     {player.ledger && <CmpCareerLedger ledger={player.ledger} status={player.status} />}
 
-    {player.equipment && <CmpEquipmentBag equipment={player.equipment} />}
+    {player.equipment && (
+      <>
+        <CmpEquipmentBag equipment={player.equipment} />
+        {player.accessories && (
+          <div class="fs-container" style="margin-top: -1rem;">
+            <CmpAccessories accessories={player.accessories} />
+          </div>
+        )}
+      </>
+    )}
+
+    {player.projection && player.status === 'active' && (
+      <CmpProjection projection={player.projection} currentSlams={player.career.grandSlams} />
+    )}
+
+    {player.quotes && player.quotes.length > 0 && <CmpQuotes quotes={player.quotes} />}
 
     <section class="fs-section">
       <div class="fs-section__title">

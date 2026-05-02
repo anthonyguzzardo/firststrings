@@ -1,0 +1,36 @@
+---
+import type { Accessories } from '../lib/libPlayers';
+
+interface Props {
+  accessories: Accessories;
+}
+
+const { accessories } = Astro.props;
+
+interface Item { label: string; value?: string; }
+const items: Item[] = [
+  { label: 'Headband', value: accessories.headband },
+  { label: 'Bandana', value: accessories.bandana },
+  { label: 'Wristband', value: accessories.wristband },
+  { label: 'Sleeves', value: accessories.sleeves },
+  { label: 'Cap', value: accessories.cap },
+  { label: 'Socks', value: accessories.socks },
+];
+const present = items.filter((i): i is Required<Item> => typeof i.value === 'string' && i.value.length > 0);
+---
+{(present.length > 0 || accessories.notes) && (
+  <div class="fs-acc">
+    <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Accessories</div>
+    {present.length > 0 && (
+      <dl class="fs-acc__list">
+        {present.map((i) => (
+          <>
+            <dt class="fs-acc__key">{i.label}</dt>
+            <dd class="fs-acc__val">{i.value}</dd>
+          </>
+        ))}
+      </dl>
+    )}
+    {accessories.notes && <p class="fs-acc__notes"><em>{accessories.notes}</em></p>}
+  </div>
+)}

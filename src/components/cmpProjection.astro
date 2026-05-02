@@ -1,0 +1,60 @@
+---
+import type { Projection } from '../lib/libPlayers';
+
+interface Props {
+  projection: Projection;
+  currentSlams: number;
+}
+
+const { projection, currentSlams } = Astro.props;
+const { projectedSlamCeiling, projectedYearsRemaining, notes, confidence, asOfIso } = projection;
+
+const asOfFormatted = asOfIso
+  ? new Date(asOfIso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  : null;
+
+const slamLow = projectedSlamCeiling?.low;
+const slamHigh = projectedSlamCeiling?.high;
+const yrsLow = projectedYearsRemaining?.low;
+const yrsHigh = projectedYearsRemaining?.high;
+---
+<section class="fs-section fs-proj">
+  <div class="fs-section__title">
+    <h2>Where This Is Going</h2>
+    <span class="fs-eyebrow">Projection · speculation</span>
+  </div>
+
+  <div class="fs-proj__grid">
+    {slamLow !== undefined && slamHigh !== undefined && (
+      <div class="fs-proj__cell">
+        <div class="fs-proj__label">Projected slam ceiling</div>
+        <div class="fs-proj__range">
+          <span class="fs-proj__low">{slamLow}</span>
+          <span class="fs-proj__sep">–</span>
+          <span class="fs-proj__high">{slamHigh}</span>
+        </div>
+        <div class="fs-proj__sublabel">currently {currentSlams}</div>
+      </div>
+    )}
+    {yrsLow !== undefined && yrsHigh !== undefined && (
+      <div class="fs-proj__cell">
+        <div class="fs-proj__label">Years projected remaining</div>
+        <div class="fs-proj__range">
+          <span class="fs-proj__low">{yrsLow}</span>
+          <span class="fs-proj__sep">–</span>
+          <span class="fs-proj__high">{yrsHigh}</span>
+        </div>
+        <div class="fs-proj__sublabel">on tour</div>
+      </div>
+    )}
+    {confidence && (
+      <div class="fs-proj__cell">
+        <div class="fs-proj__label">Confidence</div>
+        <div class={`fs-proj__confidence fs-proj__confidence--${confidence}`}>{confidence}</div>
+      </div>
+    )}
+  </div>
+
+  {notes && <p class="fs-proj__notes">{notes}</p>}
+  {asOfFormatted && <p class="fs-proj__asof">As of {asOfFormatted}</p>}
+</section>

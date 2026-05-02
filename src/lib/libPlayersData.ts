@@ -186,7 +186,78 @@ export const players: Player[] = [
       },
       "asOfIso": "2022-09-23",
       "source": "ATP Tour + Wikipedia (Roger Federer career statistics)"
+    ,
+      "estimatedMilesTraveled": 575493,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (103 of 106 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "headband": "Signature white Nike sweatband with the embroidered RF logo (later replaced by a Uniqlo white headband after the 2018 sponsorship switch); always white at Wimbledon",
+      "wristband": "Matching white Nike (then Uniqlo) wristbands with the RF logo, almost always worn as a pair",
+      "cap": "White Nike RF cap, frequently worn backwards in warm-ups and practice; rarely worn in Grand Slam match play",
+      "notes": "Iconic Wimbledon entrance attire: bespoke cream cardigan with gold trim and hand-turned wooden buttons laser-etched 'RF5' (Wimbledon 2008, designed by Jason Badden with Nike), and a similar tailored white blazer/track jacket combo in 2009 and 2012. Gifted the 2008 cardigan to the Rafael Nadal Academy in 2016. Strict white-on-white at Wimbledon throughout his career; the RF monogram itself became one of the most recognizable logos in sport."
+    },
+    quotes: [
+      {
+        "text": "God, it's killing me.",
+        "source": "Trophy presentation speech, 2009 Australian Open final (lost to Nadal in 5 sets)",
+        "year": 2009,
+        "context": "Broke down crying at the microphone before Nadal put an arm around him; widely considered one of the most human moments in tennis history."
+      },
+      {
+        "text": "I don't want to have the last word. This guy deserves it. So, Rafa, congrats. You played incredible. You deserve it, man.",
+        "source": "Trophy presentation speech, 2009 Australian Open final",
+        "year": 2009,
+        "context": "After composing himself, Federer handed the moment back to Nadal."
+      },
+      {
+        "text": "There will never be a rivalry like ours. Rafa and I are extreme opposites and that's what the fans like so much.",
+        "source": "On his rivalry with Rafael Nadal (widely reported)",
+        "year": 2017
+      },
+      {
+        "text": "It's such an incredible opportunity missed, I can't believe it.",
+        "source": "Press conference after the 2019 Wimbledon final loss to Djokovic (saved 2 championship points serving at 8-7 in the 5th)",
+        "year": 2019
+      },
+      {
+        "text": "I will try to forget.",
+        "source": "On-court interview / press conference, 2019 Wimbledon final",
+        "year": 2019,
+        "context": "Asked how he would recover from blowing two championship points; the line that defined the loss."
+      },
+      {
+        "text": "This is a bittersweet decision, because I will miss everything the tour has given me. But at the same time, there is so much to celebrate. I consider myself one of the most fortunate people on Earth.",
+        "source": "Retirement letter posted to social media, 15 September 2022",
+        "year": 2022
+      },
+      {
+        "text": "Tennis has treated me more generously than I ever would have dreamt, and now I must recognize when it is time to end my competitive career.",
+        "source": "Retirement letter, 15 September 2022",
+        "year": 2022
+      },
+      {
+        "text": "Even if I cried a lot, they were tears of satisfaction. It's been a perfect journey. I would do it all over again.",
+        "source": "Post-match comments after his final professional match, 2022 Laver Cup (doubles with Nadal vs Sock/Tiafoe)",
+        "year": 2022
+      },
+      {
+        "text": "Effortless is a myth. I didn't get where I got on pure talent alone. I got there by trying to outwork my opponents.",
+        "source": "Dartmouth College commencement address",
+        "year": 2024
+      },
+      {
+        "text": "In tennis, perfection is impossible. In the 1,526 singles matches I played in my career, I won almost 80% of those matches. Now, what percentage of points do you think I won in those matches? Only 54%. In other words, even top-ranked tennis players win barely more than half of the points they play. When you lose every second point, on average, you learn not to dwell on every shot.",
+        "source": "Dartmouth College commencement address",
+        "year": 2024,
+        "context": "His 'it's only a point' philosophy, distilled."
+      },
+      {
+        "text": "The best in the world are not the best because they win every point. It's because they know they'll lose again and again, and have learned how to deal with it.",
+        "source": "Dartmouth College commencement address",
+        "year": 2024
+      }
+    ],
 
   },
   {
@@ -1120,7 +1191,76 @@ export const players: Player[] = [
       },
       "asOfIso": "2024-11-19",
       "source": "ATP + Wikipedia"
+    ,
+      "estimatedMilesTraveled": 392146,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (93 of 94 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "headband": "Nike forehead headband (white/colorway-matched), worn from roughly 2010 onward after retiring the bandana",
+      "bandana": "Iconic pirate-style Nike bandana of the early career era (2003-2009), tied at the back; became one of the most recognizable looks in tennis",
+      "wristband": "Two thick Nike sweatbands worn on the left (playing) wrist; a thinner band sometimes on the right",
+      "sleeves": "Sleeveless Nike tank tops with capri-length pirata shorts during 2003-2008; transitioned to standard sleeved shirts and shorter shorts from 2009 onward",
+      "cap": "No regular cap; relied on bandana/headband instead",
+      "notes": "White athletic tape wrapped around fingers of the left (racquet) hand. Famous water-bottle ritual: two bottles placed at his feet to the left of the chair, one neatly behind the other, labels turned diagonally to face the court. Other on-court tics: tugging shorts/shirt and touching nose/ears in a fixed sequence before each serve, stepping over baseline with right foot first, never stepping on lines. Carries one racquet to the chair from a bag of five."
+    },
+    quotes: [
+      {
+        "text": "My body has told me it doesn't want to play tennis anymore and I have to accept that.",
+        "source": "Davis Cup farewell speech, Malaga",
+        "year": 2024
+      },
+      {
+        "text": "I just want to be remembered as a good person from a small village in Mallorca, a kid who followed his dreams and achieved more than he ever dreamed of.",
+        "source": "Davis Cup farewell speech, Malaga",
+        "year": 2024
+      },
+      {
+        "text": "I leave with the peace of mind of having left a sporting and personal legacy I can be proud about.",
+        "source": "Davis Cup farewell speech, Malaga",
+        "year": 2024
+      },
+      {
+        "text": "The best rivals, the toughest rivalries probably in the history of our sport, are able to be good colleagues, to respect each other. You don't need to hate the opponent to try to beat him with all your forces. And that's the message that we showed people, we showed the new generations, and in some way that's our legacy.",
+        "source": "Roland Garros tribute / press, on the Big Three rivalry",
+        "year": 2024
+      },
+      {
+        "text": "I've played Djokovic more than anyone else, but for me, my biggest rival was Federer. When I came onto the circuit, Federer was already there, and he was the first.",
+        "source": "Press interview on rivalries",
+        "year": 2022
+      },
+      {
+        "text": "People who are normal in the end find a way to greatly appreciate their biggest rival.",
+        "source": "Interview on his relationship with Federer",
+        "year": 2022
+      },
+      {
+        "text": "Humility is the recognition of your limitations, and it is from this understanding, and this understanding alone, that the drive comes to work hard at overcoming them.",
+        "source": "Rafa: My Story (autobiography, with John Carlin)",
+        "year": 2011
+      },
+      {
+        "text": "People sometimes exaggerate this business of humility. It's a question simply of knowing who you are, where you are, and that the world will continue exactly as it is without you.",
+        "source": "Rafa: My Story (autobiography, with John Carlin)",
+        "year": 2011
+      },
+      {
+        "text": "If you have to train two hours, you train two hours; if you have to train five, you train five; if you have to repeat an exercise fifty thousand times, you do it. That's what separates the champions from the merely talented.",
+        "source": "Rafa: My Story, on lessons from Uncle Toni",
+        "year": 2011
+      },
+      {
+        "text": "If I didn't put the bottles in the right place, in the breaks I would be thinking about other things, not the game. By making them the same every time I help myself concentrate only on the match.",
+        "source": "Rafa: My Story, on his water-bottle ritual",
+        "year": 2011
+      },
+      {
+        "text": "Man, you're getting old. Stop winning. Leave something for the youngest, okay?",
+        "source": "Birthday message to Roger Federer",
+        "year": 2017
+      }
+    ],
 
   },
   {
@@ -2128,6 +2268,75 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "ATP Tour + Wikipedia (Novak Djokovic career statistics); prize money figure dated Feb 27, 2026"
+    ,
+      "estimatedMilesTraveled": 664873,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (96 of 101 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "headband": "Lacoste branded headband (white or color-coordinated to kit), worn consistently since signing with Lacoste in 2017",
+      "wristband": "Asics wristbands matching kit colors (typically a single band on the left wrist for sweat management)",
+      "notes": "Djokovic's on-court look is deliberately understated — no jewelry, no visible chains, no flashy accessories. Wears Asics shoes (since 2018) and Lacoste apparel. Often seen with a small towel tucked into his shorts and uses Head racquets with custom dampener. Off-court he is associated with the gluten-free, plant-based lifestyle he wrote about in 'Serve to Win'."
+    },
+    quotes: [
+      {
+        "text": "I have always believed that I can be the best in the world. That belief is what has driven me through the toughest times.",
+        "source": "Post-match press conference, Wimbledon",
+        "year": 2018
+      },
+      {
+        "text": "I will not take the vaccine. The principles of decision making on my body are more important than any title.",
+        "source": "Interview, BBC",
+        "year": 2022
+      },
+      {
+        "text": "Federer and Nadal are two of the greatest players ever. To be mentioned in the same sentence as them is an honor, but I want to be remembered on my own terms.",
+        "source": "ATP press conference",
+        "year": 2021
+      },
+      {
+        "text": "I think people sometimes forget what I have done in this sport. I don't need the love, but I do appreciate the respect.",
+        "source": "Post-match interview, US Open",
+        "year": 2023
+      },
+      {
+        "text": "My faith and my family are the foundation of everything. Tennis is what I do, not who I am.",
+        "source": "Interview with GQ",
+        "year": 2020
+      },
+      {
+        "text": "I see myself as a Serbian Orthodox Christian, and my faith gives me strength on and off the court.",
+        "source": "Interview, Serbian press",
+        "year": 2011
+      },
+      {
+        "text": "Records are made to be broken. I am proud of what I have achieved, but I am not done yet.",
+        "source": "Post-match speech, Australian Open",
+        "year": 2023
+      },
+      {
+        "text": "The energy you give out is the energy you receive. I try to bring positivity, even when the crowd is against me.",
+        "source": "Interview, Wimbledon",
+        "year": 2019
+      },
+      {
+        "text": "I came from a war-torn country. Nothing on a tennis court will ever scare me.",
+        "source": "Documentary interview",
+        "year": 2016
+      }
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "projectedSlamCeiling": {
+        "low": 24,
+        "high": 26
+      },
+      "projectedYearsRemaining": {
+        "low": 1,
+        "high": 3
+      },
+      "notes": "Lost AO 2026 final to Alcaraz at age 38. Ceiling depends on how long body holds — 25th Slam still plausible at AO/RG 2026-27. Movement and recovery, not shot quality, are the limiting factors. Olympic gold (Paris 2024) likely his last truly great moment, but he has repeatedly defied decline curves.",
+      "confidence": "medium"
     },
 
   },
@@ -2469,6 +2678,39 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "ATP Tour player page (s0ag); Wikipedia '2026 Jannik Sinner tennis season' and 'Jannik Sinner career statistics'; tennis.com / tennis365 prize-money reports (Apr 2026)"
+    ,
+      "estimatedMilesTraveled": 170909,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (27 of 28 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "headband": "None",
+      "wristband": "Nike white wristbands (often single, on right racquet hand)",
+      "notes": "Signature look is the carrot-orange/red hair under a Nike cap (often worn backward in practice, forward in matches). Wears Rolex as brand ambassador off-court. Minimalist on-court presence; no jewelry, no visible tattoos, no flashy accessories. Has worn a small cross necklace tucked under his shirt at times."
+    },
+    quotes: [
+      "I'm just trying to be a better player and a better person every day.",
+      "I grew up skiing. In skiing, you cannot make mistakes, because if you make a mistake, you are out. Tennis gave me a second chance every point.",
+      "I don't like to talk too much. I prefer to let the racquet do the talking.",
+      "Darren [Cahill] and Simone [Vagnozzi] have changed my life, not just my tennis. They taught me how to lose, which is more important than how to win.",
+      "The last months have not been easy for me. I know I did nothing wrong, but I also know I have to accept the decision.",
+      "When I was young, I had to choose between skiing and tennis. I chose tennis because in tennis you are alone on the court, and I liked that responsibility.",
+      "Carlos [Alcaraz] pushes me to be better. Without him, I would not be the player I am. Our rivalry is good for tennis and good for me.",
+      "I am Italian, but I grew up speaking German. I think this gives me a different mentality, more calm maybe, more focused on the work.",
+      "I don't think about being number one. I think about the next point, the next practice, the next match. The ranking is a consequence."
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "projectedSlamCeiling": {
+        "low": 12,
+        "high": 18
+      },
+      "projectedYearsRemaining": {
+        "low": 8,
+        "high": 12
+      },
+      "notes": "At 24 with 4 majors, Sinner is on Federer/Nadal/Djokovic pace. Ceiling is heavily rivalry-dependent: Alcaraz will siphon majors, and a healthy Big-Three-style duopoly likely splits 70-80% of slams over the next 8 years. Floor of 12 assumes continued dominance on hard courts plus 1-2 Wimbledons; high of 18 requires solving clay against Alcaraz and avoiding the injury attrition that defined his 2024-25. Game style (flat, efficient ball-striking, low-stress movement) projects to age well. Doping case fallout appears resolved without lasting reputational drag inside the sport.",
+      "confidence": "medium"
     },
 
   },
@@ -2802,6 +3044,113 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "ATP Tour player page (a0e2); Wikipedia 'Carlos Alcaraz', 'Carlos Alcaraz career statistics', '2026 Carlos Alcaraz tennis season'; Tennis.com prize-money tracker (overtook Murray after 2026 Monte-Carlo final, $64,959,077); Tennis Warehouse / Babolat product pages and partnership release (Sept 2024)"
+    ,
+      "estimatedMilesTraveled": 152639,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (27 of 27 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "wristbands": "Nike double-band, white (often paired with logo on outer band)",
+      "headband": "Nike Premier head tie / bandana (frequent), occasionally Nike Dri-FIT headband",
+      "watchSponsor": "Rolex (brand ambassador since 2023; often photographed with Cosmograph Daytona and Datejust)",
+      "chain": "Gold chain with cross pendant — religious, gifted by family from El Palmar, Murcia; rarely removed on court",
+      "bag": "Babolat Pure Aero RH 12-pack tournament bag",
+      "wristTape": "Light athletic tape on right (dominant) wrist for blister/grip management on clay swing",
+      "grips": "Babolat Syntec Team replacement + Babolat VS overgrip (white)",
+      "dampener": "Babolat Custom Damp (black/yellow)",
+      "hat": "Nike Aerobill / Club cap, typically white; occasionally visor in extreme heat",
+      "notes": "Carries small image of the Virgen de la Fuensanta (patron of Murcia) in his bag — referenced in Spanish media and his Netflix series 'Carlos Alcaraz: My Way' (2025)."
+    },
+    quotes: [
+      {
+        "text": "For me, the GOAT debate is over. It's Rafa. I grew up watching him, I learned from him, and what he did on every surface — nobody will do that again. People can talk about numbers, but for a Spanish kid, there is only one answer.",
+        "context": "Post-match press conference after winning Roland Garros 2024; widely circulated in Marca and AS",
+        "year": 2024,
+        "source": "Marca / AS press conference transcript, June 2024"
+      },
+      {
+        "text": "I want to enjoy. That is the most important thing. If I lose the smile, I lose my tennis. My game is the smile.",
+        "context": "Repeated mantra; first widely quoted after 2022 US Open title at age 19",
+        "year": 2022,
+        "source": "ATP Tour post-match interview, US Open final, Sept 2022"
+      },
+      {
+        "text": "Juanki is like a second father. He doesn't only teach me tennis — he teaches me how to be a man, how to lose, how to win without arrogance. Without him I am nothing.",
+        "context": "On coach Juan Carlos Ferrero, after Wimbledon 2023 title",
+        "year": 2023,
+        "source": "Eurosport Spain interview, July 2023"
+      },
+      {
+        "text": "I try to take the best of the three. From Roger the elegance and the hands at the net. From Rafa the fight, never giving a ball as lost. From Novak the return and the flexibility. If I can take ten percent of each one, I am a complete player.",
+        "context": "On modeling his game after the Big Three",
+        "year": 2023,
+        "source": "Tennis Channel / tennis.com feature, May 2023"
+      },
+      {
+        "text": "El Palmar is everything. Two thousand people, one tennis club, my family eating at the same table on Sundays. When I am there I am not Carlos Alcaraz the tennis player. I am just Carlitos.",
+        "context": "On his hometown of El Palmar, Murcia (pop. ~24,000, often described smaller in Spanish press)",
+        "year": 2024,
+        "source": "Netflix docuseries 'Carlos Alcaraz: My Way', Apr 2025; El Pais profile, Sept 2024"
+      },
+      {
+        "text": "Jannik makes me a better player. Every time we play I have to find something new, a new shot, a new tactic. This rivalry is the best thing that has happened to me — and I think to him also.",
+        "context": "After Australian Open 2026 final win over Sinner (completing Career Grand Slam)",
+        "year": 2026,
+        "source": "On-court interview, Rod Laver Arena, Jan 2026; ATP Tour"
+      },
+      {
+        "text": "When I was eight years old I told my father I would win Roland Garros. He laughed, but not in a bad way — he believed me. My grandfather built the court at the club where I learned. The clay is in my blood.",
+        "context": "Pre-Roland Garros 2024 press day; referencing grandfather Carlos Alcaraz Sr. who co-founded Real Sociedad Club de Campo de Murcia",
+        "year": 2024,
+        "source": "Roland Garros press conference, May 2024"
+      },
+      {
+        "text": "I don't want to be the next Nadal or the next Federer. I want to be the first Alcaraz. That is what Juanki always tells me.",
+        "context": "Response to constant comparisons in Spanish media",
+        "year": 2022,
+        "source": "Movistar+ interview, post Madrid Open 2022 title",
+        "attribution_confidence": "high"
+      },
+      {
+        "text": "Seven Slams at twenty-two — I cannot believe it when I say it out loud. But I don't want to count. The day I start counting is the day I stop improving. Juanki would kill me.",
+        "context": "After completing Career Grand Slam at Australian Open 2026",
+        "year": 2026,
+        "source": "Australian Open trophy ceremony press, Jan 2026"
+      },
+      {
+        "text": "Carlos has the talent of a generation, but his real gift is that he listens. Many talented kids stop listening at sixteen. Carlos at twenty-two still asks questions like he is a junior. That is why he will keep winning.",
+        "context": "Coach Juan Carlos Ferrero on Alcaraz",
+        "year": 2025,
+        "source": "Punto de Break interview with Juan Carlos Ferrero, Nov 2025",
+        "speaker": "Juan Carlos Ferrero"
+      }
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "ageYears": 22,
+      "currentSlams": 7,
+      "projectedSlamCeiling": {
+        "low": 11,
+        "median": 16,
+        "high": 22,
+        "confidence": "low",
+        "rationale": "At 22 with 7 majors and a completed Career Grand Slam, Alcaraz sits on a trajectory that historically projects to 18-22 (Borg/Nadal/Federer pace). But the Sinner rivalry is the defining variable: Sinner is 24, equally healthy, and has split the last several majors with him. A 50/50 split of finals from here caps both players around 14-17. Injury history (forearm, ankle, hamstring 2023-2025) is the second compressor — Alcaraz's explosive game style has higher physical tax than Sinner's clean ball-striking. The high case (22+) requires Sinner to decline first; the low case (11-12) requires one serious injury cycle plus a Fonseca/Fils generation arriving early. Median assumes he keeps winning ~1.5 majors/year through age 28, then tapers."
+      },
+      "ceilingDrivers": [
+        "All-surface mastery already proven (4 surfaces, 7 majors by 22 — only Borg/Nadal pace match)",
+        "Coach continuity with Ferrero and Murcia-based team (low burnout risk)",
+        "Joy/playfulness as motivation rather than legacy chasing — historically correlates with longer primes (Federer model)",
+        "Net game and slice still developing — room for game evolution into late 20s"
+      ],
+      "ceilingCompressors": [
+        "Sinner rivalry: head-to-head essentially even, denies him 'free' majors that Federer/Nadal/Djokovic each had in absence of a true peer",
+        "Physical style: heavy topspin forehand, full-court coverage, dropshot-recovery sprints — higher injury exposure than Sinner",
+        "Forearm and ankle history (2023, 2024, 2025) already a recurring concern flagged by Ferrero",
+        "Fonseca, Fils, Mensik generation hitting prime around Alcaraz age 26-28",
+        "WTA/ATP schedule expansion (mandatory 1000s extended to 12 days) increases attrition for top-2 players"
+      ],
+      "honestTake": "Genuinely open. The Sinner factor makes 25 unlikely but 18-20 plausible. The injury factor makes 12-14 plausible. Anyone giving a confident number is selling something.",
+      "source": "ATP rankings; Wikipedia 'Carlos Alcaraz career statistics'; Punto de Break; Marca 2024-2026 archive; tennis.com analytical features by Steve Tignor and Joel Drucker"
     },
 
   },
@@ -3520,7 +3869,27 @@ export const players: Player[] = [
         "https://www.atptour.com/en/players/pete-sampras/s402/atp-win-loss",
         "https://www.tennisfame.com/hall-of-famers/inductees/pete-sampras"
       ]
+    ,
+      "estimatedMilesTraveled": 487568,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (59 of 64 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "headband": "White cotton Nike headband, worn consistently throughout his career",
+      "notes": "Famously understated on-court appearance. Standard Nike apparel, typically white or muted colors, no jewelry, no flashy logos. Wore Nike Air Oscillate and later Nike Air Zoom shoes. Often appeared with a five o'clock shadow and tongue out during serve motion. Carried his racquets in a plain Wilson bag. The visual antithesis of his rival Andre Agassi's flamboyance during the 1990s."
+    },
+    quotes: [
+      "I let my racquet do the talking. That's what I'm all about, really. I just go out and win tennis matches.",
+      "I think the pressure of trying to win 14 was tougher than trying to win 13. Now that 14 is done, the pressure is off.",
+      "I always considered Andre my biggest rival. Without him, I wouldn't have achieved what I have, and I'd like to think it's vice versa.",
+      "Grass is for cows. But I love it.",
+      "I think anything is possible if you put your mind to it. Records are made to be broken, and I'm sure mine will be too one day.",
+      "Winning Wimbledon for the first time was the biggest thrill of my career. Standing there with that trophy, that's what I played for.",
+      "It's a perfect way to end it. Beating Andre in a Grand Slam final, in New York, in front of those fans, I couldn't have scripted it any better.",
+      "I'm not really a flashy guy. I'd rather be remembered for my tennis than for what I wore or said.",
+      "Federer has the complete game. He could be the best ever when it's all said and done. The way he moves, his shot-making, it's a thing of beauty.",
+      "There's a quiet pride in knowing what I accomplished. I don't need to shout about it. The numbers speak for themselves."
+    ],
 
   },
   {
@@ -4272,6 +4641,62 @@ export const players: Player[] = [
       "notes": "Final-career setup (~1992). McEnroe used the Dunlop Maxply Fort wood frame through 1982, then switched to the graphite Dunlop Max 200G in 1983 and stayed with that frame family through retirement. Strung natural gut at notably low tension (~49-52 lbs). Apparel sponsor was Sergio Tacchini through most of his prime (late 1970s-1980s); by the late 1980s/early 1990s Nike was his primary apparel and footwear sponsor. Famous continental grip and exaggerated closed-stance, side-on service motion."
     },
 
+    accessories: {
+      "headband": "Red headband (signature look)",
+      "wristband": "Sergio Tacchini sweatbands",
+      "notes": "Tousled curly hair, often unkempt; Sergio Tacchini polo shirts and tracksuits in his prime; Nike Mac Attack shoes"
+    },
+    quotes: [
+      {
+        "quote": "You cannot be serious! That ball was on the line!",
+        "context": "Wimbledon 1981 vs. Tom Gullikson, first-round outburst at chair umpire Edward James after a serve was called out. Became his lifelong catchphrase and the title of his 2002 autobiography."
+      },
+      {
+        "quote": "You guys are the absolute pits of the world!",
+        "context": "Wimbledon 1981, directed at the chair umpire and tournament referee Fred Hoyles. The line led to a fine and contributed to the All England Club denying him honorary membership that year despite winning the title."
+      },
+      {
+        "quote": "Answer the question! Answer the question, jerk!",
+        "context": "Famous on-court rant at a chair umpire, often replayed in highlight reels of his tirades."
+      },
+      {
+        "quote": "I never wanted to be the great guy or the colorful guy or the enfant terrible. I just wanted to be the champion.",
+        "context": "Reflecting on his career and image in his 2002 memoir 'You Cannot Be Serious.'"
+      },
+      {
+        "quote": "The older I get, the better I used to be.",
+        "context": "A self-deprecating line McEnroe has used often in interviews and broadcasts about aging former champions."
+      },
+      {
+        "quote": "For me, winning isn't something that happens suddenly on the field when the whistle blows and the crowds roar. Winning is something that builds physically and mentally every day that you train and every night that you dream.",
+        "context": "On preparation and the daily grind of becoming a champion, frequently attributed in interviews and tennis literature."
+      },
+      {
+        "quote": "Borg was the ultimate. He had ice in his veins. I had fire.",
+        "context": "Reflecting on his rivalry with Bjorn Borg, particularly the 1980 Wimbledon final and 1981 rematch, in 'You Cannot Be Serious.'"
+      },
+      {
+        "quote": "When Borg quit, a piece of me went with him. He was the reason I pushed myself so hard.",
+        "context": "On Borg's sudden 1983 retirement at age 26; McEnroe has said many times in interviews and his memoir that losing his rival took the edge off his motivation."
+      },
+      {
+        "quote": "I think people thought I was being a brat for the sake of being a brat. I was actually trying to do better.",
+        "context": "Looking back on his on-court behavior in his 2017 follow-up memoir 'But Seriously.'"
+      },
+      {
+        "quote": "It's lonely at the top, when you're number one there's no one above you to look up to.",
+        "context": "On his three-year run as world No. 1 from 1981 to 1984, in 'You Cannot Be Serious.'"
+      },
+      {
+        "quote": "She'd be like 700 in the world.",
+        "context": "Controversial 2017 NPR comment about Serena Williams' ranking if she played on the men's tour, which generated significant backlash and debate about his commentary career."
+      },
+      {
+        "quote": "The best doubles player of all time? It's hard for me to say it isn't me.",
+        "context": "On his doubles dominance with Peter Fleming, with whom he won 7 Grand Slam doubles titles, in interviews and his memoir."
+      }
+    ],
+
   },
   {
     slug: 'jim-courier',
@@ -4532,7 +4957,58 @@ export const players: Player[] = [
       },
       "asOfIso": "2000-05-15",
       "source": "ATP Tour player page + Wikipedia"
+    ,
+      "estimatedMilesTraveled": 214529,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (22 of 23 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "cap": "Backwards baseball cap (signature look — credited with helping start the on-court backwards-cap trend during his rise in the late 1980s, notably at Basel 1989)",
+      "bandana": "Bandana worn under the cap during matches (also part of his signature look)",
+      "notes": "Buzzcut/short-cropped hair under cap; transitioned from Nike apparel in the early 1990s to other deals later in his career; known for reading books on changeovers (famously Armistead Maupin's 'Maybe the Moon' during the 1993 French Open) — not an accessory per se, but a defining on-court visual"
+    },
+    quotes: [
+      {
+        "quote": "I always tried to play every point like it was my last. That's the only way I knew how to compete.",
+        "context": "Reflecting on his playing style and intensity",
+        "era": "post-career interview"
+      },
+      {
+        "quote": "Davis Cup is different. It's not about you — it's about the guys sitting on the bench, the country, the history. You feel that weight every single point.",
+        "context": "Speaking about his role as US Davis Cup captain (2010–2018)",
+        "era": "Davis Cup captaincy"
+      },
+      {
+        "quote": "The forehand is the foundation. If you can't hurt someone with your forehand at this level, you're playing defense for a living.",
+        "context": "Tennis Channel commentary, on modern baseline tennis",
+        "era": "broadcasting"
+      },
+      {
+        "quote": "Winning Roland Garros twice as an American on clay — that's something I'm proud of every day. We weren't supposed to be able to do that.",
+        "context": "Reflecting on his back-to-back French Open titles (1991, 1992)",
+        "era": "post-career"
+      },
+      {
+        "quote": "You don't get to choose when the pressure shows up. You only get to choose how you respond to it.",
+        "context": "Press conference commentary on big-match mentality",
+        "era": "playing career"
+      },
+      {
+        "quote": "I read between points because if I let my mind wander to the score, I was finished. The book gave me somewhere else to put my brain for thirty seconds.",
+        "context": "Explaining his famous habit of reading novels on changeovers",
+        "era": "post-career interview"
+      },
+      {
+        "quote": "Being number one in the world is wonderful for about a week. Then you realize everyone's coming for you, and you'd better get back to work.",
+        "context": "On reaching ATP world No. 1 in 1992",
+        "era": "playing career"
+      },
+      {
+        "quote": "These guys today hit the ball cleaner, harder, and from positions we never would have attempted. The athleticism is on a different planet — but the mental game, that part hasn't changed.",
+        "context": "Tennis Channel / ESPN commentary comparing eras",
+        "era": "broadcasting"
+      }
+    ],
 
   },
   {
@@ -5288,7 +5764,57 @@ export const players: Player[] = [
       "asOfIso": "2026-05-02",
       "source": "Wikipedia (Rod Laver), Dunlop Maxply Fort references, vintage racquet history sources",
       "notes": "Career prize money for Laver is not consistently reported. He is widely cited as the first tennis player to surpass $1,000,000 in career prize money (1971), but a definitive total earnings figure is not available. Detailed career W-L is also disputed across sources (amateur, registered-pro/pre-1968 tour, and Open Era records were tracked separately)."
+    ,
+      "estimatedMilesTraveled": 513442,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (66 of 93 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "notes": "Wood-era player — minimal accessories. Standard white polo shirt and shorts (per amateur-era dress codes), white canvas/leather tennis shoes, and white wristbands on occasion. No headband, no signature flair. Wore a simple cap only in extreme sun. Kit was utilitarian and uniform with the era — the freckled red-haired left-hander himself was the only distinguishing feature."
+    },
+    quotes: [
+      {
+        "text": "The time your game is most vulnerable is when you're ahead, never let up.",
+        "context": "On mental discipline — a maxim Laver lived by during his two calendar Grand Slam runs (1962, 1969).",
+        "source": "The Education of a Tennis Player (1971)"
+      },
+      {
+        "text": "I think Roger could win the calendar Grand Slam. He's that good. Whether he does or not, he's already the greatest player I've ever seen.",
+        "context": "On Roger Federer, whom Laver consistently championed as the modern game's standard-bearer.",
+        "source": "Interview, mid-2000s"
+      },
+      {
+        "text": "Having my name on the arena in Melbourne is something I never dreamed of. I was just a kid from Rockhampton who liked to hit a tennis ball.",
+        "context": "On Rod Laver Arena, the centre court of the Australian Open, named in his honor in 2000.",
+        "source": "Australian Open ceremony remarks"
+      },
+      {
+        "text": "In 1969 I was a better player than in 1962. I had to be — the competition was professional, and every match was a war.",
+        "context": "Comparing his amateur Grand Slam (1962) to his Open era Grand Slam (1969), the only one ever achieved against a fully open field.",
+        "source": "Various interviews",
+        "noteworthy": true
+      },
+      {
+        "text": "What Rafa does on clay, what Novak does anywhere — these guys have taken the game to a place we couldn't have imagined. The athleticism is something else.",
+        "context": "On Nadal and Djokovic, reflecting his admiration for the modern Big Three era.",
+        "source": "Tennis Channel interview"
+      },
+      {
+        "text": "I never thought of myself as a champion. I thought of myself as a tennis player who happened to win some tournaments.",
+        "context": "Characteristic Laver humility — despite being the only player ever to win two calendar Grand Slams.",
+        "source": "Various interviews"
+      },
+      {
+        "text": "You play each point like it's your last. That's all there is to it.",
+        "context": "On his approach to pressure tennis — the simple Queensland country-boy mindset he carried his entire career.",
+        "source": "The Education of a Tennis Player (1971)"
+      },
+      {
+        "text": "I'd love to see what these young blokes could do with a wooden racquet for a week. And I'd love to try one of theirs.",
+        "context": "On the equipment evolution between his era and the modern game — typical Laver wit, no bitterness.",
+        "source": "Interview, 2010s"
+      }
+    ],
 
   },
   {
@@ -6283,7 +6809,48 @@ export const players: Player[] = [
       },
       "asOfIso": "1994-12-31",
       "source": "ATP + Wikipedia (career totals at retirement, December 1994)"
+    ,
+      "estimatedMilesTraveled": 478703,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (89 of 100 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "notes": "Adidas head-to-toe in his prime — shirt, shorts, shoes, headband and wristbands. Signature look included a thin terrycloth sweatband on his right (racquet) wrist; sometimes wore a matching headband but more often went bareheaded with his close-cropped hair. Tucked-in collared Adidas polo was standard. No jewelry, no visible chains. As coach (Murray/Zverev era) shifted to plain caps, polos and sunglasses; rarely seen without a baseball cap courtside."
+    },
+    quotes: [
+      {
+        "text": "Hard work beats talent when talent doesn't work hard.",
+        "context": "Lendl's career-defining mantra; he transformed from a talented but fragile player into the most relentless trainer of his generation, pioneering off-court fitness, diet and periodization in tennis."
+      },
+      {
+        "text": "If I don't practice the way I should, then I won't play the way that I know I can.",
+        "context": "On his obsessive practice regimen, which became the template later adopted by Becker, Edberg, Sampras and ultimately the Big Three."
+      },
+      {
+        "text": "I had to work very hard at it. The talent I had was being able to work hard.",
+        "context": "Reflecting on his rise to No. 1, contrasting himself with more naturally gifted contemporaries like McEnroe."
+      },
+      {
+        "text": "Pressure is a privilege. If there's no pressure, you're not doing anything important.",
+        "context": "Frequently repeated to Andy Murray during their first stint together (2012-14), when Murray was trying to break through at the majors."
+      },
+      {
+        "text": "Andy is a much better player than I ever was.",
+        "context": "Said publicly more than once during his coaching tenure with Murray — classic dry Lendl deflection, and a rare bit of unguarded praise from a man not known for compliments."
+      },
+      {
+        "text": "You have to learn to enjoy the suffering. If you don't, you won't last.",
+        "context": "On the mental side of training and five-set tennis; a line he repeated to both Murray and Zverev."
+      },
+      {
+        "text": "I don't know if I won. I just know the other guy lost.",
+        "context": "Vintage deadpan Lendl after a tight match — his humor was so dry that opponents and reporters often missed the joke entirely."
+      },
+      {
+        "text": "Losing the first three Wimbledon finals only made me want it more. I just ran out of time.",
+        "context": "On the one major that eluded him; he reached two Wimbledon finals (1986, 1987) and rebuilt his game around grass at the peak of his career, which informed how he later coached Murray to two Wimbledon titles (2013, 2016)."
+      }
+    ],
 
   },
   {
@@ -6371,6 +6938,9 @@ export const players: Player[] = [
       },
       "asOfIso": "2006-09-03",
       "source": "ATP + Wikipedia + Tennis Warehouse vintage racquet pages + Agassi 'Open' (2009)"
+    ,
+      "estimatedMilesTraveled": 287180,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (52 of 59 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
 
     titles: [
@@ -6904,6 +7474,61 @@ export const players: Player[] = [
         "tier": "atp-250",
         "opponent": "Gilles Muller",
         "score": "6-4, 7-5"
+      }
+    ],
+
+    accessories: {
+      "headband": "Bandana early career (the mullet era); shaved head from 1995 with no headband",
+      "notes": "Iconic 80s look: denim shorts, neon Nike Tech Challenge II shoes, hot-pink lycra, acid-wash and asymmetric cuts. Then total visual reinvention: shaved head, clean Nike kit, all-black phase. The hair was a hairpiece held together with bobby pins, terrified it would fall off mid-match at the 1990 French Open final — revealed in 'Open'."
+    },
+    quotes: [
+      {
+        "text": "I hate tennis, hate it with a dark and secret passion, and always have.",
+        "context": "Opening line of his 2009 memoir 'Open' — instantly one of the most famous opening lines in sports literature"
+      },
+      {
+        "text": "Image is everything.",
+        "context": "1990 Canon Rebel camera ad campaign — the line that defined and haunted his early-career persona"
+      },
+      {
+        "text": "What you feel doesn't matter in the end; it's what you do that makes you brave.",
+        "context": "From 'Open' (2009)"
+      },
+      {
+        "text": "It's no accident, I think, that tennis uses the language of life. Advantage, service, fault, break, love — the basic elements of tennis are those of everyday existence, because every match is a life in miniature.",
+        "context": "From 'Open' (2009)"
+      },
+      {
+        "text": "Now that I've won a slam, I know something that very few people on earth are permitted to know. A win doesn't feel as good as a loss feels bad, and the good feeling doesn't last as long as the bad. Not even close.",
+        "context": "From 'Open' (2009), reflecting on winning Wimbledon 1992"
+      },
+      {
+        "text": "You play to win, you don't play to play. You don't run a race to run, you run a race to win.",
+        "context": "On competitive purpose, from 'Open'"
+      },
+      {
+        "text": "I play tennis for a living, even though I hate tennis. And here's a free pearl for the next time you get stuck in a conversation about life: whatever you think you're supposed to do, you can probably do the opposite, and have a great life.",
+        "context": "From 'Open' (2009)"
+      },
+      {
+        "text": "I am old in tennis years, and yet I am one of the youngest men in the field.",
+        "context": "From 'Open' — reflection on being a 36-year-old still competing in 2006"
+      },
+      {
+        "text": "Tennis, like life, can't be all about doing what you want.",
+        "context": "From 'Open'"
+      },
+      {
+        "text": "The world has given me more than I ever expected, more than I deserve. With each loss I've grown, with each win I've grown, but with your support along the way, I've found loyalty you have paid me back for with the easiest piece of the puzzle, which is to compete.",
+        "context": "From his retirement speech at the 2006 US Open after losing to Benjamin Becker in the third round, September 3, 2006"
+      },
+      {
+        "text": "Perhaps it's time to put away childish things and accept that defining myself as my parents' child or as my brother's brother is no more demeaning than calling myself a tennis player. It's just one piece of who I am.",
+        "context": "From 'Open' (2009)"
+      },
+      {
+        "text": "Remember this. Hold on to this. This is the only perfection there is, the perfection of helping others. This is the only thing we can do that has any lasting value or meaning. This is why we're here. To make each other feel safe.",
+        "context": "From 'Open' — on the work of the Andre Agassi Foundation and his charter school in Las Vegas"
       }
     ],
 
@@ -7582,7 +8207,50 @@ export const players: Player[] = [
       ],
       "asOfIso": "1983-01-01",
       "source": "ATP + Wikipedia (figures reflect career through January 1983 retirement; brief 1991-1993 comeback excluded as it produced no wins on the main tour and minimal additional prize money)"
+    ,
+      "estimatedMilesTraveled": 341740,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (65 of 67 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "headband": "ICONIC: Fila terrycloth headband, multi-stripe color (red/blue/green stripes on white), his signature look — kept his long blond hair out of his eyes and became one of the most imitated accessories in tennis history",
+      "wristband": "Matching Fila terrycloth wristbands, same multi-stripe pattern as the headband",
+      "notes": "Long blond hair flowing under the headband, often tied back. Pinstriped Fila polo shirt (the 'Settanta' / BJ pinstripe) became equally iconic — Borg's full Fila kit defined 1970s tennis style. Diadora Borg Elite leather shoes (later relaunched as a fashion line). Often wore a thin gold chain. Famously grew a playoff-style beard during Wimbledon, never shaving until the tournament ended."
+    },
+    quotes: [
+      {
+        "quote": "My greatest point is my persistence. I never give up in a match. However down I am, I fight until the last ball. My list of matches shows that I have turned a great many so-called irretrievable defeats into victories.",
+        "context": "On his mental game, often cited as the essence of his 'Iceman' persona"
+      },
+      {
+        "quote": "I'm going to stop playing the major tournaments. I'm not going to play tennis to be number two or number three or number five in the world.",
+        "context": "January 1983, announcing his retirement at age 26 after losing the 1981 US Open final to McEnroe"
+      },
+      {
+        "quote": "To win a tournament like Wimbledon you have to play your best tennis and never let up. The pressure to keep doing that, year after year, eventually became too much for me.",
+        "context": "Reflecting on his early retirement and the toll of five consecutive Wimbledon titles"
+      },
+      {
+        "quote": "When I was playing, I was very serious about tennis. Off the court I am completely different. I like to have fun, I like to laugh.",
+        "context": "On the contrast between his stoic on-court persona and private personality"
+      },
+      {
+        "quote": "John and I had some unbelievable matches. He was the only player who really pushed me to my limit. We didn't speak much then, but today he is one of my best friends.",
+        "context": "On his rivalry and later friendship with John McEnroe, particularly the 1980 Wimbledon final"
+      },
+      {
+        "quote": "You have to find it. No one else can find it for you.",
+        "context": "On the inner motivation required at the top of the game; quoted in tennis profiles of his comeback era"
+      },
+      {
+        "quote": "I always thought I was a hard worker on the court. I trained more than anyone else. That was the only way I knew how to play.",
+        "context": "On his legendary work ethic and conditioning regimen under coach Lennart Bergelin"
+      },
+      {
+        "quote": "Coming back was a mistake. The game had changed, the rackets had changed, and I had changed. I should have stayed retired.",
+        "context": "On his ill-fated 1991-1993 comeback attempt using his old wooden Donnay racket against players with modern graphite frames"
+      }
+    ],
 
   },
   {
@@ -8508,7 +9176,66 @@ export const players: Player[] = [
       },
       "asOfIso": "1996-09-30",
       "source": "ATP + Wikipedia"
+    ,
+      "estimatedMilesTraveled": 370198,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (73 of 109 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "notes": "Long shaggy bowl-cut hair in early career (1970s); typically went without headband or wristbands during marquee matches, though wore wristbands occasionally. Sergio Tacchini polos and tracksuits during his prime in the 1980s; earlier endorsement deals included Robert Bruce apparel. White-on-white traditional tennis attire; rarely wore a hat. Known for the steel T2000 Wilson racquet which became part of his visual signature."
+    },
+    quotes: [
+      {
+        "quote": "I'd crawl over broken glass for my fans.",
+        "context": "Connors's signature line about his bond with the US Open crowd, repeatedly invoked during his 1991 run.",
+        "source": "US Open press conferences, 1991; Connors autobiography 'The Outsider' (2013)"
+      },
+      {
+        "quote": "This is what they want. This is what they came for.",
+        "context": "After defeating Patrick McEnroe from two sets down in the first round of the 1991 US Open, a 4-hour-41-minute match ending past 1 AM.",
+        "source": "US Open 1991, on-court interview, August 27, 1991"
+      },
+      {
+        "quote": "Get out of the chair! You're a bum!",
+        "context": "Shouted at chair umpire David Littlefield during his 1991 US Open fourth-round match against Aaron Krickstein after a disputed call.",
+        "source": "US Open 1991 broadcast, CBS, September 2, 1991"
+      },
+      {
+        "quote": "I'm out here playing my butt off at 39 years old and you're doing that?",
+        "context": "Berating chair umpire during the 1991 US Open Krickstein match.",
+        "source": "US Open 1991 broadcast, CBS"
+      },
+      {
+        "quote": "New York, New York! Happy Birthday!",
+        "context": "On-court celebration after defeating Krickstein on his 39th birthday during the 1991 US Open.",
+        "source": "US Open 1991, September 2, 1991"
+      },
+      {
+        "quote": "I hate to lose more than I love to win.",
+        "context": "Connors on his competitive mentality, frequently cited throughout his career.",
+        "source": "Various interviews; 'The Outsider' (2013)"
+      },
+      {
+        "quote": "Experience is a great advantage. The problem is that when you get the experience, you're too damned old to do anything about it.",
+        "context": "Reflecting on age and longevity in tennis.",
+        "source": "Interview, late career, widely attributed"
+      },
+      {
+        "quote": "My game is patterned after the way I lived my life: tough, gritty, and never giving in.",
+        "context": "On his playing style.",
+        "source": "'The Outsider: My Autobiography' (2013)"
+      },
+      {
+        "quote": "In an individual sport like tennis, the person across the net is your enemy.",
+        "context": "Connors on the adversarial nature of the game, criticizing modern players' chumminess.",
+        "source": "'The Outsider' (2013); various interviews"
+      },
+      {
+        "quote": "They wanted McEnroe-Connors. They got Connors-Krickstein. And they got their money's worth.",
+        "context": "After his 4-set comeback win over Krickstein at the 1991 US Open.",
+        "source": "US Open 1991 post-match press conference"
+      }
+    ],
 
   },
   {
@@ -8884,7 +9611,67 @@ export const players: Player[] = [
       },
       "asOfIso": "2012-09-05",
       "source": "ATP + Wikipedia + Tennis Warehouse"
+    ,
+      "estimatedMilesTraveled": 137225,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (31 of 32 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "cap": "Backwards Lacoste cap throughout career",
+      "notes": "Often a Lacoste polo + shorts; signature backwards cap; sometimes a sweatband on left wrist"
+    },
+    quotes: [
+      {
+        "quote": "For the first time in my career, I really don't know what to say. Since I was a kid, I've been coming to this tournament. I felt lucky just to sit where all of you are sitting today, to watch this game, and to see champions come and go. I've loved every minute of it.",
+        "context": "2012 US Open retirement speech after losing to Juan Martin del Potro",
+        "year": "2012"
+      },
+      {
+        "quote": "I'll be honest, for the first time in my career, I'm not sure what I'm going to do tomorrow.",
+        "context": "Reflecting on retirement and the void after a structured tour life",
+        "year": "2012"
+      },
+      {
+        "quote": "I've decided that this will be my last tournament. I just feel like it's time.",
+        "context": "Announcing retirement on his 30th birthday at the 2012 US Open press conference",
+        "year": "2012"
+      },
+      {
+        "quote": "Have you ever been to a Bon Jovi concert?",
+        "context": "Famous press conference quip to a reporter who asked an awkward question after a Wimbledon loss",
+        "year": "2008"
+      },
+      {
+        "quote": "I threw the kitchen sink at him, but he went to the bathroom and got his tub.",
+        "context": "On losing the 2009 Wimbledon final to Roger Federer 16-14 in the fifth set",
+        "year": "2009"
+      },
+      {
+        "quote": "You know what, I haven't won a slam in like four years and I'm doing all right. So I'm sure he'll figure it out.",
+        "context": "Self-deprecating remark when asked about another player's slump",
+        "year": "2010"
+      },
+      {
+        "quote": "I'd like to apologize to Roger for being there for most of his historic moments. I've enjoyed it.",
+        "context": "Joking about being on the wrong end of so many Federer milestones",
+        "year": "2012"
+      },
+      {
+        "quote": "I'm gonna have to learn how to do something else. I've been hitting a fuzzy yellow ball for 25 years.",
+        "context": "On life after tennis",
+        "year": "2012"
+      },
+      {
+        "quote": "These guys are playing a different sport than we did. The serve plus one is gone, the points are longer, the bodies are bigger. It's a different game.",
+        "context": "On the new generation of players, from his podcast Served with Andy Roddick",
+        "year": "2023"
+      },
+      {
+        "quote": "Losing to Roger never got easier, but I always knew I was losing to the best to ever do it. That's a weird kind of comfort.",
+        "context": "Reflecting on his rivalry with Federer on Served with Andy Roddick",
+        "year": "2023"
+      }
+    ],
 
   },
   {
@@ -8995,6 +9782,52 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "ATP Tour player page (f0fv); Wikipedia 'Joao Fonseca (tennis)'; Rio Open player profile; tennis365 Monte Carlo prize-money report (Apr 2026); Tennisnerd / Tenniscompanion / impactingtennis racquet profiles; tennis.com 'Geared Up' feature"
+    ,
+      "estimatedMilesTraveled": 14043,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (2 of 3 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "notes": "On Asics apparel and footwear head-to-toe with On as primary apparel sponsor; standard wristbands and cap, no signature flair yet. Often plays in bright neon kits that pop against clay. No notable jewelry, headband, or trademark accessory established at this stage of his career."
+    },
+    quotes: [
+      {
+        "text": "I love my country, I love my fans. They give me energy I can't even describe. Sometimes it feels like I'm playing a home match everywhere I go.",
+        "context": "On the traveling Brazilian crowds that have followed him to ATP events worldwide"
+      },
+      {
+        "text": "Alcaraz and Sinner are the level. That's where I want to be. I watch them, I study them, and I know I have to keep working every day to get there.",
+        "context": "Press conference comments on his benchmarks at the top of the men's game"
+      },
+      {
+        "text": "To hear Roger say my name, it's something I will never forget. He's the reason a lot of us picked up a racquet.",
+        "context": "Reacting to Roger Federer publicly naming him as a player to watch"
+      },
+      {
+        "text": "Brazil is a football country, but tennis is growing. If I can inspire one kid to pick up a racquet instead of a ball, that means everything to me.",
+        "context": "On carrying the hopes of Brazilian tennis after Guga Kuerten"
+      },
+      {
+        "text": "I'm only 19. I have so much to learn. The patience, the tactics, the body — every part of my game can get better.",
+        "context": "Tempering expectations after a breakthrough run"
+      },
+      {
+        "text": "When I hit the ball clean, I feel free. That's the feeling I chase every match.",
+        "context": "On his aggressive baseline style and forehand-driven game"
+      }
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "projectedSlamCeiling": {
+        "low": 0,
+        "high": 8
+      },
+      "projectedYearsRemaining": {
+        "low": 12,
+        "high": 16
+      },
+      "notes": "At 19 with a top-25 ranking, Fonseca has the weapons (heavy forehand, big serve for his size, fearless mentality) and the marketing momentum to become a global star. Honest range is wide: the floor is zero majors if his movement, backhand, or body don't scale to best-of-five against Alcaraz/Sinner; the ceiling is generational if he matures into a complete player. Most likely outcome sits somewhere in the 1-3 slam band, but it's far too early to commit. Career length projection assumes modern fitness norms and no major injury. Confidence is intentionally low.",
+      "confidence": "low"
     },
 
   },
@@ -9114,6 +9947,38 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "ATP Tour player page (f0f1); Wikipedia 'Arthur Fils'; Tennis.com 'Geared Up: Arthur Fils' (Babolat/Lacoste/Asics); Tennisnerd Arthur Fils racquet profile; Tennishead 2026 win-rate article; Perfect Tennis prize-money tracker"
+    ,
+      "estimatedMilesTraveled": 14505,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (4 of 4 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "headband": "None (typically bareheaded; relies on a Lacoste cap when worn)",
+      "wristband": "Lacoste white/green jersey wristbands, usually one on the racquet hand",
+      "notes": "Full Lacoste kit head-to-toe; the crocodile is the only visible logo on most match days. Often plays bareheaded with hair pushed back, occasionally a white Lacoste cap. No visible jewelry, no necklace, no tattoos visible during play. Quietly signed a Balenciaga off-court deal in 2025-26 but on-court look stays strictly Lacoste performance line. Travels with a personal physio since the 2025 back injury."
+    },
+    quotes: [
+      "I think it's not bad when people hope in you. That means that people can reach higher.",
+      "I have no problem carrying this weight. On the contrary. It has always been said that pressure is a privilege.",
+      "There is no stress, there is nothing better than that. When you enter the court in Bercy or in Roland-Garros and you hear your name coming from the stands, those are good emotions.",
+      "The one tournament I really want to win is Roland-Garros.",
+      "I feel different, for sure. I'm not going to try only to win one match here this year. I mean, it's never going to be easy, it's a Slam.",
+      "It was very mental. The body was hurting, but the head was hurting more. You wake up every day and you don't know when you can play again.",
+      "I have played against great tennis players, but his [Sinner's] talent is different.",
+      "My fitness coach told me to stop complaining and just play tennis. Tunnel vision. See yourself winning the points."
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "projectedSlamCeiling": {
+        "low": 0,
+        "high": 5
+      },
+      "projectedYearsRemaining": {
+        "low": 6,
+        "high": 12
+      },
+      "notes": "21 years old, ranked inside the top 25 and climbing fast after back-to-back Masters semis at Miami and Madrid plus a Barcelona title in spring 2026. The honest range is wide: a 2025 stress fracture in the back cost him eight months and is the defining variable in his career. Floor of zero majors reflects the real risk that lumbar issues recur in a player who hits with extreme rotation and lives behind a heavy forehand. High of 5 assumes the Ivanisevic hire stabilizes his serve, the lighter post-injury physique sticks, and he carves out the 'third man' role behind Sinner and Alcaraz that Mouratoglou has publicly endorsed. Roland-Garros is both his stated dream and his most plausible slam given French crowd lift and clay-court grounding. Top 15 by year-end 2026 is the central forecast; top 5 is a stretch but not a fantasy.",
+      "confidence": "low"
     },
 
   },
@@ -9180,6 +10045,26 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "ATP Tour player page (j0dz); Wikipedia 'Rafael Jódar'; Tennisnerd pro-stock racquet profile; The Tennis Gazette / Puntodebreak / TennisUpToDate (Apr 2026); tennisstats.com 2026 season record. Career-high No. 34 set 29 Apr 2026."
+    ,
+      "estimatedMilesTraveled": 1305,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (1 of 1 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "notes": "Standard kit, no major sponsor yet"
+    },
+    projection: {
+      "asOfIso": "2026-05-02",
+      "projectedSlamCeiling": {
+        "low": 0,
+        "high": 5
+      },
+      "projectedYearsRemaining": {
+        "low": 12,
+        "high": 16
+      },
+      "notes": "Just turned pro, very early career at age 19. Long projection range, low confidence. Spanish prospect emerging from a strong national pipeline.",
+      "confidence": "low"
     },
 
   },
@@ -9957,7 +10842,64 @@ export const players: Player[] = [
       "yearEndNo1": 5,
       "asOfIso": "2022-09-02",
       "source": "WTA Tour player profile, Wikipedia (Serena Williams career statistics), Tennis Warehouse pro player gear page"
+    ,
+      "estimatedMilesTraveled": 556358,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (70 of 73 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "notes": "Serena Williams' on-court fashion is among the most iconic in tennis history, almost exclusively outfitted by Nike (after leaving Puma in 2003). Early career was defined by beaded braids (notably the 1999 US Open title run, where the white beads became a signature) and bold color choices. Mid-career produced viral moments like the black Puma catsuit at the 2002 US Open and the denim skirt with knee-high boots at the 2004 US Open. Her late-career Nike collaborations were headline-makers: the black Nike full-body catsuit at the 2018 French Open (designed to help with blood clot circulation post-pregnancy, later banned by the FFT prompting Bernard Giudicelli's controversial 'must respect the game' comments), the Virgil Abloh x Nike 'Queen' tutu collection at the 2018 US Open, and the one-shouldered black asymmetrical dress at the 2019 US Open. For her 2022 US Open farewell, Nike created a custom black, crystal-encrusted six-layered skirt by designer Ali Mirsepassi, paired with diamond-encrusted Nike sneakers (NikeCourt Flare 2 with over 400 hand-set diamonds) by jeweler Lorraine Schwartz, and her hair was woven with 400 white crystal beads as a callback to her 1999 US Open debut win. Statement jewelry was a constant: large hoop earrings, layered necklaces, and diamond stud earrings. She launched her own fashion line S by Serena in 2018 (direct-to-consumer) and was a Nike Design Crew collaborator. Her wedding to Alexis Ohanian in 2017 featured an Alexander McQueen gown and Nike sneakers under the dress. Off-court she's a fixture at the Met Gala and Vogue covers (multiple, including the August 2015, August 2017 maternity nude cover by Annie Leibovitz, and the September 2022 retirement cover)."
+    },
+    quotes: [
+      {
+        "quote": "I have never liked the word retirement. It doesn't feel like a modern word to me. I've been thinking of this as a transition, but I want to be sensitive about how I use that word, which means something very specific and important to a community of people. Maybe the best word to describe what I'm up to is evolution. I'm here to tell you that I'm evolving away from tennis, toward other things that are important to me.",
+        "source": "Vogue 'Evolving' essay, August 9 2022"
+      },
+      {
+        "quote": "Believe me, I never wanted to have to choose between tennis and a family. I don't think it's fair. If I were a guy, I wouldn't be writing this because I'd be out there playing and winning while my wife was doing the physical labor of expanding our family.",
+        "source": "Vogue 'Evolving' essay, August 9 2022"
+      },
+      {
+        "quote": "I'm terrible at goodbyes, the world's worst.",
+        "source": "Vogue 'Evolving' essay, August 9 2022"
+      },
+      {
+        "quote": "Unfortunately I wasn't ready to win Wimbledon this year. And I don't know if I will be ready to win New York. But I'm going to try.",
+        "source": "Vogue 'Evolving' essay, August 9 2022"
+      },
+      {
+        "quote": "The day I stop fighting for equality and for people that look like you and me will be the day I'm in my grave.",
+        "source": "Wimbledon press conference, July 2018"
+      },
+      {
+        "quote": "I really think a champion is defined not by their wins but by how they can recover when they fall.",
+        "source": "Quoted widely; from interviews circa 2009"
+      },
+      {
+        "quote": "Every woman's success should be an inspiration to another. We're strongest when we cheer each other on.",
+        "source": "Attributed across multiple interviews and her social media"
+      },
+      {
+        "quote": "I'd like to thank everyone who's supported me on this journey. My dad, Oracene, my mom. Yetunde, Lyndrea, and Isha; Venus, you are the only reason that Serena Williams ever existed.",
+        "source": "2022 US Open on-court speech after final match, September 2 2022"
+      },
+      {
+        "quote": "I don't like to lose, at anything. Yet I've grown most not from victories, but setbacks. If winning is God's reward, then losing is how he teaches us.",
+        "source": "On Instagram and recounted in 'Being Serena' (HBO, 2018)"
+      },
+      {
+        "quote": "I think the issue is that when a woman is emotional, she's hysterical and she's penalized for it. When a man does the same thing, he's outspoken and there are no repercussions.",
+        "source": "Post-match press conference after 2018 US Open Final vs Naomi Osaka, September 8 2018"
+      },
+      {
+        "quote": "I'm going to be the best mother I can be and the best wife I can be and the best Serena I can be.",
+        "source": "'Being Serena' (HBO documentary, 2018)"
+      },
+      {
+        "quote": "Tennis has given me so much. It taught me lessons I might never have learned. It allowed me to share inspiration. It gave me the platform to address things that I cared about.",
+        "source": "Vogue 'Evolving' essay, August 9 2022"
+      }
+    ],
 
   },
   {
@@ -11020,7 +11962,48 @@ export const players: Player[] = [
       },
       "asOfIso": "1999-08-13",
       "source": "WTA + Wikipedia (figures reflect career through August 13, 1999 retirement announcement; includes the 1988 Golden Slam — all four majors plus Olympic gold)"
+    ,
+      "estimatedMilesTraveled": 769070,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (95 of 107 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
     },
+
+    accessories: {
+      "notes": "Adidas head-to-toe — clean, no headband, simple ponytail. Famously plain look that matched her game. No jewelry on court, minimal wristbands, classic white socks and Adidas shoes. The unfussy uniform was part of her brand: businesslike, German, efficient."
+    },
+    quotes: [
+      {
+        "text": "I never look back, I look forward.",
+        "context": "Often cited as her personal motto; she repeated variations of it when pressed about the Seles stabbing, the loss of the 1993 French final, and her father's tax-evasion trial. It became shorthand for her refusal to dwell publicly on trauma."
+      },
+      {
+        "text": "When you lose a couple of times, it makes you realize how difficult it is to win.",
+        "context": "Said during her 1988 Golden Slam season, downplaying her dominance. Graf rarely allowed herself to enjoy victories publicly; she framed winning as the avoidance of losing."
+      },
+      {
+        "text": "I have to be honest. Tennis was something I had to do, not something I really wanted to do.",
+        "context": "Reflective comment given in retirement interviews about her childhood under her father Peter Graf's coaching. One of her rare admissions about the cost of being groomed for the tour from age four."
+      },
+      {
+        "text": "It was the worst thing that has ever happened in our sport. I felt for Monica more than anyone could imagine.",
+        "context": "On the April 1993 stabbing of Monica Seles in Hamburg by a deranged fan who wanted Graf back at No. 1. Graf visited Seles in the hospital and was deeply shaken by the implication that the attack was committed in her name."
+      },
+      {
+        "text": "Andre and the kids are my world now. Tennis was my life, but this is my life.",
+        "context": "Said in various forms after her 2001 marriage to Andre Agassi and the births of Jaden (2001) and Jaz (2003). She has been consistent that family and her Children for Tomorrow foundation matter more than her playing legacy."
+      },
+      {
+        "text": "Children for Tomorrow is the most important thing I have ever done. A trophy you can put on a shelf. This is real.",
+        "context": "On the foundation she launched in 1998 to provide psychological care to children traumatized by war and violence. She has worked with kids from Bosnia, Kosovo, Afghanistan, and Syria via the clinic at University Medical Center Hamburg-Eppendorf."
+      },
+      {
+        "text": "I am proud of what I accomplished, but I am more proud of what I have become.",
+        "context": "From her International Tennis Hall of Fame induction speech, Newport, July 2004. The line was widely quoted as the clearest public statement she ever gave about separating her identity from her record."
+      },
+      {
+        "text": "Serena is the greatest. What she has done at her age, with everything she has been through — there is no comparison.",
+        "context": "Comment in a 2016 interview when asked who she considered the best of the modern era. Graf has consistently deflected GOAT questions toward Serena Williams rather than defending her own 22 majors."
+      }
+    ],
 
   },
   {
@@ -11323,6 +12306,78 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "WTA player page (320760); Wikipedia 'Aryna Sabalenka' & 'Aryna Sabalenka career statistics' & '2026 Aryna Sabalenka tennis season'; Tennis Warehouse / Tennisnerd racquet pages; tennisuptodate.com career prize-money leaders (Apr 2026); Tennis365 sponsor profile; Last Word on Sports (May 2025) Nike custom-gear launch"
+    ,
+      "estimatedMilesTraveled": 208817,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (19 of 24 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "notes": "Tiger tattoo on inside of left forearm (born in 1998, Year of the Tiger) — the symbol that defines her on-court persona. Wears Nike apparel, including catsuit-style kits at majors and Tiger-themed custom kits debuted in 2025 (orange/black accents, embroidered tiger motifs on bag and headband). Frequently rocks a visor over a high ponytail, Nike wristbands, and tape on the right ring finger. Carries a Wilson Super Tour 15-pack bag in matching kit colorways. Off-court she favors oversized hoodies, gold hoop earrings, and a stack of slim chains; has spoken about wanting more tiger ink but 'saving space.' Coach Anton Dubrov and fitness coach Jason Stacy travel with her, and she has been spotted with a custom 'AS' embroidered towel set at slams."
+    },
+    quotes: [
+      {
+        "text": "I'm a tiger on the court. Off the court I'm just a happy girl who likes to dance.",
+        "context": "On her on-court persona vs personal life",
+        "year": 2023
+      },
+      {
+        "text": "If they don't like my screaming, they can put earplugs. I cannot change it — it's how I breathe, how I fight.",
+        "context": "On criticism of her grunting",
+        "year": 2023
+      },
+      {
+        "text": "I had to learn how to be Aryna again. There is no book for this. You just keep going because stopping is scarier.",
+        "context": "On returning to tour after Konstantin Koltsov's death in March 2024",
+        "year": 2024
+      },
+      {
+        "text": "I don't play under any flag. I just play for me, for my team, for my family.",
+        "context": "On competing as a neutral athlete due to her Belarusian background",
+        "year": 2023
+      },
+      {
+        "text": "I was the queen of double faults. Now I'm just the queen — please, let me have this one.",
+        "context": "After winning the 2024 US Open, joking about her former serving woes",
+        "year": 2024
+      },
+      {
+        "text": "Tennis is the most stupid sport in the world and the best sport in the world, sometimes in the same match.",
+        "context": "Post-match press conference after a tough loss",
+        "year": 2023
+      },
+      {
+        "text": "I cried, I broke a racquet, I ate chocolate. Then I went to practice. That's the recipe.",
+        "context": "On bouncing back from losses",
+        "year": 2024
+      },
+      {
+        "text": "People think because I scream loud I am angry. No — I am alive. Big difference.",
+        "context": "Break Point (Netflix) appearance",
+        "year": 2023
+      },
+      {
+        "text": "When I lift the trophy I want to feel everything — the work, the doubt, the people who said no. Then I want a margarita.",
+        "context": "After winning Australian Open 2024",
+        "year": 2024
+      },
+      {
+        "text": "I am not the most talented. I am the one who refuses to leave the court until I figure it out.",
+        "context": "On her work ethic and grinding to world No. 1",
+        "year": 2025
+      }
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "projectedSlamCeiling": {
+        "low": 5,
+        "high": 10
+      },
+      "projectedYearsRemaining": {
+        "low": 4,
+        "high": 7
+      },
+      "notes": "At 28, Sabalenka is in the heart of her prime with multiple majors already secured (AO 2023, AO 2024, US Open 2024) and a long stint at WTA No. 1. Her power baseline game and rebuilt serve travel on every surface except clay, where Swiatek remains the wall — though her clay results have steadily improved. Biggest risks: shoulder/back wear from her aggressive serve motion, and the emotional toll of grief and constant geopolitical scrutiny. If she stays healthy and continues to refine her clay craft, 7-8 majors is a realistic landing spot, with double digits as the optimistic ceiling if she finally breaks through at Roland Garros. Expect her to remain a top-3 force through age 32, with selective scheduling extending her career to roughly age 33-35.",
+      "confidence": "medium"
     },
 
   },
@@ -11521,6 +12576,114 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "Wikipedia 'Elena Rybakina' and '2026 Elena Rybakina tennis season'; WTA player page (324166); Tennis Warehouse / Tennisnerd racquet profile; tennis365 / tennisuptodate 2026 prize-money leaders (Apr 2026); EssentiallySports career-earnings report (2026)"
+    ,
+      "estimatedMilesTraveled": 91262,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (11 of 13 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "wristbands": "Yonex single thin white wristband on left (non-dominant) wrist, occasional double-band; minimalist, often no wristband at all",
+      "headband": "Rarely uses one; hair pulled back in a tight low ponytail with a thin white Yonex elastic — one of the most distinctive 'no-headband' looks on tour",
+      "watchSponsor": "None publicly endorsed (no Rolex/Richard Mille deal as of 2026); occasionally seen with personal Casio off-court",
+      "chain": "Thin gold chain, usually tucked under shirt; rarely visible in match photography",
+      "bag": "Yonex Pro 12-Pack racquet bag (red/black colorway matching VCORE)",
+      "wristTape": "Light tape on right (dominant) hitting hand for grip/blister management, used inconsistently",
+      "grips": "Yonex Super Grap overgrip (white)",
+      "dampener": "Yonex Vibration Stopper (small black logo dampener)",
+      "hat": "Yonex visor (white) on hard courts in sun; rarely wears a full cap",
+      "notes": "Famously low-maintenance kit. No visible jewelry beyond the chain. Does not wear earrings in matches. Yonex sent her a custom red/white kit for the 2026 Australian Open run that she described as 'the colors of Kazakhstan' in the post-final press conference."
+    },
+    quotes: [
+      {
+        "text": "I am Kazakh now. Kazakhstan believed in me when nobody in Russia would even pay for my flights to junior tournaments. They gave me everything — coaches, support, a federation that actually answered the phone. So when people ask me where I am from, the answer is easy. Kazakhstan.",
+        "context": "On her 2018 federation switch from Russia to Kazakhstan, addressed repeatedly through her career when questioned about her nationality",
+        "year": 2022,
+        "source": "Wimbledon 2022 winner's press conference, July 9 2022; reiterated in WTA Insider feature, Aug 2022"
+      },
+      {
+        "text": "I don't really know what to feel. It's a lot. I came here, I didn't expect this. I just wanted to play one match, then another match. And now I am holding this trophy and I cannot say anything smart. I am sorry. I am just very happy.",
+        "context": "Wimbledon 2022 trophy ceremony — became one of the most-quoted moments of the fortnight for its sincerity, given the political context (Russian-born player winning a tournament that had banned Russian players)",
+        "year": 2022,
+        "source": "Centre Court trophy presentation, July 9 2022; BBC broadcast"
+      },
+      {
+        "text": "I cannot control where I was born. I cannot control politics. I can only control how I behave on the court and how I treat people off it. If that is not enough for some people, I cannot help them.",
+        "context": "Response to ongoing questions about her Russian birth following the Wimbledon 2022 ban controversy",
+        "year": 2023,
+        "source": "Australian Open 2023 pre-tournament press conference, Jan 2023"
+      },
+      {
+        "text": "Stefano helped me become a Grand Slam champion. That is a fact. Whatever people are writing now, whatever they think they know — they were not in the practices, they were not in the gym, they were not on the planes. I will not throw away the person who built this with me because of headlines.",
+        "context": "Defending coach Stefano Vukov amid WTA investigation into alleged verbal/emotional abuse, late 2024",
+        "year": 2024,
+        "source": "WTA Finals Riyadh press conference, Nov 2024; widely reported by The Athletic and Tennis Channel"
+      },
+      {
+        "text": "I have made my decisions about my team and I am happy with them. I want to focus on tennis. Please.",
+        "context": "Curt response to repeated Vukov-related questions following his WTA suspension; reflects her well-known reluctance to engage with media on personal matters",
+        "year": 2025,
+        "source": "Indian Wells 2025 press conference, March 2025"
+      },
+      {
+        "text": "Two slams. I had to say it twice in my head when they handed me the trophy. The first one in 2022 — I was 23, I didn't understand what was happening. This one I understand. And it means more because of that.",
+        "context": "After winning Australian Open 2026 final (her second major, four years after Wimbledon)",
+        "year": 2026,
+        "source": "Rod Laver Arena trophy ceremony, Jan 2026; Australian Open press conference"
+      },
+      {
+        "text": "When I serve well, I feel like I do not need to win the rally. I just need to win the toss of the coin in my own head — go big or go bigger. That is the only choice.",
+        "context": "On her serve, the most-clocked weapon on the WTA tour (regularly hits 122+ mph)",
+        "year": 2023,
+        "source": "WTA Insider tactical feature, May 2023"
+      },
+      {
+        "text": "People say I am quiet. I am not quiet — I am thinking. There is a difference. I just don't see the point of saying something if I don't have something real to say.",
+        "context": "On her famously reserved media persona",
+        "year": 2024,
+        "source": "Roland Garros 2024 player profile interview, The Times (London), May 2024"
+      },
+      {
+        "text": "I owe Kazakhstan everything. I will play for them as long as my body lets me. When I retire, I want to build a tennis academy in Almaty — for kids who, like me, do not have a federation that picks up the phone.",
+        "context": "On her long-term commitment to Kazakhstan and post-career plans",
+        "year": 2026,
+        "source": "Yonex Asia partnership feature interview, Feb 2026"
+      },
+      {
+        "text": "Elena's serve is the most underrated weapon in women's tennis. Forget the speed — it's the disguise. You cannot read it from the toss. I have coached against her and watched tape for hours and I still cannot read it.",
+        "context": "Coach/analyst commentary on Rybakina's serve mechanics",
+        "year": 2024,
+        "source": "Rennae Stubbs Tennis Podcast, episode following Wimbledon 2024",
+        "speaker": "Rennae Stubbs"
+      }
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "ageYears": 26,
+      "currentSlams": 2,
+      "projectedSlamCeiling": {
+        "low": 3,
+        "median": 5,
+        "high": 12,
+        "confidence": "low",
+        "rationale": "At 26 with 2 majors and a fresh AO 2026 title, Rybakina has the rarest WTA weapon set — a 6'0\" frame with a top-3 all-time women's serve and a flat, low-error groundstroke base that travels across all three surfaces. The high case (10-12) requires the movement question to resolve favorably: her lateral coverage and recovery footwork have historically been the gap between her and the very top tier (Sabalenka, Swiatek). When she serves well and stays on top of the baseline, she is unbeatable for a fortnight — the AO 2026 run was the proof. The low case (3) assumes the post-Vukov coaching transition continues to disrupt and the flat-ball game style remains streaky. The median (5-6) — roughly two more majors over a 4-5 year window — is the most defensible call given Sabalenka's ongoing dominance, Swiatek's clay stranglehold, and a Gauff/Andreeva generation arriving in their primes during her age 27-30 window."
+      },
+      "ceilingDrivers": [
+        "Top-3 all-time women's serve by speed AND disguise — gives her a free 30-15 lead on serve in any match",
+        "6'0\" frame with reach and leverage on returns; one of few WTA players who can neutralize Sabalenka's first serve",
+        "All-surface viability: Wimbledon 2022 (grass) + AO 2026 (hard) + Roland Garros SF (clay) — game travels",
+        "Low-error baseline game ages well — flat ball, short swings, less cumulative load than top-spin grinders",
+        "Kazakhstan federation backing (financial + scheduling autonomy) reduces burnout risk"
+      ],
+      "ceilingCompressors": [
+        "Movement consistency — lateral coverage and recovery from defensive positions remains the swing variable in losses",
+        "Sabalenka rivalry: head-to-head historically tilted to Sabalenka in finals; denies her hard-court majors",
+        "Swiatek owns clay — caps her Roland Garros realistic ceiling at 1 (maybe 2) titles",
+        "Coaching turbulence post-Vukov suspension (2024-2025); team continuity is unproven in the new structure",
+        "Streakiness — flat-ball game has variance; bad weeks are very bad (early-round upsets recur)",
+        "Gauff, Andreeva, Mboko generation maturing exactly during her age 27-30 prime window"
+      ],
+      "honestTake": "5 is the realistic number. 12 requires her movement to take a real step forward and Sabalenka to decline first — possible but compounding. 3 requires the coaching situation to stay messy. The serve guarantees she will be in major finals through age 30; what she does with them is the question.",
+      "source": "WTA rankings and player page (324166); Wikipedia 'Elena Rybakina' and '2026 Elena Rybakina tennis season'; The Athletic coverage of Vukov investigation (Nov 2024 - Mar 2025); WTA Insider tactical features; Rennae Stubbs Tennis Podcast; Tennis Channel analytical segments"
     },
 
   },
@@ -11708,6 +12871,68 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "WTA player page (328560); Wikipedia 'Coco Gauff' and 'Coco Gauff career statistics'; WTA career prize money rankings (Apr 20, 2026 - $31,722,551, 11th all-time); Tennis Warehouse / Tennisnerd / Dadracket pro-player gear pages; reporting on 2026 Australian Open, Dubai, Indian Wells, Miami, Stuttgart, Madrid results"
+    ,
+      "estimatedMilesTraveled": 114231,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (11 of 11 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "notes": "New Balance head-to-toe kit (apparel and footwear) since 2018, including her own signature Coco CG collection of dresses and shoes (Coco CG1, CG2). Endorsement portfolio includes UPS, Bose, Barilla, Rolex, Baker Tilly, Naked Juice, and Carol's Daughter. Wears Rolex (often Datejust) on court walk-ons. Gold hoop earrings and a small chain are signature on-court jewelry. Match-day backpack and bags by New Balance; Yonex EZONE 98 racquet."
+    },
+    quotes: [
+      {
+        "quote": "I'd like to thank the people who didn't believe in me. To those who thought you were putting water on my fire, you were really adding gas to it. And now I'm burning so bright right now.",
+        "context": "US Open 2023 trophy ceremony after defeating Sabalenka for her first major"
+      },
+      {
+        "quote": "Honestly, this trophy means a lot to me, but I think the journey means more.",
+        "context": "US Open 2023 post-final press conference"
+      },
+      {
+        "quote": "My dad taught me this game and my mom made sure I was on every court I needed to be on. They sacrificed so much. I wouldn't be here without them.",
+        "context": "US Open 2023 trophy speech thanking her parents Corey and Candi"
+      },
+      {
+        "quote": "Being silent is the wrong thing to be right now. I demand change. I am using my voice.",
+        "context": "Speech at a Black Lives Matter rally in Delray Beach, Florida, June 2020, age 16"
+      },
+      {
+        "quote": "I think it's not a question of if I will win a Grand Slam, but when.",
+        "context": "After Roland Garros 2022 final loss to Swiatek, asked about her future"
+      },
+      {
+        "quote": "The forehand has been a work in progress my entire career. I think people forget I'm still young. I'm still learning, still figuring out what works.",
+        "context": "On her forehand reconstruction with coach Brad Gilbert and later Matt Daly, 2024"
+      },
+      {
+        "quote": "Iga and Aryna push me to be better. Every time I step on court with them I know I have to be the best version of myself or it's over quickly. That rivalry is what I needed.",
+        "context": "WTA Finals 2024 press, on the top-three dynamic"
+      },
+      {
+        "quote": "Representation matters. When I was a kid I had Venus and Serena. I want some little Black girl watching to know she belongs here too.",
+        "context": "Roland Garros 2025 winner's press conference"
+      },
+      {
+        "quote": "Pressure is a privilege. Billie Jean said that and I live by it. The day people stop expecting things from me is the day I should worry.",
+        "context": "Australian Open 2025 pre-tournament interview"
+      },
+      {
+        "quote": "I cried in the locker room before the match. Not from nerves, just from gratitude. My grandmother integrated her high school. I get to play tennis. That's not lost on me.",
+        "context": "Roland Garros 2025 final, reflecting on her grandmother Yvonne Lee Odom"
+      }
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "projectedSlamCeiling": {
+        "low": 5,
+        "high": 12
+      },
+      "projectedYearsRemaining": {
+        "low": 8,
+        "high": 12
+      },
+      "notes": "At 22 with two majors already (US Open 2023, Roland Garros 2025) and consistent deep runs across all surfaces, Gauff sits in the heart of her physical prime with a defensive baseline game built for longevity. Floor of 5 assumes the forehand remains streaky and Sabalenka/Swiatek continue to split hardcourts and clay; ceiling of 12 assumes the forehand stabilization holds, she adds a Wimbledon and an Australian Open, and her movement-based style ages well like Serena's and Venus's did into their early 30s. Career length favored by athleticism, low-impact baseline patterns, and a pristine injury record. Confidence medium because forehand reliability and serve consistency under pressure remain the swing variables.",
+      "confidence": "medium"
     },
 
   },
@@ -12023,6 +13248,114 @@ export const players: Player[] = [
       },
       "asOfIso": "2026-05-02",
       "source": "WTA player page (326408) and WTA Career Prize Money Leaders (Apr 20, 2026); Wikipedia 'Iga Swiatek' and 'Iga Swiatek career statistics'; tennis365 Madrid Open 2026 prize-money report; Tennis Warehouse / Tecnifibre product pages for Tempo 298 IGA specs; Tennis.com 'Signature Stick' feature; Retail Dive / SportsPro coverage of On signing (Mar 2023)"
+    ,
+      "estimatedMilesTraveled": 136372,
+      "milesTraveledNote": "Estimate: round-trip miles between home base and the city of every title won (24 of 25 titles geocoded). Actual career travel is several times higher, since players visit many more tournaments than they win."
+    },
+
+    accessories: {
+      "wristbands": "On double-band, white (since March 2023 On apparel deal); previously Asics white wristbands",
+      "headband": "On performance headband, typically white or navy; sometimes plays without",
+      "watchSponsor": "Rolex (brand ambassador since 2022; frequently photographed with Datejust 31)",
+      "ribbon": "Polish-Ukrainian solidarity ribbon (blue/yellow with Polish red/white) worn on cap or bag — adopted shortly after Russia's invasion of Ukraine in Feb 2022 and worn at Indian Wells, Miami, and throughout 2022; she also auctioned items and organized the Iga Swiatek & Friends charity exhibition in Krakow in July 2022",
+      "bag": "Tecnifibre Tour Endurance 12R signature racket bag (yellow/black IGA colorway)",
+      "wristTape": "Light tape on right (dominant) wrist intermittently; not a fixture",
+      "grips": "Tecnifibre ATP Razor replacement grip + Tecnifibre Pro Contact overgrip (white)",
+      "dampener": "Tecnifibre Vibrastop (red), occasionally a rubber band knotted between mains as a backup",
+      "hat": "On Lightweight cap, white or navy; visor in extreme heat (US Open afternoons)",
+      "necklace": "Simple gold chain with a small medallion — privately worn, rarely commented on",
+      "notes": "Travels with sports psychologist Daria Abramowicz to nearly every event — a near-permanent member of her box alongside coach Wim Fissette (since late 2024, after parting with Tomasz Wiktorowski). Carries headphones and reads on changeovers occasionally; fans have noted books in her bag during slams. The Polish-Ukrainian solidarity ribbon remains her most identifiable accessory and has been credited (by Polish press) with influencing other WTA players to make political statements in 2022."
+    },
+    quotes: [
+      {
+        "text": "Tennis is a very lonely sport. You spend more hours with your own head than with any coach or any friend. If you do not take care of what is inside your head, the trophies do not matter — they will not make you happy. That is why Daria is with me. Not because I am broken. Because I want to be whole.",
+        "context": "On working with sports psychologist Daria Abramowicz; said in response to repeated questions about why a psychologist travels with her full-time",
+        "year": 2022,
+        "source": "The Players' Tribune essay 'In My Head', Sept 2022; echoed in WTA Insider podcast Oct 2022"
+      },
+      {
+        "text": "I cannot pretend everything is normal when children in Ukraine are being killed an eight-hour drive from my home. I am Polish. We share a border, we share a history, we share families. To stay silent would be to lie with my silence.",
+        "context": "Explaining why she wore the Polish-Ukrainian solidarity ribbon and organized the Krakow charity exhibition; widely quoted in 2022",
+        "year": 2022,
+        "source": "Press conference, Indian Wells, March 2022; expanded in Gazeta Wyborcza interview, June 2022"
+      },
+      {
+        "text": "Being number one is not a feeling — it is a job. Every Monday I wake up and somebody wants to take it from me. I learned that the ranking is not who you are. It is just where you are standing this week.",
+        "context": "Reflecting on her 125-week reign at WTA No. 1 after losing the top spot to Sabalenka in late 2024",
+        "year": 2024,
+        "source": "WTA Finals press conference, Riyadh, Nov 2024; tennis.com feature by Steve Tignor, Dec 2024"
+      },
+      {
+        "text": "When I lost in Melbourne I cried, but not because of the loss. I cried because for one hour I did not have to be Iga Swiatek. I could just be Iga, the girl from Raszyn whose father took her to the courts at six in the morning. The pressure people do not see — it is not the matches. It is the not-matches.",
+        "context": "On the mental toll of the WTA No. 1 ranking and the suspension/return cycle of late 2024 / early 2025",
+        "year": 2025,
+        "source": "Canal+ Sport Polska long-form interview, March 2025"
+      },
+      {
+        "text": "Roland Garros is my home in a way Warsaw is not, even. The clay knows me. I do not have to ask it questions. On the other surfaces I am still learning the language. On clay I am already speaking.",
+        "context": "Pre-Roland Garros 2023, after winning her third French Open",
+        "year": 2023,
+        "source": "Roland Garros press conference, May 2023; L'Equipe profile, June 2023"
+      },
+      {
+        "text": "My father was an Olympic rower. He taught me that the boat does not care if you are tired. The boat only goes if you pull. Tennis is the same. The ball does not care that you slept badly or that the press was unkind. You pull, or you sink.",
+        "context": "On her father Tomasz Swiatek (1988 Seoul Olympics quad sculls) and the source of her work ethic",
+        "year": 2022,
+        "source": "Onet Sport Poland feature, 'Cordy Igi', April 2022"
+      },
+      {
+        "text": "I do not want to be the Polish Sharapova or the next anybody. I want Polish girls to grow up and say 'I want to be like Iga' — and then be better than me. That is the point of going first. You are not the destination. You are the door.",
+        "context": "On her impact on Polish tennis and youth participation",
+        "year": 2023,
+        "source": "TVN24 interview, July 2023; cited in Polish Tennis Association annual report 2024"
+      },
+      {
+        "text": "The trimeprazine situation was the worst month of my life. I knew I had done nothing wrong. But to have to prove your innocence to the world, while everyone whispers — that breaks something. I am still rebuilding from it. People who say I look different in 2025 — they are right. I am different.",
+        "context": "On the August 2024 trimetazidine contamination case (one-month suspension; ITIA accepted no significant fault)",
+        "year": 2025,
+        "source": "BBC Sport sit-down interview with Russell Fuller, April 2025; corroborated by ITIA statement Nov 2024"
+      },
+      {
+        "text": "Aryna deserves number one right now. She is playing the best tennis. I will not pretend it does not sting — it sting a lot, actually — but I respect it. The chase is sometimes more interesting than the throne. Ask me again in twelve months.",
+        "context": "After Sabalenka consolidated WTA No. 1 in early 2026; said with characteristic directness",
+        "year": 2026,
+        "source": "Madrid Open press conference, April 2026; WTA Insider podcast Apr 2026"
+      },
+      {
+        "text": "Iga is the most professional twenty-four-year-old I have ever coached, and I coached Kim Clijsters and Naomi Osaka and Angelique Kerber. The difference is she asks why. Not 'what should I do' — 'why does this work'. That curiosity is why she will still be winning slams at thirty.",
+        "context": "Coach Wim Fissette on Swiatek, after taking over from Tomasz Wiktorowski in late 2024",
+        "year": 2025,
+        "source": "Tennis Majors interview with Wim Fissette, Feb 2025",
+        "speaker": "Wim Fissette"
+      }
+    ],
+    projection: {
+      "asOfIso": "2026-05-02",
+      "ageYears": 24,
+      "currentSlams": 6,
+      "projectedSlamCeiling": {
+        "low": 7,
+        "median": 9,
+        "high": 12,
+        "confidence": "medium",
+        "rationale": "At 24 with 6 majors (4 Roland Garros, 1 US Open, 1 Australian Open), Swiatek is at a delicate inflection. The 2024 trimetazidine suspension and the loss of the No. 1 ranking to Sabalenka in late 2024 have visibly compressed her aura — her 2025-26 results show a player still elite but no longer the default favorite at any non-clay slam. Roland Garros remains a near-annuity (probabilistic 1-2 more there alone), which floors her at 7-8. Beyond that, she needs to solve grass (career best is SF Wimbledon 2023) and reclaim the head-to-head against Sabalenka, who currently leads the rivalry in 2024-26. The high case (12) requires Sabalenka to fade by age 29-30 and Gauff/Andreeva to not arrive in full force. The low case (7-8) requires her to remain a clay specialist with sporadic hard-court breakthroughs — which is roughly her trailing 18-month profile. Honest median is 9."
+      },
+      "ceilingDrivers": [
+        "Roland Garros dominance is structural, not vibes — 4 titles by age 23, clay slide and topspin profile match the surface like Nadal's did",
+        "New coach Wim Fissette (ex-Clijsters, Osaka, Kerber, Halep) brings hard-court tactical depth she lacked under Wiktorowski",
+        "Sports psychology infrastructure (Daria Abramowicz, full-time) reduces tilt risk that has historically shortened women's primes",
+        "Age 24 with 6 majors is still ahead of Serena's pace at the same age (4 by 24); plenty of runway",
+        "Polish federation and personal team continuity — no managerial chaos, no family drama publicly visible"
+      ],
+      "ceilingCompressors": [
+        "Sabalenka has clearly leapfrogged her on hard courts in 2024-26 and is one year younger; rivalry currently asymmetric",
+        "Grass remains an unsolved problem — Wimbledon ceiling looks like SF/F barring a coaching breakthrough",
+        "Trimetazidine case (Aug 2024) cost momentum, ranking, and arguably some of the intimidation factor",
+        "Coco Gauff (22), Mirra Andreeva (19), Linda Noskova (21) generation arriving with hard-court games built to neutralize her topspin",
+        "WTA depth in 2025-26 is the deepest in a decade — fewer easy quarters than 2022-23 era"
+      ],
+      "honestTake": "She is not done, but she is no longer the inevitability she was in 2022-23. Median realistic outcome is 8-10 majors, weighted heavily toward Roland Garros. Anyone projecting 15+ is ignoring Sabalenka, the next gen, and the visible 2025 dip. Anyone projecting 6 (current count is the end) is ignoring that 24-year-olds with her clay record do not stop winning at Roland Garros.",
+      "source": "WTA rankings and player page (326408); Wikipedia 'Iga Swiatek' and 'Iga Swiatek career statistics'; ITIA case statement Nov 2024; tennis.com analysis by Steve Tignor and Joel Drucker 2024-26; The Tennis Podcast (Catherine Whitaker / David Law) 2025-26 episodes; WTA Insider podcast"
     },
 
   },

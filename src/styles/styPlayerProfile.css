@@ -747,6 +747,192 @@ details.fs-tier > summary { cursor: pointer; }
   color: var(--ink-soft);
 }
 
+.fs-ledger__miles {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--bg-elevated);
+  border-left: 3px solid var(--grass);
+  border-radius: var(--radius);
+}
+
+.fs-ledger__miles-head { margin-bottom: 0.4rem; }
+
+.fs-ledger__miles-value {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--grass);
+  line-height: 1;
+}
+
+.fs-ledger__miles-note {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+/* quotes */
+.fs-quote-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.fs-quote {
+  border-left: 3px solid var(--clay);
+  padding: 0.4rem 0 0.6rem 1.5rem;
+  background: linear-gradient(to right, var(--bg-elevated) 0%, transparent 80%);
+}
+
+.fs-quote__text {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--ink);
+  position: relative;
+}
+
+.fs-quote__text::before {
+  content: '“';
+  font-size: 2.5rem;
+  color: var(--clay);
+  position: absolute;
+  left: -1.4rem;
+  top: -0.4rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.fs-quote__attr {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+}
+
+.fs-quote__context {
+  font-style: italic;
+}
+
+.fs-quote__source {
+  font-style: normal;
+  color: var(--ink-soft);
+}
+
+/* projection */
+.fs-proj__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 1.25rem;
+}
+
+.fs-proj__cell {
+  background: var(--bg);
+  padding: 1.25rem 1.4rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fs-proj__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.fs-proj__range {
+  font-family: var(--serif);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--gold);
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+.fs-proj__sep {
+  color: var(--ink-soft);
+  font-size: 1.4rem;
+}
+
+.fs-proj__sublabel {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.fs-proj__confidence {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  text-transform: capitalize;
+  font-weight: 500;
+}
+.fs-proj__confidence--low { color: var(--ink-soft); }
+.fs-proj__confidence--medium { color: var(--clay); }
+.fs-proj__confidence--high { color: var(--grass); }
+
+.fs-proj__notes {
+  margin-top: 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  color: var(--ink);
+  font-style: italic;
+}
+
+.fs-proj__asof {
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+/* accessories */
+.fs-acc {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--rule);
+}
+
+.fs-acc__list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.45rem 1.25rem;
+  margin: 0;
+}
+
+.fs-acc__key {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-weight: 600;
+  align-self: baseline;
+  margin: 0;
+}
+
+.fs-acc__val {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.fs-acc__notes {
+  margin-top: 0.75rem;
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+}
+
 /* roster */
 .fs-roster-hero {
   padding: 5rem 0 3rem;
