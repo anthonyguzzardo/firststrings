@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: first_strings_pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-first_strings}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-first_strings_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-first_strings}
+    ports:
+      # 5433 on host → 5432 in container, to coexist with any system Postgres on 5432.
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/sql/dbFirstStrings_Init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      - ./db/sql/dbFirstStrings_Tables.sql:/docker-entrypoint-initdb.d/02_tables.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-first_strings} -d $${POSTGRES_DB:-first_strings}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
+    name: first_strings_pgdata

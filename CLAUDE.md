@@ -5,14 +5,23 @@ An app dedicated to honoring the best tennis legends of all time and tracking cu
 **would also be cool if we could honor announcers of the game, cool calls and what not... possibly even honor the coolest venues the game has to offer**
 
 ## Stack
-- Astro (SSR, Node adapter)
-**TBD IF WE USE SQL following are examples in PG**
-- PostgreSQL 17 + pgvector. Env `ALICE_PG_URL` (`postgres://localhost/<schemaName>`), schema `<SchemaName>`, `search_path = alice,public`
-- Claude API (`@anthropic-ai/sdk`) for question generation
-- TypeScript (strict)
+- Astro 5 (SSR, Node standalone adapter), TypeScript strict, Node 20+ everywhere (app + ingest scripts + cron).
+- PostgreSQL 17 + pgvector. Env `FIRSTSTRINGS_PG_URL`, schema `first_strings`, `search_path = first_strings, public`. Local: `docker compose up -d` (host port `5433` to coexist with any system Postgres on `5432`).
+- `postgres.js` for DB access (raw SQL, no ORM). `zod` for runtime validation at ingest boundaries.
+- Claude API (`@anthropic-ai/sdk`) for narrative generation and the Ask the Oracle widget.
+- Visualization: D3 v7 + Observable Plot for charts and court SVGs; MapLibre GL JS for the venue map; deck.gl reserved for high-cardinality shot scatters if/when needed.
+- Python (small footprint, two scripts only): `sentence-transformers` for player style embeddings → pgvector; forked `glad94/infotennis` for Court Vision scraping. Tooling: `uv`.
+
+## Local dev
+```sh
+docker compose up -d         # Postgres + pgvector (port 5433 on host)
+npm run dev                  # Astro dev server on :4321
+```
+`.env` (gitignored) holds `FIRSTSTRINGS_PG_URL`. See `.env.example`.
 
 ## Agent Navigation
-- Data-layer work: `grep '@region' db/sql/db<SchemaName>_Tables.sql` (schema TOC), `grep '@region' src/lib/libDb.ts` (function TOC). Update nearest `@region` when adding tables/exports.
+- Data-layer work: `grep '@region' db/sql/dbFirstStrings_Tables.sql` (schema TOC), `grep '@region' src/lib/libDb.ts` (function TOC). Update nearest `@region` when adding tables/exports.
+- Curated TS roster lives in `src/lib/libPlayersData.ts` (~13.4k lines). The SQL `td_player` row for a curated player carries `is_curated = TRUE` and is bridged to its slug via `tm_player_external_id` (source = `MANUAL`).
 - Unfamiliar areas: check `GOTCHAS.md`.
 - `GOTCHAS.md` entry categories (only): necessary friction, historical landmines (with fix date), discipline rules, philosophy-driven choices (with principle). "Semi-intentional" or "matches pattern of X being best-effort" = rationalizing a bug. Fix it.
 
@@ -41,7 +50,7 @@ An app dedicated to honoring the best tennis legends of all time and tracking cu
 - Footer columns on mutable tables: `dttm_created_utc`, `created_by`, `dttm_modified_utc`, `modified_by`. None on enum tables.
 - Header comments on every table: PURPOSE, USE CASE, MUTABILITY, REFERENCED BY, FOOTER
 - Enum tables: explicit INSERT with fixed IDs
-- No ALTER TABLE in `db/sql/<SchemaNamee>_Tables.sql`. Rewrite the CREATE TABLE so schema reads as a complete script. Increments go in `db/sql/migrations/`.
+- No ALTER TABLE in `db/sql/dbFirstStrings_Tables.sql`. Rewrite the CREATE TABLE so schema reads as a complete script. Forward-only increments go in `db/sql/migrations/NNN_description.sql`.
 - No proper nouns in column names
 ---
 
@@ -59,8 +68,8 @@ Prefixes make files self-identifying outside their directory (stack traces, sear
 
 Rules:
 1. Prefix + PascalCase, no hyphens
-2. NOT prefixed: `src/pages/*.astro` (file-based routing → URLs, kebab-case), `src/pages/api/*.ts` (kebab-case), `src/scripts/*.ts` (kebab-case), `src-rs/src/*.rs` (snake_case)
-3. SQL: `db/sql/db<SchemaName>_*.sql`, migrations `db/sql/migrations/NNN_description.sql`
+2. NOT prefixed: `src/pages/*.astro` (file-based routing → URLs, kebab-case), `src/pages/api/*.ts` (kebab-case), `src/scripts/*.ts` (kebab-case), `py/**/*.py` (snake_case)
+3. SQL: `db/sql/dbFirstStrings_*.sql`, migrations `db/sql/migrations/NNN_description.sql`
 
 ```
 src/
@@ -68,10 +77,10 @@ src/
 ├── layouts/     # layX.astro
 ├── lib/         # libX.ts / utlX.ts
 ├── pages/       # kebab-case.astro (api/ also kebab-case.ts)
-├── scripts/     # kebab-case.ts (runnable tasks)
+├── scripts/     # kebab-case.ts (runnable ingest / refresh tasks)
 └── styles/      # styX.css
-db/sql/          # dbAlice_X.sql, migrations/NNN_*.sql
-src-rs/src/      # snake_case.rs
+db/sql/          # dbFirstStrings_*.sql, migrations/NNN_*.sql
+py/              # snake_case.py (embedding generation, infotennis scraper)
 ```
 
 ---

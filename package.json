@@ -8,10 +8,24 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d",
+    "db:psql": "docker exec -it first_strings_pg psql -U first_strings -d first_strings",
+    "bootstrap": "tsx --env-file=.env src/scripts/bootstrap-curated-roster.ts",
+    "ingest:atp": "tsx --env-file=.env src/scripts/ingest-sackmann-atp.ts",
+    "ingest:wta": "tsx --env-file=.env src/scripts/ingest-sackmann-wta.ts"
   },
   "dependencies": {
     "@astrojs/node": "^9.0.0",
-    "astro": "^5.0.0"
+    "astro": "^5.0.0",
+    "postgres": "^3.4.9",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "csv-parse": "^6.2.1",
+    "tsx": "^4.21.0"
   }
 }
