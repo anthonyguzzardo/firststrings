@@ -140,8 +140,75 @@ export interface Player {
   dataConfidence?: 'verified' | 'approximate';
   imagePath?: string;
   titles?: Title[];
+  equipment?: Equipment;
+  ledger?: CareerLedger;
 }
 // @endregion types
+
+// @region equipment-and-ledger
+export interface RacketSpec {
+  brand: string;
+  model: string;
+  weightG?: number;
+  headSizeSqIn?: number;
+}
+
+export interface StringSpec {
+  mains: string;
+  crosses?: string;
+  tensionLbsMains?: number;
+  tensionLbsCrosses?: number;
+}
+
+export interface ShoeSpec {
+  brand: string;
+  model: string;
+}
+
+export interface Equipment {
+  racket: RacketSpec;
+  strings?: StringSpec;
+  shoes?: ShoeSpec;
+  apparelSponsor?: string;
+  otherSponsors?: string[];
+  notes?: string;
+}
+
+export interface MatchRecord {
+  wins: number;
+  losses: number;
+}
+
+export interface SurfaceSplits {
+  hard?: MatchRecord;
+  clay?: MatchRecord;
+  grass?: MatchRecord;
+  carpet?: MatchRecord;
+}
+
+export interface CareerLedger {
+  prizeMoneyUsd?: number;
+  matchRecord?: MatchRecord;
+  surfaceSplits?: SurfaceSplits;
+  asOfIso?: string;
+  source?: string;
+}
+
+export function formatPrizeMoneyUsd(amount: number): string {
+  if (amount >= 1_000_000) {
+    const m = amount / 1_000_000;
+    return `$${m >= 100 ? m.toFixed(0) : m.toFixed(1)}M`;
+  }
+  if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
+  return `$${amount.toLocaleString('en-US')}`;
+}
+
+export function winPct(record?: MatchRecord): string | undefined {
+  if (!record || record.wins + record.losses === 0) return undefined;
+  const pct = (record.wins / (record.wins + record.losses)) * 100;
+  return `${pct.toFixed(1)}%`;
+}
+// @endregion equipment-and-ledger
 
 // @region accessors
 import { players } from './libPlayersData';

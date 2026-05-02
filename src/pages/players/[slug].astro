@@ -3,6 +3,8 @@ import LayBase from '../../layouts/layBase.astro';
 import CmpStatTile from '../../components/cmpStatTile.astro';
 import CmpShotPalette from '../../components/cmpShotPalette.astro';
 import CmpTrophyCase from '../../components/cmpTrophyCase.astro';
+import CmpEquipmentBag from '../../components/cmpEquipmentBag.astro';
+import CmpCareerLedger from '../../components/cmpCareerLedger.astro';
 import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel, getPlayerImagePath } from '../../lib/libPlayers';
 import '../../styles/styPlayerProfile.css';
 
@@ -99,6 +101,10 @@ const isApprox = player.dataConfidence === 'approximate';
     </section>
 
     <CmpTrophyCase player={player} />
+
+    {player.ledger && <CmpCareerLedger ledger={player.ledger} status={player.status} />}
+
+    {player.equipment && <CmpEquipmentBag equipment={player.equipment} />}
 
     <section class="fs-section">
       <div class="fs-section__title">

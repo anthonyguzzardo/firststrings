@@ -1,0 +1,76 @@
+---
+import type { Equipment } from '../lib/libPlayers';
+
+interface Props {
+  equipment: Equipment;
+}
+
+const { equipment } = Astro.props;
+const { racket, strings, shoes, apparelSponsor, otherSponsors, notes } = equipment;
+---
+<section class="fs-section fs-bag">
+  <div class="fs-section__title">
+    <h2>Equipment Bag</h2>
+    <span class="fs-eyebrow">Tools of the trade</span>
+  </div>
+
+  <div class="fs-bag__grid">
+    <article class="fs-bag__card fs-bag__card--racket">
+      <div class="fs-bag__label">Racquet</div>
+      <div class="fs-bag__brand">{racket.brand}</div>
+      <div class="fs-bag__model">{racket.model}</div>
+      <div class="fs-bag__specs">
+        {racket.weightG && <span>{racket.weightG}g</span>}
+        {racket.headSizeSqIn && <span>{racket.headSizeSqIn} sq in</span>}
+      </div>
+    </article>
+
+    {strings && (
+      <article class="fs-bag__card">
+        <div class="fs-bag__label">Strings</div>
+        <div class="fs-bag__row">
+          <span class="fs-bag__row-key">Mains</span>
+          <span class="fs-bag__row-val">
+            {strings.mains}
+            {strings.tensionLbsMains !== undefined && <span class="fs-bag__tension"> · {strings.tensionLbsMains} lbs</span>}
+          </span>
+        </div>
+        {strings.crosses && (
+          <div class="fs-bag__row">
+            <span class="fs-bag__row-key">Crosses</span>
+            <span class="fs-bag__row-val">
+              {strings.crosses}
+              {strings.tensionLbsCrosses !== undefined && <span class="fs-bag__tension"> · {strings.tensionLbsCrosses} lbs</span>}
+            </span>
+          </div>
+        )}
+      </article>
+    )}
+
+    {shoes && (
+      <article class="fs-bag__card">
+        <div class="fs-bag__label">Shoes</div>
+        <div class="fs-bag__brand">{shoes.brand}</div>
+        <div class="fs-bag__model">{shoes.model}</div>
+      </article>
+    )}
+
+    {apparelSponsor && (
+      <article class="fs-bag__card">
+        <div class="fs-bag__label">Apparel</div>
+        <div class="fs-bag__brand fs-bag__brand--solo">{apparelSponsor}</div>
+      </article>
+    )}
+  </div>
+
+  {otherSponsors && otherSponsors.length > 0 && (
+    <div class="fs-bag__sponsors">
+      <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Other sponsors</div>
+      <ul class="fs-tag-list">
+        {otherSponsors.map((s) => <li class="fs-tag">{s}</li>)}
+      </ul>
+    </div>
+  )}
+
+  {notes && <p class="fs-bag__notes"><em>{notes}</em></p>}
+</section>

@@ -1,0 +1,77 @@
+---
+import type { CareerLedger, MatchRecord } from '../lib/libPlayers';
+import { formatPrizeMoneyUsd, winPct } from '../lib/libPlayers';
+
+interface Props {
+  ledger: CareerLedger;
+  status: 'active' | 'retired';
+}
+
+const { ledger, status } = Astro.props;
+const { prizeMoneyUsd, matchRecord, surfaceSplits, asOfIso, source } = ledger;
+
+const surfaces: Array<{ key: 'hard' | 'clay' | 'grass' | 'carpet'; label: string; record?: MatchRecord }> = [
+  { key: 'hard',   label: 'Hard',   record: surfaceSplits?.hard },
+  { key: 'clay',   label: 'Clay',   record: surfaceSplits?.clay },
+  { key: 'grass',  label: 'Grass',  record: surfaceSplits?.grass },
+  { key: 'carpet', label: 'Carpet', record: surfaceSplits?.carpet },
+].filter((s) => s.record !== undefined);
+
+const asOfFormatted = asOfIso
+  ? new Date(asOfIso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  : null;
+---
+<section class="fs-section fs-ledger">
+  <div class="fs-section__title">
+    <h2>Career Ledger</h2>
+    <span class="fs-eyebrow">{status === 'active' ? 'In progress' : 'Final ledger'}</span>
+  </div>
+
+  <div class="fs-ledger__top">
+    {prizeMoneyUsd !== undefined && (
+      <div class="fs-ledger__hero">
+        <div class="fs-ledger__hero-value">{formatPrizeMoneyUsd(prizeMoneyUsd)}</div>
+        <div class="fs-ledger__hero-label">Career prize money (USD)</div>
+      </div>
+    )}
+
+    {matchRecord && (
+      <div class="fs-ledger__record">
+        <div class="fs-ledger__record-label">Career record (singles)</div>
+        <div class="fs-ledger__record-value">
+          <span class="fs-ledger__wins">{matchRecord.wins.toLocaleString('en-US')}</span>
+          <span class="fs-ledger__sep">–</span>
+          <span class="fs-ledger__losses">{matchRecord.losses.toLocaleString('en-US')}</span>
+          {winPct(matchRecord) && <span class="fs-ledger__pct">{winPct(matchRecord)}</span>}
+        </div>
+      </div>
+    )}
+  </div>
+
+  {surfaces.length > 0 && (
+    <div class="fs-ledger__surfaces">
+      <div class="fs-eyebrow" style="margin-bottom: 0.75rem;">By surface</div>
+      <div class="fs-ledger__surfaces-grid">
+        {surfaces.map((s) => (
+          <div class={`fs-ledger__surface fs-ledger__surface--${s.key}`}>
+            <div class="fs-ledger__surface-label">{s.label}</div>
+            <div class="fs-ledger__surface-record">
+              <span>{s.record!.wins}</span>
+              <span class="fs-ledger__sep">–</span>
+              <span>{s.record!.losses}</span>
+            </div>
+            {winPct(s.record) && <div class="fs-ledger__surface-pct">{winPct(s.record)}</div>}
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {(asOfFormatted || source) && (
+    <p class="fs-ledger__footer">
+      {asOfFormatted && <span>As of {asOfFormatted}</span>}
+      {asOfFormatted && source && <span> · </span>}
+      {source && <span>{source}</span>}
+    </p>
+  )}
+</section>

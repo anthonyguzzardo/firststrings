@@ -507,6 +507,240 @@ details.fs-tier > summary { cursor: pointer; }
 .fs-chip-list--atpfinals .fs-chip__year, .fs-chip-list--wtafinals .fs-chip__year { color: var(--gold); }
 .fs-chip-list--olympicsgold .fs-chip__year { color: var(--gold); }
 
+/* equipment bag */
+.fs-bag__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 1.5rem;
+}
+
+.fs-bag__card {
+  background: var(--bg);
+  padding: 1.1rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fs-bag__card--racket {
+  background: var(--bg-elevated);
+  grid-column: span 2;
+  border-left: 3px solid var(--clay);
+}
+
+@media (max-width: 600px) { .fs-bag__card--racket { grid-column: span 1; } }
+
+.fs-bag__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.fs-bag__brand {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.05;
+}
+
+.fs-bag__brand--solo {
+  font-size: 1.7rem;
+}
+
+.fs-bag__model {
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.fs-bag__specs {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  margin-top: 0.25rem;
+  font-family: var(--mono);
+}
+
+.fs-bag__row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-size: 0.92rem;
+  padding: 0.15rem 0;
+}
+
+.fs-bag__row-key {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  font-weight: 600;
+  min-width: 4em;
+}
+
+.fs-bag__row-val {
+  flex: 1;
+}
+
+.fs-bag__tension {
+  color: var(--clay);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.fs-bag__sponsors {
+  margin-top: 1.5rem;
+}
+
+.fs-bag__notes {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+
+/* career ledger */
+.fs-ledger__top {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .fs-ledger__top { grid-template-columns: 1fr; }
+}
+
+.fs-ledger__hero {
+  background: var(--bg-deep);
+  padding: 1.5rem 1.75rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fs-ledger__hero-value {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 5vw, 3.5rem);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--gold);
+}
+
+.fs-ledger__hero-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.fs-ledger__record {
+  background: var(--bg);
+  padding: 1.5rem 1.75rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fs-ledger__record-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.fs-ledger__record-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--serif);
+}
+
+.fs-ledger__wins {
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.fs-ledger__losses {
+  font-size: 1.5rem;
+  color: var(--ink-muted);
+}
+
+.fs-ledger__sep {
+  font-size: 1.5rem;
+  color: var(--ink-soft);
+}
+
+.fs-ledger__pct {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--clay);
+}
+
+/* surface splits */
+.fs-ledger__surfaces-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.fs-ledger__surface {
+  background: var(--bg);
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.fs-ledger__surface--hard   { border-top: 3px solid var(--slam-ao); }
+.fs-ledger__surface--clay   { border-top: 3px solid var(--clay); }
+.fs-ledger__surface--grass  { border-top: 3px solid var(--grass); }
+.fs-ledger__surface--carpet { border-top: 3px solid var(--ink-soft); }
+
+.fs-ledger__surface-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.fs-ledger__surface-record {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 500;
+  display: flex;
+  gap: 0.3rem;
+  align-items: baseline;
+}
+
+.fs-ledger__surface-pct {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.fs-ledger__footer {
+  margin-top: 1.25rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
 /* roster */
 .fs-roster-hero {
   padding: 5rem 0 3rem;
