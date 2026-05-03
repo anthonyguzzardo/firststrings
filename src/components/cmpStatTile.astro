@@ -4,14 +4,18 @@ interface Props {
   value: string | number | null | undefined;
   suffix?: string;
   small?: boolean;
+  transitionName?: string;
 }
 
-const { label, value, suffix, small = false } = Astro.props;
+const { label, value, suffix, small = false, transitionName } = Astro.props;
 const display = value === null || value === undefined || value === '' ? '—' : value;
 ---
 <div class="fs-stat">
   <span class="fs-stat__label">{label}</span>
-  <span class={`fs-stat__value${small ? ' fs-stat__value--small' : ''}`}>
+  <span
+    class={`fs-stat__value${small ? ' fs-stat__value--small' : ''}`}
+    transition:name={transitionName}
+  >
     {display}{suffix && display !== '—' ? <span class="fs-stat__suffix">{suffix}</span> : null}
   </span>
 </div>

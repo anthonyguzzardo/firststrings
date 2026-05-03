@@ -42,12 +42,12 @@ const isApprox = player.dataConfidence === 'approximate';
 <LayBase title={player.fullName} description={player.bio.slice(0, 160)}>
   <header class="fs-hero">
     <div class="fs-container fs-hero__inner">
-      <div class="fs-hero__photo-wrap">
+      <div class="fs-hero__photo-wrap" transition:name={`photo-${player.slug}`}>
         <img src={getPlayerImagePath(player)} alt={`Portrait of ${player.fullName}`} loading="eager" />
       </div>
       <div>
       <div class="fs-hero__tour">{player.tour} · {player.era.map(eraLabel).join(' / ')}</div>
-      <h1 class="fs-hero__name">
+      <h1 class="fs-hero__name" transition:name={`name-${player.slug}`}>
         {player.fullName}
         {isApprox && <span class="fs-approximate" title="Stats may have moved since this profile was last verified">approx.</span>}
       </h1>
@@ -91,7 +91,7 @@ const isApprox = player.dataConfidence === 'approximate';
         <span class="fs-eyebrow">{player.status === 'active' ? 'In progress' : 'Final ledger'}</span>
       </div>
       <div class="fs-stats">
-        <CmpStatTile label="Grand Slams" value={player.career.grandSlams} />
+        <CmpStatTile label="Grand Slams" value={player.career.grandSlams} transitionName={`slams-${player.slug}`} />
         <CmpStatTile label="Career-high" value={`#${player.career.careerHighRanking}`} small />
         <CmpStatTile label="Weeks at #1" value={player.career.weeksAtNumberOne} />
         <CmpStatTile label="Year-end #1" value={player.career.yearEndNumberOne} />

@@ -1,5 +1,7 @@
 ---
 import '../styles/styBase.css';
+import CmpUtilityBar from '../components/cmpUtilityBar.astro';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -19,15 +21,15 @@ const { title, description = 'A reverence for the game — profiles, comparisons
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <ClientRouter />
   </head>
   <body>
+    <CmpUtilityBar />
     <nav class="fs-nav">
       <div class="fs-container fs-nav__inner">
         <a href="/" class="fs-brand">First<span class="fs-brand__mark">·</span>Strings</a>
         <div class="fs-nav__links">
           <a href="/">Roster</a>
-          <a href="/?tour=ATP">ATP</a>
-          <a href="/?tour=WTA">WTA</a>
         </div>
       </div>
     </nav>

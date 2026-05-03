@@ -101,12 +101,18 @@
   border-top: 1px solid var(--rule);
 }
 
+/* DESIGN.md §Typography — eyebrow + serif H2 + slam-color rule cadence. The
+   horizontal layout is the existing pattern (eyebrow on the right as a status
+   indicator); the bottom rule frames the title block in terracotta so every
+   section header earns the editorial accent. */
 .fs-section__title {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--section-rule, var(--slam-rg));
 }
 
 /* career stats */
@@ -250,13 +256,20 @@
   font-family: var(--serif);
   font-size: 1.05rem;
   background: var(--bg);
-  transition: background 0.15s, border-color 0.15s;
 }
 
 .fs-rivals a:hover {
   background: var(--bg-elevated);
-  border-color: var(--clay);
-  color: var(--clay);
+  border-color: var(--slam-rg);
+  color: var(--slam-rg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fs-rivals a {
+    transition: background var(--t-base) var(--ease),
+                border-color var(--t-base) var(--ease),
+                color var(--t-base) var(--ease);
+  }
 }
 
 .fs-rivals .fs-rivals__missing {
@@ -975,13 +988,19 @@ details.fs-tier > summary { cursor: pointer; }
   padding: 0.35rem 0.85rem;
   font-size: 0.85rem;
   color: var(--ink-muted);
-  transition: all 0.15s;
 }
-.fs-filter-btn:hover { border-color: var(--ink-muted); }
+.fs-filter-btn:hover { border-color: var(--ink-muted); color: var(--ink); }
 .fs-filter-btn[aria-pressed="true"] {
   background: var(--ink);
   color: var(--bg);
   border-color: var(--ink);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fs-filter-btn {
+    transition: border-color var(--t-base) var(--ease),
+                color var(--t-base) var(--ease),
+                background var(--t-base) var(--ease);
+  }
 }
 
 .fs-roster-section {
@@ -1015,10 +1034,16 @@ details.fs-tier > summary { cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  transition: background 0.15s;
   border: 0;
   text-align: left;
   width: 100%;
+  /* future-proof for the eventual 500-player roster — DESIGN.md §Performance */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fs-card { transition: background var(--t-base) var(--ease); }
 }
 
 .fs-card__photo {
@@ -1099,4 +1124,27 @@ details.fs-tier > summary { cursor: pointer; }
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--ink-muted);
+}
+
+/* ----- tabular numerals — DESIGN.md §Typography "the Wimbledon scoreboard discipline" ----- */
+.fs-stat__value,
+.fs-card__slams-value,
+.fs-ledger__hero-value,
+.fs-ledger__wins,
+.fs-ledger__losses,
+.fs-ledger__pct,
+.fs-ledger__surface-record,
+.fs-ledger__surface-pct,
+.fs-ledger__miles-value,
+.fs-slam__year,
+.fs-slam__score,
+.fs-slam-group__count,
+.fs-chip__year,
+.fs-proj__range,
+.fs-tally,
+.fs-hero__meta-value,
+.fs-bag__specs,
+.fs-bag__tension {
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-variant-numeric: tabular-nums lining-nums;
 }

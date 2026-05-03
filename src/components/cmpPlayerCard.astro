@@ -13,12 +13,12 @@ const status = player.status === 'active' ? `Age ${formatAge(player.bornIso)}` :
 ---
 <a href={`/players/${player.slug}`} class="fs-card">
   <div class="fs-card__topwrap">
-    <div class="fs-card__photo">
+    <div class="fs-card__photo" transition:name={`photo-${player.slug}`}>
       <img src={getPlayerImagePath(player)} alt="" loading="lazy" />
     </div>
     <div>
       <div class="fs-card__top">
-        <div class="fs-card__name">{player.fullName}</div>
+        <div class="fs-card__name" transition:name={`name-${player.slug}`}>{player.fullName}</div>
         <div class="fs-card__tour">{player.tour}</div>
       </div>
       <div class="fs-card__meta">
@@ -29,7 +29,7 @@ const status = player.status === 'active' ? `Age ${formatAge(player.bornIso)}` :
     </div>
   </div>
   <div class="fs-card__slams">
-    <span class="fs-card__slams-value">{player.career.grandSlams}</span>
+    <span class="fs-card__slams-value" transition:name={`slams-${player.slug}`}>{player.career.grandSlams}</span>
     <span class="fs-card__slams-label">Grand Slam{player.career.grandSlams === 1 ? '' : 's'}</span>
   </div>
 </a>

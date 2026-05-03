@@ -1,49 +1,104 @@
 /* ----- design tokens ----- */
+/* canonical: see DESIGN.md §Palette, §Typography, §Motion */
 :root {
-  --bg: #faf6ee;
-  --bg-elevated: #f0e9da;
-  --bg-deep: #ece4d2;
-  --ink: #1a1a1a;
-  --ink-muted: #6b655d;
-  --ink-soft: #908a80;
-  --rule: #d8d2c5;
-  --clay: #b85a3a;
-  --grass: #355c2f;
-  --gold: #b8893a;
-  --indigo: #2f3a64;
+  /* surface — light */
+  --bg:           #faf6ee; /* warm white, the page */
+  --bg-elevated:  #f0e9da; /* card surface */
+  --bg-deep:      #ece4d2; /* deep card / signature callout */
+  --paper:        #f5f1e8; /* parchment — editorial sections */
 
-  --slam-ao: #2c8fc9;
-  --slam-rg: #b85a3a;
-  --slam-wim: #355c2f;
-  --slam-uso: #1f2c5e;
+  /* ink — light */
+  --ink:        #1a1a1a;
+  --ink-muted:  #6b655d;
+  --ink-soft:   #908a80;
+  --rule:       #d8d2c5;
 
+  /* slam tokens — brand-book values */
+  --slam-rg:         #b06835; /* Roland-Garros terracotta */
+  --slam-rg-deep:    #06492d; /* RG racquet-green secondary */
+  --slam-wim:        #046a38; /* Wimbledon green — Pantone 349 C */
+  --slam-wim-purple: #582c83; /* Wimbledon purple — Pantone 268 C */
+  --slam-ao:         #005eb8; /* AO Process Blue */
+  --slam-ao-light:   #1e8fd5; /* AO True Blue */
+  --slam-uso:        #3d5265; /* US Open Court Blue */
+  --slam-uso-green:  #6c935c; /* US Open Highland */
+
+  /* surface tokens — for data viz (court ramps, surface-tinted bars) */
+  --surface-clay:   #c95f2c; /* terre battue */
+  --surface-grass:  #4d7c3a; /* All-England green-gradient mid */
+  --surface-hard:   #2f6bb3; /* Laykold/DecoTurf hard */
+  --surface-indoor: #6b6b6b; /* carpet / indoor */
+
+  /* utility / accent — the whole accent palette is four colors */
+  --ball:            #d7e84b; /* Wilson optic yellow — never a fill, always a dot */
+  --gold:            #b8893a; /* trophy moments, Olympics, ledger hero */
+  --live:            #e3422b; /* the only red on the site — LIVE pulse */
+  --line:            #ffffff; /* court-line white, used at low opacity */
+  --court-line-mute: rgba(255, 255, 255, 0.55);
+
+  /* legacy editorial-accent aliases — used for drop caps, tour badges, quote bars */
+  /* keep so cmpQuotes / cmpCareerLedger / cmpEloCareerArc / etc. inherit the new palette */
+  --clay:  var(--slam-rg);
+  --grass: var(--slam-wim);
+
+  /* type stack */
   --serif: 'EB Garamond', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
-  --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  --mono: 'SFMono-Regular', Menlo, Consolas, monospace;
+  --sans:  -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Inter, Arial, sans-serif;
+  --mono:  'JetBrains Mono', 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  --rhythm: 1.5rem;
+  /* type scale */
+  --fs-mega:  clamp(3rem,    7vw,  6rem);
+  --fs-h1:    clamp(2.5rem,  5vw,  4.25rem);
+  --fs-h2:    clamp(1.75rem, 3vw,  2.25rem);
+  --fs-h3:    1.35rem;
+  --fs-body:  1rem;
+  --fs-small: 0.875rem;
+  --fs-eye:   0.72rem;
+
+  /* rhythm + containers */
+  --rhythm:      1.5rem;
+  --section-gap: clamp(64px, 8vw, 128px);
+  --reading-max: 720px;
   --content-max: 1100px;
-  --radius: 4px;
+  --hero-max:    1320px;
+  --radius:      4px;
+
+  /* motion — DESIGN.md §Motion */
+  --ease:       cubic-bezier(0.2, 0, 0, 1);
+  --ease-soft:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-court: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast:     180ms;
+  --t-base:     220ms;
+  --t-mid:      320ms;
+  --t-card:     400ms;
+  --t-reveal:   700ms;
+  --t-hero:     900ms;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14110c;
-    --bg-elevated: #1d1a14;
-    --bg-deep: #25211a;
-    --ink: #f4eee0;
-    --ink-muted: #a39e92;
-    --ink-soft: #6b655d;
-    --rule: #2e2920;
-    --clay: #d97a55;
-    --grass: #6f9d65;
-    --gold: #d4a655;
-    --indigo: #6c7bb0;
+    --bg:           #14110c;
+    --bg-elevated:  #1d1a14;
+    --bg-deep:      #25211a;
+    --paper:        #1a1812;
 
-    --slam-ao: #4ea8d8;
-    --slam-rg: #d97a55;
-    --slam-wim: #6f9d65;
-    --slam-uso: #6b7ec0;
+    --ink:        #f4eee0;
+    --ink-muted:  #a39e92;
+    --ink-soft:   #6b655d;
+    --rule:       #2e2920;
+
+    --slam-rg:         #d97a55;
+    --slam-rg-deep:    #4d8f6d;
+    --slam-wim:        #3a9e6c;
+    --slam-wim-purple: #9a6cc4;
+    --slam-ao:         #3aa3e0;
+    --slam-ao-light:   #4ea8d8;
+    --slam-uso:        #6a85a6;
+    --slam-uso-green:  #8fb578;
+
+    /* surface tokens stay constant — they describe the surface, not the page */
+
+    --gold: #d4a655;
   }
 }
 
@@ -76,14 +131,52 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em;
   line-height: 1.1;
   margin: 0;
+  text-wrap: balance;
 }
 
-h1 { font-size: clamp(2.5rem, 5vw, 4.25rem); }
-h2 { font-size: clamp(1.75rem, 3vw, 2.25rem); }
-h3 { font-size: 1.35rem; }
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
 h4 { font-size: 1.1rem; }
 
-p { margin: 0 0 var(--rhythm); }
+p { margin: 0 0 var(--rhythm); text-wrap: pretty; }
+blockquote { text-wrap: balance; }
+
+/* ----- focus ----- */
+:focus-visible {
+  outline: 2px solid var(--slam-rg);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ----- numerals — apply to scores, ranks, years, prize money, percentages ----- */
+.tabular {
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ----- reduced motion ----- */
+/* discipline rule (DESIGN.md §Motion): components should default to no motion and
+   layer transitions behind @media (prefers-reduced-motion: no-preference). The
+   blanket below is a safety net for legacy declarations, not the strategy. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ----- view transitions (Astro 5 ClientRouter) ----- */
+/* Scope the cross-fade and per-element morphs to our motion tokens. Per-element
+   transitions (photo, name, slams) inherit these defaults and morph in place
+   when navigating between roster card and profile hero. DESIGN.md §Motion. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--t-reveal);
+  animation-timing-function: var(--ease);
+}
 
 /* ----- layout ----- */
 .fs-container {
@@ -154,12 +247,29 @@ p { margin: 0 0 var(--rhythm); }
 
 /* ----- meta utilities ----- */
 .fs-eyebrow {
-  font-family: var(--sans);
-  font-size: 0.75rem;
-  text-transform: uppercase;
+  font: 600 var(--fs-eye)/1 var(--sans);
   letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--ink-muted);
-  font-weight: 600;
+}
+
+/* DESIGN.md §Typography "the cadence" — vertical eyebrow + serif H2 + slam-color rule.
+   Use this on new sections; existing pages still use the horizontal .fs-section__title
+   layout with the same terracotta rule applied via styPlayerProfile.css. */
+.fs-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--section-rule, var(--slam-rg));
+}
+.fs-section__head h2 {
+  font-family: var(--serif);
+  font-size: var(--fs-h2);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-wrap: balance;
 }
 
 .fs-rule {

@@ -38,10 +38,10 @@ interface SurfaceMeta {
   strokeWidth: number;
 }
 const SURFACES: SurfaceMeta[] = [
-  { key: 'elo_overall', peakKey: 'peak_overall', peakDtKey: 'peak_overall_dt', label: 'Overall', color: 'var(--ink)',     strokeWidth: 2.2 },
-  { key: 'elo_hard',    peakKey: 'peak_hard',    peakDtKey: 'peak_hard_dt',    label: 'Hard',    color: '#3a6da9',         strokeWidth: 1.4 },
-  { key: 'elo_clay',    peakKey: 'peak_clay',    peakDtKey: 'peak_clay_dt',    label: 'Clay',    color: 'var(--clay)',     strokeWidth: 1.4 },
-  { key: 'elo_grass',   peakKey: 'peak_grass',   peakDtKey: 'peak_grass_dt',   label: 'Grass',   color: 'var(--grass)',    strokeWidth: 1.4 },
+  { key: 'elo_overall', peakKey: 'peak_overall', peakDtKey: 'peak_overall_dt', label: 'Overall', color: 'var(--ink)',           strokeWidth: 2.2 },
+  { key: 'elo_hard',    peakKey: 'peak_hard',    peakDtKey: 'peak_hard_dt',    label: 'Hard',    color: 'var(--surface-hard)',  strokeWidth: 1.4 },
+  { key: 'elo_clay',    peakKey: 'peak_clay',    peakDtKey: 'peak_clay_dt',    label: 'Clay',    color: 'var(--surface-clay)',  strokeWidth: 1.4 },
+  { key: 'elo_grass',   peakKey: 'peak_grass',   peakDtKey: 'peak_grass_dt',   label: 'Grass',   color: 'var(--surface-grass)', strokeWidth: 1.4 },
 ];
 
 const dateMs = (d: EloPoint): number => new Date(d.as_of_dt as unknown as string | number).getTime();

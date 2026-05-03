@@ -1,0 +1,71 @@
+---
+// Wimbledon-style 36px slam-colored utility strip — DESIGN.md §Components.
+// ATP / WTA route to the existing roster filter. Compare and Venues are
+// preview links: the routes don't exist yet, so they're rendered disabled
+// (opacity + pointer-events: none) until those pages land. Live is omitted
+// until a live-match feed exists — a fake pulse off-fortnight would be
+// engagement bait, which we don't ship.
+const url = new URL(Astro.request.url);
+const tour = url.searchParams.get('tour');
+const onRoster = url.pathname === '/' || url.pathname === '';
+---
+<div class="fs-utility">
+  <div class="fs-container fs-utility__inner">
+    <a href="/?tour=ATP" class:list={['fs-utility__link', onRoster && tour === 'ATP' && 'is-active']}>ATP</a>
+    <a href="/?tour=WTA" class:list={['fs-utility__link', onRoster && tour === 'WTA' && 'is-active']}>WTA</a>
+    <span class="fs-utility__sep" aria-hidden="true">·</span>
+    <a href="/compare" class="fs-utility__link is-soon" aria-disabled="true" tabindex="-1">
+      Compare<span class="fs-utility__soon" aria-hidden="true">soon</span>
+    </a>
+    <a href="/venues" class="fs-utility__link is-soon" aria-disabled="true" tabindex="-1">
+      Venues<span class="fs-utility__soon" aria-hidden="true">soon</span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .fs-utility {
+    background: var(--slam-rg-deep);
+    color: #fff;
+    height: 36px;
+    font: 600 var(--fs-eye)/36px var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .fs-utility__inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 100%;
+  }
+  .fs-utility__link {
+    color: rgba(255, 255, 255, 0.82);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    line-height: 1;
+  }
+  .fs-utility__link:hover { color: #fff; }
+  .fs-utility__link.is-active { color: var(--ball); }
+  .fs-utility__link.is-soon {
+    color: rgba(255, 255, 255, 0.42);
+    pointer-events: none;
+    cursor: default;
+  }
+  .fs-utility__sep {
+    color: rgba(255, 255, 255, 0.25);
+    margin: 0 -0.5rem;
+  }
+  .fs-utility__soon {
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    line-height: 1.4;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .fs-utility__link { transition: color var(--t-base) var(--ease); }
+  }
+</style>
