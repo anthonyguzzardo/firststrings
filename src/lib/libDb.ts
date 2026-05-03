@@ -230,6 +230,92 @@ export async function getCareerStatsBySlug(slug: string): Promise<PlayerCareerSt
   }
   return out;
 }
+
+export interface PlayerClutchSlice {
+  matchesSampleSize: number;
+  pointsSampleSize:  number;
+  bpSavePct:    number | null;
+  bpConvertPct: number | null;
+  tiebreakSpw:  number | null;
+  tiebreakRpw:  number | null;
+  leverageAvg:  number | null;
+  blr:          number | null;
+  drPlus:       number | null;
+}
+
+export interface PlayerClutchMetrics {
+  overall: PlayerClutchSlice;
+  hard:   PlayerClutchSlice | null;
+  clay:   PlayerClutchSlice | null;
+  grass:  PlayerClutchSlice | null;
+  carpet: PlayerClutchSlice | null;
+}
+
+/**
+ * All cached clutch slices for a curated player. Pulls overall +
+ * per-canonical-surface from tb_player_clutch_metrics. Returns null when
+ * the player has no MCP-charted matches (most curated legends do; brand
+ * new pros and very-old champions may not). Pages should not render the
+ * Clutch section in that case.
+ */
+export async function getPlayerClutchMetrics(slug: string): Promise<PlayerClutchMetrics | null> {
+  const rows = await sql<Array<{
+    surface_id: number | null;
+    matches_sample_size: number;
+    points_sample_size: number;
+    bp_save_pct: number | null;
+    bp_convert_pct: number | null;
+    tiebreak_spw: number | null;
+    tiebreak_rpw: number | null;
+    leverage_avg: number | null;
+    blr: number | null;
+    dr_plus: number | null;
+  }>>`
+    SELECT
+      cm.surface_id, cm.matches_sample_size, cm.points_sample_size,
+      cm.bp_save_pct, cm.bp_convert_pct,
+      cm.tiebreak_spw, cm.tiebreak_rpw,
+      cm.leverage_avg, cm.blr, cm.dr_plus
+    FROM tb_player_clutch_metrics cm
+    JOIN td_player p ON p.player_id = cm.player_id
+    WHERE p.slug = ${slug}
+  `;
+  if (rows.length === 0) return null;
+
+  const toSlice = (r: typeof rows[number]): PlayerClutchSlice => ({
+    matchesSampleSize: r.matches_sample_size,
+    pointsSampleSize:  r.points_sample_size,
+    bpSavePct:    r.bp_save_pct,
+    bpConvertPct: r.bp_convert_pct,
+    tiebreakSpw:  r.tiebreak_spw,
+    tiebreakRpw:  r.tiebreak_rpw,
+    leverageAvg:  r.leverage_avg,
+    blr:          r.blr,
+    drPlus:       r.dr_plus,
+  });
+
+  const out: PlayerClutchMetrics = {
+    overall: { matchesSampleSize: 0, pointsSampleSize: 0, bpSavePct: null, bpConvertPct: null,
+               tiebreakSpw: null, tiebreakRpw: null, leverageAvg: null, blr: null, drPlus: null },
+    hard: null, clay: null, grass: null, carpet: null,
+  };
+  for (const r of rows) {
+    const slice = toSlice(r);
+    if      (r.surface_id === null) out.overall = slice;
+    else if (r.surface_id === 1)    out.hard    = slice;
+    else if (r.surface_id === 2)    out.clay    = slice;
+    else if (r.surface_id === 3)    out.grass   = slice;
+    else if (r.surface_id === 4)    out.carpet  = slice;
+  }
+  // Floor at 5 charted matches: clutch metrics need a sample to mean anything,
+  // and a 1-match panel is mostly empty cells (no break points faced, no
+  // tiebreaks played, etc.). Players below the floor get null and the page
+  // omits the section. Tune CLUTCH_MIN_MATCHES if the rule needs to change.
+  if (out.overall.matchesSampleSize < CLUTCH_MIN_MATCHES) return null;
+  return out;
+}
+
+const CLUTCH_MIN_MATCHES = 5;
 // @endregion aggregates
 
 // @region matches

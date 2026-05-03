@@ -12,15 +12,18 @@ import CmpEloCareerArc from '../../components/cmpEloCareerArc.astro';
 import CmpCourtLine from '../../components/cmpCourtLine.astro';
 import CmpHeadToHead from '../../components/cmpHeadToHead.astro';
 import CmpRankingSparkline from '../../components/cmpRankingSparkline.astro';
+import CmpClutch from '../../components/cmpClutch.astro';
 import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel, getPlayerImagePath } from '../../lib/libPlayers';
 import {
   getHeadToHead,
   getEloAnnualPeaksBySlug,
   getRankingAnnualBestBySlug,
   getCareerStatsBySlug,
+  getPlayerClutchMetrics,
   type HeadToHead,
   type SparklinePoint,
   type PlayerCareerStats,
+  type PlayerClutchMetrics,
 } from '../../lib/libDb';
 import '../../styles/styPlayerProfile.css';
 
@@ -76,6 +79,17 @@ try {
 } catch (e) {
   const code = (e as { code?: string } | null)?.code;
   if (code !== 'ECONNREFUSED') console.error('[career-stats] DB query failed:', e);
+}
+
+// Clutch metrics from MCP-charted matches. Players whose Sackmann match
+// rows pre-date the Match Charting Project (or who haven't been charted
+// often enough yet) get null and the section silently omits.
+let clutch: PlayerClutchMetrics | null = null;
+try {
+  clutch = await getPlayerClutchMetrics(player.slug);
+} catch (e) {
+  const code = (e as { code?: string } | null)?.code;
+  if (code !== 'ECONNREFUSED') console.error('[clutch] DB query failed:', e);
 }
 
 // Career-arc sparkline. Prefer official ATP/WTA rankings (lower = better);
@@ -187,6 +201,8 @@ const isApprox = player.dataConfidence === 'approximate';
     <CmpTrophyCase player={player} />
 
     {player.ledger && <CmpCareerLedger ledger={player.ledger} status={player.status} liveStats={liveStats} />}
+
+    {clutch && <CmpClutch clutch={clutch} />}
 
     {player.equipment && (
       <>

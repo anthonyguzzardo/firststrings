@@ -2,6 +2,78 @@
 
 A note from the previous agent to the next. Read CLAUDE.md first for the philosophy and conventions, then this for current state and what's next.
 
+## Update 2026-05-03 (later same day) — Clutch panel landed
+
+The Tier 3 #14 "Clutch" panel is live on every curated profile that clears a 5-match MCP threshold. Same SQL-override pattern as `cmpCareerLedger` — pure SQL aggregation off `tb_point`, cached in `tb_player_clutch_metrics`, read once at page render.
+
+### What landed
+
+**Schema**
+- `tb_player_clutch_metrics.points_sample_size INT NOT NULL DEFAULT 0` added to `dbFirstStrings_Tables.sql` and via `db/sql/migrations/001_clutch_points_sample_size.sql`. First migration in the project — apply with `docker exec -i first_strings_pg psql -U first_strings -d first_strings < db/sql/migrations/001_*.sql`. (No tooling for migration tracking yet — by hand. Add one when there are 3+ migrations.)
+
+**Backend**
+- `src/lib/libDerivedClutch.ts` — `refreshClutch()` truncate-and-rebuild. Two `INSERT … SELECT` passes (overall + per-surface) over a `player_points` CTE that UNION-ALLs each charted point as both a server-perspective row and a returner-perspective row. Filter: `external_source_id = 3` AND NOT walkover/retirement. Surface buckets fold INDOOR_HARD/ACRYLIC into Hard, INDOOR_CLAY into Clay (matches refresh-career-stats).
+- `src/scripts/refresh-clutch.ts` — thin runner. `npm run refresh:clutch`. ~5s end-to-end; 1,700 overall + 2,905 surface rows.
+- `getPlayerClutchMetrics(slug)` in `libDb.ts` under `@region aggregates`. Returns `PlayerClutchMetrics | null`. **Returns null when overall `matches_sample_size < 5`** (`CLUTCH_MIN_MATCHES` constant) — single-match panels are mostly empty cells; the threshold protects the UI.
+
+**Frontend**
+- `cmpClutch.astro` — full-section editorial component with three rows:
+  1. **Heroes** — two big serif numerals: BP saved (server perspective, RG terracotta top border) + BP converted (returner perspective, Wim green top border).
+  2. **Tiles** — DR+, Tiebreak SPW, Tiebreak RPW. Each has a thin progress bar tinted RG. Filtered dynamically: tiles whose underlying value is null (e.g. no tiebreaks played) are dropped.
+  3. **Per-surface ladder** — Hard / Clay / Grass / Carpet rows with surface-tinted bars for "Saved" + "Converted" side-by-side, plus per-surface match-count meta. Same gradient bar pattern as `cmpHeadToHead` (`--bar-color`, `--bar-mute`, `--fill`).
+- Footer attribution: `From the Match Charting Project · {N} points` (only adds `· avg leverage X` when leverage_avg lands — see "Known empty cell" below).
+- Slotted into `[slug].astro` after `cmpCareerLedger`, before `cmpEquipmentBag`. Rendered only when `clutch !== null`.
+
+### Sanity-check across the curated roster (overall slice, top by sample size)
+
+| Player | Matches | BP save | BP cvt | TB SPW | TB RPW | DR+ |
+|---|---:|---:|---:|---:|---:|---:|
+| Federer | 689 | 62.2% | 41.1% | 69.8% | 37.1% | 1.27 |
+| Djokovic | 540 | 63.1% | 43.6% | 66.1% | 42.2% | 1.22 |
+| Nadal | 416 | 64.1% | 43.0% | 63.8% | 39.2% | 1.18 |
+| Sinner | 260 | 65.4% | 45.7% | 68.9% | 42.7% | 1.26 |
+| Sampras | 209 | 66.7% | 39.9% | 68.7% | 35.4% | 1.17 |
+| Alcaraz | 206 | 65.0% | 42.2% | 67.1% | 42.5% | 1.22 |
+| Świątek | 206 | 60.8% | **51.0%** | 55.6% | **51.5%** | **1.32** |
+| Roddick | 109 | 64.4% | **29.4%** | 68.5% | 33.3% | 1.03 |
+
+All pass the smell test: Świątek has the highest DR+ and break-conversion rate (matches her "destroyer of serve" rep); Roddick's 29% BP convert is famously his career weakness; Sampras leads BP save thanks to the serve. Federer's 62% vs the 67% target is the MCP-charted-subset distortion (charted matches over-index toward big-stage opponents) — within tolerance.
+
+### Known empty cell — leverage / BLR
+
+`tb_point.leverage` is **null for every row** (1,751,575 / 1,751,575). `libMcpShotParser` does not derive leverage — Sackmann's leverage is a computed quantity (in-match win-probability delta), not a raw MCP token. The Clutch panel handles this gracefully: BLR + the `· avg leverage` footer suffix are filtered out and the layout reflows. **To light those up**, add `src/lib/libDerivedLeverage.ts` that walks `tb_point` in match order, maintains a per-match win-probability state, computes `leverage = |Δp(match win) per point|`, and writes back into the column. ~1.75M points × 1 update each → batch upsert, expect <30s. Then re-run `refresh:clutch`.
+
+### Migration discipline reminder
+
+`db/sql/migrations/` was empty before this session. Going forward: any time you add or rename a column, write the schema rewrite into `dbFirstStrings_Tables.sql` AND drop a forward-only migration file. Number monotonically — `001_*.sql` was just used; next is `002_*.sql`. Apply with `docker exec -i first_strings_pg psql -U first_strings -d first_strings < db/sql/migrations/<file>`. There is no migrations table yet, so apply by hand and don't double-apply.
+
+### For the next agent — concrete pick-up
+
+Two strong options, in order of visible payoff:
+
+**Option A — `tb_shot` ingest from MCP.** `npm run ingest:mcp -- --shots`. ~10M rows, several minutes. The single biggest unlock left in the data layer: enables `cmpServeRose`, `cmpShotHeatmap`, shot-direction maps, error-type breakdowns. After this, the backend can answer "where does Federer hit BH winners on grass" — which is the soul of the project. The flag is already wired in `ingest-sackmann-mcp.ts`; just run it.
+
+**Option B — Backfill `tb_point.leverage`.** Smaller scope (~2-3 hrs). Lights up BLR + leverage_avg in the Clutch panel that just shipped, plus enables future leverage-weighted comparisons. New file `src/lib/libDerivedLeverage.ts` + `src/scripts/refresh-leverage.ts` + `npm run refresh:leverage`. Walk match → set → game → point with a Markov-style P(win) state, compute `|Δp|` per point, batch-update `tb_point.leverage`. Re-run `refresh:clutch` afterward and verify Federer BLR > 0.5 (he should be a positive-leverage player).
+
+A is the bigger feature unlock; B is the cleaner finishing move on what just shipped. User's call.
+
+### Other queued items (carried from the prior 2026-05-03 update)
+
+1. **AI Match Recap card** (`cmpAiInsightCard`).
+2. **Player card visual hierarchy refresh** — promote the ranking sparkline.
+3. **OG image for `/compare/<a>-vs-<b>`.**
+4. **Compare page enhancements** (year-by-year mini-bars, set-score detail, AI summary).
+5. **`tb_player_serve_zones` refresh + `cmpServeRose`** — blocked on Option A above.
+6. **MCP/Sackmann match dedupe** (still open).
+
+### Things to not do
+
+- **Don't render `cmpClutch` without going through `getPlayerClutchMetrics`** — the 5-match floor is in the lib, not the component. Direct DB reads bypassing it will produce single-match panels.
+- **Don't display BLR or leverage_avg as 0 or `—` when null** — the component already hides them. Keep it hiding until leverage is backfilled.
+- **Don't add new "_pct" columns to `tb_player_clutch_metrics` without a UI need.** The schema has space for `excitement_index`, `comeback_factor`, `match_ep`, `deuce_ace_pct`, `ad_ace_pct` — those are intentional placeholders, not TODOs.
+
+---
+
 ## Update 2026-05-03 — V1 design polish + Tier 2/3 SQL-backed components
 
 Big session. The site went from "Elo chart on one page" to a coherent V1 design system with three SQL-backed visualizations and a real ranking layer. **Postgres is now load-bearing for the player profile** — when Docker is down, the chart, sparkline, H2H module, and live career stats all silently omit (clean fallback), but you'll see the curated content only.

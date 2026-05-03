@@ -48,3 +48,20 @@ const url = importMetaEnv?.['FIRSTSTRINGS_PG_URL'] ?? process.env['FIRSTSTRINGS_
 ```
 
 **If you add a new env-reading lib that's used by both contexts, mirror this pattern.** Reading from only one will fail silently in the other.
+
+---
+
+## Schema changes need both a rewrite and a migration
+**Category:** discipline rule.
+
+Per CLAUDE.md, `dbFirstStrings_Tables.sql` reads as a **complete declarative description** of the desired state. So changing schema is two writes, never one:
+
+1. **Rewrite the `CREATE TABLE` in `dbFirstStrings_Tables.sql`** so a fresh `npm run db:reset` produces the new shape directly. No `ALTER TABLE` lives here.
+2. **Drop a forward-only file in `db/sql/migrations/NNN_description.sql`** for existing databases. Number monotonically; `001_clutch_points_sample_size.sql` was the first.
+
+Apply migrations by hand against the running container:
+```sh
+docker exec -i first_strings_pg psql -U first_strings -d first_strings < db/sql/migrations/NNN_*.sql
+```
+
+There is no migrations-table tracking yet — apply once, don't double-apply, and call out the file in the handoff so the next agent knows it ran. Add a tracking table when the migration count crosses 3.

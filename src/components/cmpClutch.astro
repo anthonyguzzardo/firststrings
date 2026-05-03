@@ -1,0 +1,359 @@
+---
+import type { PlayerClutchMetrics, PlayerClutchSlice } from '../lib/libDb';
+
+interface Props {
+  clutch: PlayerClutchMetrics;
+}
+
+const { clutch } = Astro.props;
+const overall = clutch.overall;
+
+const fmtPct = (n: number | null, digits = 1): string =>
+  n === null ? '—' : `${(n * 100).toFixed(digits)}%`;
+
+const fmtRatio = (n: number | null, digits = 2): string =>
+  n === null ? '—' : n.toFixed(digits);
+
+// Per-surface entries shown in the splits ladder. Each surface only renders
+// when the player has at least one charted match on it.
+type SurfaceKey = 'hard' | 'clay' | 'grass' | 'carpet';
+const surfaceMap: Record<SurfaceKey, PlayerClutchSlice | null> = {
+  hard:   clutch.hard,
+  clay:   clutch.clay,
+  grass:  clutch.grass,
+  carpet: clutch.carpet,
+};
+const surfaceLabels: Record<SurfaceKey, string> = {
+  hard: 'Hard', clay: 'Clay', grass: 'Grass', carpet: 'Carpet',
+};
+const surfaces: Array<{ key: SurfaceKey; label: string; slice: PlayerClutchSlice }> =
+  (['hard', 'clay', 'grass', 'carpet'] as const)
+    .map((k) => ({ key: k, label: surfaceLabels[k], slice: surfaceMap[k]! }))
+    .filter((s) => s.slice && s.slice.matchesSampleSize > 0);
+
+// BLR is the "of all the leverage on the table, P captured this much" share
+// (above 0.500 = wins their bigger moments). DR+ is anchored at 1.0; we
+// stretch its bar to 2.0 for full saturation since 1.0–1.5 covers most pros.
+const blrPct = overall.blr !== null ? overall.blr * 100 : null;
+const drPlusBarPct = overall.drPlus !== null
+  ? Math.min((overall.drPlus / 2.0) * 100, 100)
+  : null;
+
+// Tiles get filtered so we don't render "—" placeholders for stats whose
+// inputs aren't populated yet (leverage isn't extracted by the MCP shot
+// parser; BLR / leverage_avg light up once libDerivedLeverage lands).
+type Tile = {
+  key: string;
+  eyebrow: string;
+  value: string;
+  fill: number | null;
+  note: string;
+};
+const tiles: Tile[] = [];
+if (overall.blr !== null && blrPct !== null) {
+  tiles.push({
+    key: 'blr',
+    eyebrow: 'BLR',
+    value: fmtRatio(overall.blr, 3),
+    fill: blrPct,
+    note: 'Balanced Leverage Ratio. Above 0.500 means the bigger the moment, the more often the point goes their way.',
+  });
+}
+if (overall.drPlus !== null && drPlusBarPct !== null) {
+  tiles.push({
+    key: 'dr_plus',
+    eyebrow: 'DR+',
+    value: fmtRatio(overall.drPlus, 2),
+    fill: drPlusBarPct,
+    note: 'Dominance Ratio +. Return-points won divided by the share of service points lost. Above 1.00 = tilts the serve/return balance their way.',
+  });
+}
+if (overall.tiebreakSpw !== null) {
+  tiles.push({
+    key: 'tb_spw',
+    eyebrow: 'Tiebreak SPW',
+    value: fmtPct(overall.tiebreakSpw, 1),
+    fill: overall.tiebreakSpw * 100,
+    note: 'Service points won inside tiebreaks. The breaker matters most when one misstep ends the set.',
+  });
+}
+if (overall.tiebreakRpw !== null) {
+  tiles.push({
+    key: 'tb_rpw',
+    eyebrow: 'Tiebreak RPW',
+    value: fmtPct(overall.tiebreakRpw, 1),
+    fill: overall.tiebreakRpw * 100,
+    note: 'Return points won inside tiebreaks. Top returners hover near 40%.',
+  });
+}
+---
+<section class="fs-section fs-clutch">
+  <div class="fs-section__title">
+    <h2>Clutch</h2>
+    <span class="fs-eyebrow">
+      {overall.matchesSampleSize.toLocaleString('en-US')} MCP-charted match{overall.matchesSampleSize === 1 ? '' : 'es'}
+      {' · '}
+      {overall.pointsSampleSize.toLocaleString('en-US')} pts sample
+    </span>
+  </div>
+
+  <div class="fs-clutch__heroes">
+    <div class="fs-clutch__hero">
+      <span class="fs-eyebrow fs-eyebrow--block">Break points saved</span>
+      <div class="fs-clutch__hero-value tabular">{fmtPct(overall.bpSavePct, 1)}</div>
+      <div class="fs-clutch__hero-sub">as server, under pressure</div>
+    </div>
+    <div class="fs-clutch__hero">
+      <span class="fs-eyebrow fs-eyebrow--block">Break points converted</span>
+      <div class="fs-clutch__hero-value tabular">{fmtPct(overall.bpConvertPct, 1)}</div>
+      <div class="fs-clutch__hero-sub">as returner, with the chance</div>
+    </div>
+  </div>
+
+  {tiles.length > 0 && (
+    <div class="fs-clutch__tiles">
+      {tiles.map((t) => (
+        <div class="fs-clutch__tile">
+          <div class="fs-clutch__tile-head">
+            <span class="fs-eyebrow">{t.eyebrow}</span>
+            <span class="fs-clutch__tile-value tabular">{t.value}</span>
+          </div>
+          {t.fill !== null && (
+            <div class="fs-clutch__tile-bar" style={`--fill: ${t.fill.toFixed(1)}%`} aria-hidden="true"></div>
+          )}
+          <p class="fs-clutch__tile-note">{t.note}</p>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {surfaces.length > 0 && (
+    <div class="fs-clutch__splits">
+      <div class="fs-clutch__splits-head">
+        <span class="fs-eyebrow fs-eyebrow--block">Break-point pressure by surface</span>
+      </div>
+      <ul class="fs-clutch__split-list">
+        {surfaces.map((s) => (
+          <li class={`fs-clutch__split fs-clutch__split--${s.key}`}>
+            <span class="fs-clutch__split-label">{s.label}</span>
+            <div class="fs-clutch__split-cells">
+              <div class="fs-clutch__split-cell">
+                <span class="fs-clutch__split-cell-label">Saved</span>
+                <div
+                  class="fs-clutch__split-bar"
+                  style={`--fill: ${s.slice.bpSavePct !== null ? (s.slice.bpSavePct * 100).toFixed(1) : 0}%`}
+                  aria-hidden="true"
+                ></div>
+                <span class="fs-clutch__split-num tabular">{fmtPct(s.slice.bpSavePct, 0)}</span>
+              </div>
+              <div class="fs-clutch__split-cell">
+                <span class="fs-clutch__split-cell-label">Converted</span>
+                <div
+                  class="fs-clutch__split-bar"
+                  style={`--fill: ${s.slice.bpConvertPct !== null ? (s.slice.bpConvertPct * 100).toFixed(1) : 0}%`}
+                  aria-hidden="true"
+                ></div>
+                <span class="fs-clutch__split-num tabular">{fmtPct(s.slice.bpConvertPct, 0)}</span>
+              </div>
+            </div>
+            <span class="fs-clutch__split-meta">
+              {s.slice.matchesSampleSize.toLocaleString('en-US')} match{s.slice.matchesSampleSize === 1 ? '' : 'es'}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <p class="fs-clutch__footer">
+    From the Match Charting Project · {overall.pointsSampleSize.toLocaleString('en-US')} points
+    {overall.leverageAvg !== null && (
+      <span> · avg leverage {overall.leverageAvg.toFixed(3)}</span>
+    )}
+  </p>
+</section>
+
+<style>
+  .fs-clutch__heroes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-bottom: 1.5rem;
+  }
+  .fs-clutch__hero {
+    background: var(--bg);
+    padding: 1.5rem 1.5rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    border-top: 3px solid var(--slam-rg);
+  }
+  .fs-clutch__hero:nth-child(2) { border-top-color: var(--slam-wim); }
+  .fs-clutch__hero-value {
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 5vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .fs-clutch__hero-sub {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .fs-clutch__tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-bottom: 1.75rem;
+  }
+  .fs-clutch__tile {
+    background: var(--bg);
+    padding: 1rem 1.15rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .fs-clutch__tile-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .fs-clutch__tile-value {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .fs-clutch__tile-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(
+      to right,
+      var(--slam-rg) 0%,
+      var(--slam-rg) var(--fill, 0%),
+      color-mix(in srgb, var(--slam-rg) 18%, transparent) var(--fill, 0%),
+      color-mix(in srgb, var(--slam-rg) 18%, transparent) 100%
+    );
+  }
+  .fs-clutch__tile-note {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+
+  /* per-surface ladder */
+  .fs-clutch__splits {
+    margin-bottom: 1.5rem;
+  }
+  .fs-clutch__splits-head {
+    margin-bottom: 0.85rem;
+  }
+  .fs-clutch__split-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .fs-clutch__split {
+    background: var(--bg);
+    padding: 0.85rem 1.15rem;
+    display: grid;
+    grid-template-columns: 5rem 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .fs-clutch__split-label {
+    font: 600 var(--fs-eye)/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .fs-clutch__split--hard   .fs-clutch__split-label { color: var(--surface-hard); }
+  .fs-clutch__split--clay   .fs-clutch__split-label { color: var(--surface-clay); }
+  .fs-clutch__split--grass  .fs-clutch__split-label { color: var(--surface-grass); }
+  .fs-clutch__split--carpet .fs-clutch__split-label { color: var(--surface-indoor); }
+
+  .fs-clutch__split-cells {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  .fs-clutch__split-cell {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr 3rem;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .fs-clutch__split-cell-label {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+  }
+  .fs-clutch__split-bar {
+    height: 6px;
+    border-radius: 2px;
+    background: linear-gradient(
+      to right,
+      var(--bar-color, var(--ink)) 0%,
+      var(--bar-color, var(--ink)) var(--fill, 0%),
+      var(--bar-mute, var(--rule)) var(--fill, 0%),
+      var(--bar-mute, var(--rule)) 100%
+    );
+  }
+  .fs-clutch__split--hard   { --bar-color: var(--surface-hard);   --bar-mute: color-mix(in srgb, var(--surface-hard)   20%, transparent); }
+  .fs-clutch__split--clay   { --bar-color: var(--surface-clay);   --bar-mute: color-mix(in srgb, var(--surface-clay)   20%, transparent); }
+  .fs-clutch__split--grass  { --bar-color: var(--surface-grass);  --bar-mute: color-mix(in srgb, var(--surface-grass)  20%, transparent); }
+  .fs-clutch__split--carpet { --bar-color: var(--surface-indoor); --bar-mute: color-mix(in srgb, var(--surface-indoor) 20%, transparent); }
+
+  .fs-clutch__split-num {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    text-align: right;
+    color: var(--ink);
+  }
+
+  .fs-clutch__split-meta {
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    text-align: right;
+    min-width: 6rem;
+  }
+
+  .fs-clutch__footer {
+    margin-top: 1.25rem;
+    margin-bottom: 0;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 720px) {
+    .fs-clutch__split {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+    .fs-clutch__split-cells {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    .fs-clutch__split-cell {
+      grid-template-columns: 5.5rem 1fr 3rem;
+    }
+    .fs-clutch__split-meta {
+      text-align: left;
+    }
+  }
+</style>

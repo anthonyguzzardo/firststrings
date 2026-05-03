@@ -863,6 +863,7 @@ CREATE TABLE tb_player_clutch_metrics (
   player_id            BIGINT NOT NULL,
   surface_id           INT,                             -- null = all
   matches_sample_size  INT NOT NULL DEFAULT 0,
+  points_sample_size   INT NOT NULL DEFAULT 0,
   leverage_avg         REAL,
   blr                  REAL,                            -- Balanced Leverage Ratio
   dr_plus              REAL,                            -- Dominance Ratio +
