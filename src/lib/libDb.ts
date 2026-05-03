@@ -105,7 +105,150 @@ export async function getPlayerEloPeaks(slug: string): Promise<EloPeaks | null> 
 // Future regions (add as helpers materialize):
 // @region players
 // @endregion players
+
 // @region matches
+export interface HeadToHeadSurfaceCount {
+  a: number;
+  b: number;
+}
+
+export interface HeadToHeadMeeting {
+  year: number;
+  round: string | null;
+  score: string | null;
+  surface: string | null;
+  tournament: string | null;
+  winnerSlug: string | null;
+  /** True when the underlying match row has no dttm_match_utc and ordering fell back to the year. */
+  isApproxDate: boolean;
+}
+
+export interface HeadToHead {
+  aSlug: string;
+  bSlug: string;
+  aWins: number;
+  bWins: number;
+  bySurface: {
+    hard: HeadToHeadSurfaceCount;
+    clay: HeadToHeadSurfaceCount;
+    grass: HeadToHeadSurfaceCount;
+    carpet: HeadToHeadSurfaceCount;
+  };
+  lastMeeting: HeadToHeadMeeting | null;
+}
+
+/**
+ * Career head-to-head between two curated players. Counts every tour-level
+ * match in SACKMANN_ATP / SACKMANN_WTA (sources 1, 2) — MCP-charted matches
+ * (source 3) are filtered out so we don't double-count rows that exist in
+ * both datasets. Returns null when either slug is unknown to the SQL layer
+ * or the players have never met.
+ */
+export async function getHeadToHead(aSlug: string, bSlug: string): Promise<HeadToHead | null> {
+  const aggRows = await sql<Array<{
+    a_id: string | null;
+    b_id: string | null;
+    a_wins: number;
+    b_wins: number;
+    hard_a: number; hard_b: number;
+    clay_a: number; clay_b: number;
+    grass_a: number; grass_b: number;
+    carpet_a: number; carpet_b: number;
+  }>>`
+    WITH ids AS (
+      SELECT
+        (SELECT player_id FROM td_player WHERE slug = ${aSlug})::text AS a_id,
+        (SELECT player_id FROM td_player WHERE slug = ${bSlug})::text AS b_id
+    ),
+    matches AS (
+      SELECT
+        m.winner_id::text AS winner_id,
+        CASE
+          WHEN m.surface_id IN (1, 5, 7) THEN 'HARD'
+          WHEN m.surface_id IN (2, 6)    THEN 'CLAY'
+          WHEN m.surface_id = 3          THEN 'GRASS'
+          WHEN m.surface_id = 4          THEN 'CARPET'
+          ELSE 'OTHER'
+        END AS bucket
+      FROM tb_match m, ids
+      WHERE m.external_source_id IN (1, 2)
+        AND m.winner_id IS NOT NULL
+        AND ((m.p1_id::text = ids.a_id AND m.p2_id::text = ids.b_id)
+          OR (m.p1_id::text = ids.b_id AND m.p2_id::text = ids.a_id))
+    )
+    SELECT
+      (SELECT a_id FROM ids) AS a_id,
+      (SELECT b_id FROM ids) AS b_id,
+      COUNT(*) FILTER (WHERE m.winner_id = (SELECT a_id FROM ids))::int AS a_wins,
+      COUNT(*) FILTER (WHERE m.winner_id = (SELECT b_id FROM ids))::int AS b_wins,
+      COUNT(*) FILTER (WHERE m.bucket = 'HARD'   AND m.winner_id = (SELECT a_id FROM ids))::int AS hard_a,
+      COUNT(*) FILTER (WHERE m.bucket = 'HARD'   AND m.winner_id = (SELECT b_id FROM ids))::int AS hard_b,
+      COUNT(*) FILTER (WHERE m.bucket = 'CLAY'   AND m.winner_id = (SELECT a_id FROM ids))::int AS clay_a,
+      COUNT(*) FILTER (WHERE m.bucket = 'CLAY'   AND m.winner_id = (SELECT b_id FROM ids))::int AS clay_b,
+      COUNT(*) FILTER (WHERE m.bucket = 'GRASS'  AND m.winner_id = (SELECT a_id FROM ids))::int AS grass_a,
+      COUNT(*) FILTER (WHERE m.bucket = 'GRASS'  AND m.winner_id = (SELECT b_id FROM ids))::int AS grass_b,
+      COUNT(*) FILTER (WHERE m.bucket = 'CARPET' AND m.winner_id = (SELECT a_id FROM ids))::int AS carpet_a,
+      COUNT(*) FILTER (WHERE m.bucket = 'CARPET' AND m.winner_id = (SELECT b_id FROM ids))::int AS carpet_b
+    FROM matches m
+  `;
+  const agg = aggRows[0];
+  if (!agg || agg.a_id === null || agg.b_id === null) return null;
+  if (agg.a_wins + agg.b_wins === 0) return null;
+
+  const lastRows = await sql<Array<{
+    year: number;
+    round_label: string | null;
+    score: string | null;
+    surface_label: string | null;
+    tournament_name: string | null;
+    winner_slug: string | null;
+    has_dttm: boolean;
+  }>>`
+    SELECT
+      m.tournament_edition_year::int    AS year,
+      r.label                           AS round_label,
+      m.score                           AS score,
+      s.label                           AS surface_label,
+      t.name                            AS tournament_name,
+      pw.slug                           AS winner_slug,
+      m.dttm_match_utc IS NOT NULL      AS has_dttm
+    FROM tb_match m
+    LEFT JOIN te_match_round r  ON r.round_id    = m.round_id
+    LEFT JOIN te_surface     s  ON s.surface_id  = m.surface_id
+    LEFT JOIN td_tournament  t  ON t.tournament_id = m.tournament_id
+    LEFT JOIN td_player      pw ON pw.player_id  = m.winner_id
+    WHERE m.external_source_id IN (1, 2)
+      AND m.winner_id IS NOT NULL
+      AND ((m.p1_id::text = ${agg.a_id} AND m.p2_id::text = ${agg.b_id})
+        OR (m.p1_id::text = ${agg.b_id} AND m.p2_id::text = ${agg.a_id}))
+    ORDER BY COALESCE(m.dttm_match_utc, make_date(m.tournament_edition_year::int, 12, 31)::timestamptz) DESC,
+             m.match_id DESC
+    LIMIT 1
+  `;
+  const last = lastRows[0] ?? null;
+
+  return {
+    aSlug,
+    bSlug,
+    aWins: agg.a_wins,
+    bWins: agg.b_wins,
+    bySurface: {
+      hard:   { a: agg.hard_a,   b: agg.hard_b },
+      clay:   { a: agg.clay_a,   b: agg.clay_b },
+      grass:  { a: agg.grass_a,  b: agg.grass_b },
+      carpet: { a: agg.carpet_a, b: agg.carpet_b },
+    },
+    lastMeeting: last ? {
+      year: last.year,
+      round: last.round_label,
+      score: last.score,
+      surface: last.surface_label,
+      tournament: last.tournament_name,
+      winnerSlug: last.winner_slug,
+      isApproxDate: !last.has_dttm,
+    } : null,
+  };
+}
 // @endregion matches
 // @region points
 // @endregion points

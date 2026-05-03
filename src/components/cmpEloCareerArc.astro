@@ -15,7 +15,15 @@ try {
     getPlayerEloPeaks(slug),
   ]);
 } catch (e) {
-  console.error('[cmpEloCareerArc] DB query failed:', e);
+  // ECONNREFUSED is the local-dev case (Postgres not running) — log a quiet
+  // one-liner instead of a full stack so the dev server output stays readable.
+  // The component returns null when data is empty, so the page degrades cleanly.
+  const code = (e as { code?: string } | null)?.code;
+  if (code === 'ECONNREFUSED') {
+    console.warn('[cmpEloCareerArc] DB unreachable (ECONNREFUSED) — skipping. Run `docker compose up -d` to wake Postgres.');
+  } else {
+    console.error('[cmpEloCareerArc] DB query failed:', e);
+  }
 }
 
 // ----- chart geometry --------------------------------------------------------
