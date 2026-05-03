@@ -22,12 +22,19 @@ Big session. The site went from "Elo chart on one page" to a coherent V1 design 
 
 **View transitions** — `<ClientRouter />` + `transition:name="photo-{slug}|name-{slug}|slams-{slug}"` on cards → matching elements on hero. Card photos morph to profile heros, names lift up.
 
+**`/compare` is live.** Two new routes — read these before touching H2H:
+- `/compare` (`src/pages/compare/index.astro`) — six hand-picked featured matchups as click-through cards, real H2H scores fetched in parallel.
+- `/compare/<aSlug>-vs-<bSlug>` (`src/pages/compare/[matchup].astro`) — full deep-dive: cmpHeadToHead module as the page hero, both players' ranking sparklines side-by-side, last 12 meetings with year/tournament/round/surface/score. Slug parsing splits on the *last* `-vs-` so player slugs containing the separator are safe.
+- The big tabular score on every cmpHeadToHead module is now an `<a>` to the deep-link compare page (hover slam-rg) — discoverable cross-link from any profile.
+- Utility bar **Compare** is no longer disabled; it routes to `/compare` and gets `is-active` styling when on any `/compare/*` route. Venues stays "soon".
+
 **SQL data layer**
 
 - `getHeadToHead(slugA, slugB)` — H2H aggregate + last meeting. Filters `external_source_id IN (1,2)` to dodge MCP double-counts. Surface buckets fold INDOOR_HARD/ACRYLIC into Hard, INDOOR_CLAY into Clay.
 - `getEloAnnualPeaksBySlug(slugs[])` + `getRankingAnnualBestBySlug(slugs[])` — batch sparkline data. Page logic prefers real ranking; falls back to Elo proxy for players Sackmann's rankings dataset doesn't cover (pre-1973 careers).
 - `getCareerStatsBySlug(slug)` — overall + per-surface (hard/clay/grass/carpet) match record. Sourced from `tb_player_career_stats`.
-- **`th_player_ranking` ingest**: `npm run ingest:rankings` walks `atp_rankings_*.csv` + `wta_rankings_*.csv` into the table. **5,334,298 rows · 25,975 players · 2,418 weeks · Aug 1973 → Dec 2024.** Sackmann's `*_current.csv` was last updated late 2024 — re-pull the repo to pick up 2025+ ranking weeks.
+- `getMatchHistoryBetween(a, b, limit)` — newest-first list of meetings used by the compare deep-link.
+- **`th_player_ranking` ingest**: `npm run ingest:rankings` walks `atp_rankings_*.csv` + `wta_rankings_*.csv` into the table. **5,334,298 rows · 25,975 players · 2,418 weeks · Aug 1973 → Dec 2024.** Sackmann's repo itself stops at Dec 30 2024 (his "2024 season" commit) — `git pull` is a no-op until he publishes 2025+ data, so don't waste time on it.
 - **`tb_player_career_stats` refresh**: `npm run refresh:career-stats` truncate-and-rebuilds from `tb_match` (sources 1,2 only). Writes overall + 4 surface slices per player. **Federer overall 1265-280 (matches HANDOFF sanity check exactly).** 15,202 overall + 27,693 surface rows.
 
 ### UI integration — what each component now shows on Federer's profile
@@ -48,15 +55,50 @@ Big session. The site went from "Elo chart on one page" to a coherent V1 design 
 
 Roster page: 22 cards now carry a 120×28 sparkline (one batch SQL fetch feeds them all). Jódar omits cleanly — too new for ranking data.
 
-### What's next, sorted by visible payoff
+### For the next agent — concrete pick-up
 
-1. **Tier 3 #14 cont. — `tb_player_clutch_metrics` refresh.** Needs `tb_point` data (we have 1.75M MCP-charted points). Powers BLR / break-point save % / tiebreak record on the profile. Clutch tab on the profile would be a meaningful new section.
-2. **Tier 4 #15 — `tb_shot` ingest from MCP.** `npm run ingest:mcp -- --shots`. ~10M rows, several minutes. Required before serve-placement roses (`cmpServeRose`), court heatmaps, shot-direction visualizations.
-3. **Sackmann `git pull` for 2025+ ranking weeks.** Today the rankings dataset stops at Dec 2024. The current top players (Sinner, Alcaraz, etc.) have arc trajectories that flatline at end of 2024 instead of continuing through 2026.
-4. **Player card visual hierarchy refresh.** With the sparkline now carrying real ranking signal (rather than decoration), the card layout could promote it — current rank inline, sparkline larger.
-5. **`tb_player_serve_zones` refresh.** Less visible than clutch; defer until shot-level data lands.
-6. **MCP/Sackmann match dedupe** (still open from prior handoff).
-7. **`/compare/<a>-vs-<b>` page** using `cmpHeadToHead` as the hero (DESIGN.md spec).
+**Build the Clutch panel.** Tier 3 #14 part 2. Clear scope, ~2-3 focused hours, lands a meaningful new section on every curated profile.
+
+**Why this one:** the data is already there (1.75M MCP-charted `tb_point` rows), no ingest needed; Sackmann-style leverage / break-point / tiebreak metrics are uniquely tennis-y and play directly into the project's "depth over speed" credo; it's a copy-paste of the cmpCareerLedger SQL-override pattern that just shipped, so the engineering risk is low.
+
+**Concrete steps:**
+
+1. **`src/lib/libDerivedClutch.ts`** — pure SQL aggregations from `tb_point`. Compute per (player_id, surface_id), null surface_id = overall:
+   - `bp_save_pct` — server side: pts where `is_break_point` AND `point_winner_id = server_id`, divided by total break points faced
+   - `bp_convert_pct` — returner side: break points won as a returner / break points faced as a returner
+   - `tiebreak_spw` / `tiebreak_rpw` — service / return points won inside `is_tiebreak = TRUE` games
+   - `leverage_avg` — mean `leverage` value across points where it's non-null (Sackmann's pre-computed leverage)
+   - `blr` — Balanced Leverage Ratio: weight wins by leverage; (sum of leverage on won points) / (sum of leverage on all points). Sackmann's signature stat.
+   - `dr_plus` — Dominance Ratio +: returner pts won % / (1 - server pts won %), capped at 3.0
+   - Skip `excitement_index`, `comeback_factor`, `match_ep`, `deuce_ace_pct` for now — they need additional point context the parser may not always have.
+2. **`src/scripts/refresh-clutch.ts`** — orchestrator following `refresh-career-stats.ts` pattern: TRUNCATE `tb_player_clutch_metrics`, INSERT...SELECT for the overall + per-surface slices, sanity check Federer's bp_save_pct (publicly known ~67%).
+3. **`npm run refresh:clutch`** in package.json.
+4. **`getPlayerClutchMetrics(slug)`** in `libDb.ts` under `@region aggregates`. Returns `{ overall, hard, clay, grass, carpet }` shaped like `PlayerCareerStats`.
+5. **`cmpClutch.astro`** — full-section component. Title "Clutch" with eyebrow "MCP-charted matches · N pts sample". Surface-tinted tile grid showing each metric:
+   - bp_save_pct as the big serif numeral, eyebrow "Break points saved", tabular numerals
+   - bp_convert_pct similar
+   - blr / dr_plus as smaller tiles with explanatory subtext (one-line)
+   - Per-surface mini bars below, surface-tinted gradient like cmpHeadToHead
+   - Footer attribution: "From the Match Charting Project · {sample_size} points"
+6. **Slot into `[slug].astro`** after `cmpCareerLedger`, before `cmpEquipmentBag`. Component returns null when `matches_sample_size = 0` (most legends have it; some active newcomers won't).
+
+**Edge cases to remember:**
+- `tb_point` is partial — only MCP-charted matches have points. Federer is dense (~58k service points charted per HANDOFF); Jódar will be empty and the panel should just not render.
+- `is_break_point` is set per-point but `point_winner_id`'s relationship to server vs. returner needs care — use `point_winner_id = server_id` for server-perspective stats.
+- Filter to `external_source_id = 3` (SACKMANN_MCP) when reading `tb_point` if there's any source ambiguity.
+- Don't include walkovers / retirements in clutch (they distort): join `tb_match` and exclude `is_walkover OR is_retirement`.
+
+**Sanity check:** Federer's career bp save % is ~67% (well-known stat); BLR for top servers tends to land ~1.05; DR+ for top returners ~1.4. If your numbers are wildly off, the join or the leverage source is wrong before anything else.
+
+### Other queued items, sorted by visible payoff
+
+1. **Tier 4 #15 — `tb_shot` ingest from MCP.** `npm run ingest:mcp -- --shots`. ~10M rows, several minutes. Required before serve-placement roses (`cmpServeRose`), court heatmaps, shot-direction visualizations. After clutch, this is the single biggest unlock.
+2. **AI Match Recap card** (`cmpAiInsightCard` per DESIGN.md §AI features). `@anthropic-ai/sdk` is in the stack. Generate a 1-paragraph editorial recap per player using H2H data + recent matches as context. Cache by `(slug, as_of_dt)` in a new `tb_player_ai_card` table or filesystem JSON to avoid regen on every page load. This is the project's stated soul move ("a magazine that happens to be a data app").
+3. **Player card visual hierarchy refresh.** With the sparkline now carrying real ranking signal (rather than decoration), the card layout could promote it — show current rank inline, sparkline larger, less metadata.
+4. **OG image for `/compare/<a>-vs-<b>`.** Astro server-renders an SVG OG image of the H2H module — DESIGN.md flags this as the shareability hook for the page that just shipped.
+5. **Compare page enhancements.** Year-by-year mini-bars, set-score detail per meeting, AI summary (per DESIGN.md /compare spec). Defer until 2 lands.
+6. **`tb_player_serve_zones` refresh + `cmpServeRose`.** Blocked on shot-level ingest (#1 above).
+7. **MCP/Sackmann match dedupe** (still open from prior handoff). Currently MCP-charted matches double in `tb_match`; H2H + career-stats already filter `external_source_id IN (1, 2)` to dodge it, but a canonical merge would simplify future queries.
 
 ### Things to not do
 

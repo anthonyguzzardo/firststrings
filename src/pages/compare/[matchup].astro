@@ -1,0 +1,280 @@
+---
+import LayBase from '../../layouts/layBase.astro';
+import CmpHeadToHead from '../../components/cmpHeadToHead.astro';
+import CmpRankingSparkline from '../../components/cmpRankingSparkline.astro';
+import CmpCourtLine from '../../components/cmpCourtLine.astro';
+import { getPlayerBySlug, getPlayerImagePath } from '../../lib/libPlayers';
+import {
+  getHeadToHead,
+  getMatchHistoryBetween,
+  getRankingAnnualBestBySlug,
+  getEloAnnualPeaksBySlug,
+  type SparklinePoint,
+  type HeadToHead,
+  type MatchBetween,
+} from '../../lib/libDb';
+import '../../styles/styPlayerProfile.css';
+
+const { matchup } = Astro.params;
+if (!matchup) return Astro.redirect('/');
+
+// Split on the LAST "-vs-" so player slugs that happen to contain "-vs-" are safe.
+const idx = matchup.lastIndexOf('-vs-');
+if (idx < 1) return new Response('Compare URL must be /compare/<slug-a>-vs-<slug-b>', { status: 400 });
+const aSlug = matchup.slice(0, idx);
+const bSlug = matchup.slice(idx + 4);
+
+const playerA = getPlayerBySlug(aSlug);
+const playerB = getPlayerBySlug(bSlug);
+if (!playerA || !playerB) {
+  return new Response(`Unknown player(s): ${!playerA ? aSlug : ''}${!playerA && !playerB ? ' / ' : ''}${!playerB ? bSlug : ''}`, { status: 404 });
+}
+
+let h2h: HeadToHead | null = null;
+let history: MatchBetween[] = [];
+let arcA: { data: SparklinePoint[]; inverted: boolean } = { data: [], inverted: false };
+let arcB: { data: SparklinePoint[]; inverted: boolean } = { data: [], inverted: false };
+
+try {
+  const [h2hRes, histRes, rankMap, eloMap] = await Promise.all([
+    getHeadToHead(aSlug, bSlug),
+    getMatchHistoryBetween(aSlug, bSlug, 12),
+    getRankingAnnualBestBySlug([aSlug, bSlug]),
+    getEloAnnualPeaksBySlug([aSlug, bSlug]),
+  ]);
+  h2h = h2hRes;
+  history = histRes;
+  for (const slug of [aSlug, bSlug]) {
+    const rk = rankMap.get(slug);
+    const target = slug === aSlug ? arcA : arcB;
+    if (rk && rk.length > 1) {
+      target.data = rk;
+      target.inverted = true;
+    } else {
+      const el = eloMap.get(slug);
+      if (el && el.length > 1) {
+        target.data = el;
+        target.inverted = false;
+      }
+    }
+  }
+} catch (e) {
+  const code = (e as { code?: string } | null)?.code;
+  if (code !== 'ECONNREFUSED') console.error('[compare] DB query failed:', e);
+}
+
+const title = `${playerA.fullName} vs ${playerB.fullName}`;
+---
+<LayBase title={title} description={`Career head-to-head: ${title}.`}>
+  <header class="fs-compare-hero">
+    <div class="fs-container">
+      <div class="fs-eyebrow fs-eyebrow--block">Head to Head</div>
+      <h1 class="fs-compare-hero__title">
+        <a href={`/players/${playerA.slug}`} class="fs-compare-hero__name">{playerA.fullName}</a>
+        <span class="fs-compare-hero__vs" aria-hidden="true">vs.</span>
+        <a href={`/players/${playerB.slug}`} class="fs-compare-hero__name">{playerB.fullName}</a>
+      </h1>
+    </div>
+  </header>
+
+  <article class="fs-container">
+    <CmpCourtLine tone="rg" />
+
+    {h2h ? (
+      <section class="fs-section fs-h2h-section">
+        <CmpHeadToHead playerA={playerA} playerB={playerB} h2h={h2h} />
+      </section>
+    ) : (
+      <section class="fs-section">
+        <p class="fs-compare-empty">
+          No tour-level meetings recorded between these players in the Sackmann dataset.
+        </p>
+      </section>
+    )}
+
+    {(arcA.data.length > 1 || arcB.data.length > 1) && (
+      <section class="fs-section">
+        <div class="fs-section__title">
+          <h2>Career arcs</h2>
+          <span class="fs-eyebrow">Annual best — both players</span>
+        </div>
+        <div class="fs-compare-arcs">
+          {arcA.data.length > 1 && (
+            <div class="fs-compare-arc">
+              <div class="fs-compare-arc__head">
+                <img src={getPlayerImagePath(playerA)} alt="" class="fs-compare-arc__photo" />
+                <div>
+                  <div class="fs-compare-arc__name">{playerA.fullName}</div>
+                  <div class="fs-compare-arc__hint">{arcA.inverted ? 'ATP/WTA ranking' : 'Elo proxy'}</div>
+                </div>
+              </div>
+              <CmpRankingSparkline data={arcA.data} width={520} height={56} showAxis inverted={arcA.inverted} />
+            </div>
+          )}
+          {arcB.data.length > 1 && (
+            <div class="fs-compare-arc">
+              <div class="fs-compare-arc__head">
+                <img src={getPlayerImagePath(playerB)} alt="" class="fs-compare-arc__photo" />
+                <div>
+                  <div class="fs-compare-arc__name">{playerB.fullName}</div>
+                  <div class="fs-compare-arc__hint">{arcB.inverted ? 'ATP/WTA ranking' : 'Elo proxy'}</div>
+                </div>
+              </div>
+              <CmpRankingSparkline data={arcB.data} width={520} height={56} showAxis inverted={arcB.inverted} />
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    {history.length > 0 && (
+      <section class="fs-section">
+        <div class="fs-section__title">
+          <h2>Meetings</h2>
+          <span class="fs-eyebrow">Last {history.length}</span>
+        </div>
+        <ol class="fs-compare-history">
+          {history.map((m) => {
+            const winnerName = m.winnerSlug === playerA.slug
+              ? playerA.fullName
+              : m.winnerSlug === playerB.slug
+                ? playerB.fullName
+                : null;
+            const loserName = winnerName === playerA.fullName ? playerB.fullName : playerA.fullName;
+            return (
+              <li class="fs-compare-meeting">
+                <span class="fs-compare-meeting__year">{m.year}</span>
+                <div class="fs-compare-meeting__main">
+                  <div class="fs-compare-meeting__where">
+                    {m.tournament ?? '—'}
+                    {m.round && <span class="fs-compare-meeting__round"> · {m.round}</span>}
+                    {m.surface && <span class="fs-compare-meeting__surface"> · {m.surface}</span>}
+                  </div>
+                  {winnerName && (
+                    <div class="fs-compare-meeting__result">
+                      {winnerName} d. {loserName}{m.score && <> · <span class="fs-compare-meeting__score">{m.score}</span></>}
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    )}
+
+    <a href={`/players/${playerA.slug}`} class="fs-back">← Back to {playerA.fullName}</a>
+  </article>
+</LayBase>
+
+<style>
+  .fs-compare-hero {
+    padding: 4rem 0 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .fs-compare-hero__title {
+    margin-top: 0.25rem;
+    font-size: var(--fs-h1);
+    line-height: 1.05;
+    text-wrap: balance;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    align-items: baseline;
+  }
+  .fs-compare-hero__name {
+    color: var(--ink);
+  }
+  .fs-compare-hero__name:hover { color: var(--slam-rg); }
+  .fs-compare-hero__vs {
+    font-style: italic;
+    color: var(--ink-muted);
+    font-size: 0.55em;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .fs-compare-hero__name { transition: color var(--t-base) var(--ease); }
+  }
+
+  .fs-compare-empty {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+
+  .fs-compare-arcs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 2rem;
+  }
+  .fs-compare-arc__head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+  .fs-compare-arc__photo {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    object-fit: cover;
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+  }
+  .fs-compare-arc__name {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+  .fs-compare-arc__hint {
+    font: 600 var(--fs-eye)/1 var(--sans);
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin-top: 0.2rem;
+  }
+
+  .fs-compare-history {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .fs-compare-meeting {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .fs-compare-meeting:first-child { border-top: none; padding-top: 0; }
+  .fs-compare-meeting__year {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--slam-rg);
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .fs-compare-meeting__where {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+  .fs-compare-meeting__round,
+  .fs-compare-meeting__surface {
+    color: var(--ink-muted);
+    font-size: 0.9em;
+  }
+  .fs-compare-meeting__result {
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+    margin-top: 0.2rem;
+  }
+  .fs-compare-meeting__score {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--ink);
+  }
+</style>

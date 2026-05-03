@@ -36,11 +36,15 @@ const wonByA = h2h.lastMeeting?.winnerSlug === playerA.slug;
       <div class="fs-h2h__photo"><img src={getPlayerImagePath(playerA)} alt="" loading="lazy" /></div>
       <div class="fs-h2h__name">{playerA.fullName}</div>
     </div>
-    <div class="fs-h2h__score" aria-label={`${h2h.aWins} to ${h2h.bWins}`}>
+    <a
+      class="fs-h2h__score"
+      href={`/compare/${playerA.slug}-vs-${playerB.slug}`}
+      aria-label={`Compare ${playerA.fullName} vs ${playerB.fullName} — ${h2h.aWins} to ${h2h.bWins}`}
+    >
       <span class="fs-h2h__score-num">{h2h.aWins}</span>
       <span class="fs-h2h__score-sep" aria-hidden="true">—</span>
       <span class="fs-h2h__score-num">{h2h.bWins}</span>
-    </div>
+    </a>
     <div class="fs-h2h__player">
       <div class="fs-h2h__photo"><img src={getPlayerImagePath(playerB)} alt="" loading="lazy" /></div>
       <div class="fs-h2h__name">{playerB.fullName}</div>
@@ -180,6 +184,10 @@ const wonByA = h2h.lastMeeting?.winnerSlug === playerA.slug;
   .fs-h2h__score-num {
     min-width: 1.1ch;
     text-align: center;
+  }
+  .fs-h2h__score:hover { color: var(--slam-rg); }
+  @media (prefers-reduced-motion: no-preference) {
+    .fs-h2h__score { transition: color var(--t-base) var(--ease); }
   }
 
   .fs-h2h__splits {

@@ -375,6 +375,46 @@ export async function getHeadToHead(aSlug: string, bSlug: string): Promise<HeadT
     } : null,
   };
 }
+export interface MatchBetween {
+  year: number;
+  tournament: string | null;
+  round: string | null;
+  surface: string | null;
+  score: string | null;
+  winnerSlug: string | null;
+  hasDate: boolean;
+}
+
+/**
+ * Most-recent N tour-level meetings between two players, newest first.
+ * Same source filter as `getHeadToHead` (sources 1, 2 only) so counts agree.
+ */
+export async function getMatchHistoryBetween(aSlug: string, bSlug: string, limit = 12): Promise<MatchBetween[]> {
+  return await sql<Array<MatchBetween>>`
+    SELECT
+      m.tournament_edition_year::int    AS year,
+      t.name                            AS tournament,
+      r.label                           AS round,
+      s.label                           AS surface,
+      m.score                           AS score,
+      pw.slug                           AS "winnerSlug",
+      m.dttm_match_utc IS NOT NULL      AS "hasDate"
+    FROM tb_match m
+    LEFT JOIN te_match_round r  ON r.round_id    = m.round_id
+    LEFT JOIN te_surface     s  ON s.surface_id  = m.surface_id
+    LEFT JOIN td_tournament  t  ON t.tournament_id = m.tournament_id
+    LEFT JOIN td_player      pw ON pw.player_id  = m.winner_id
+    WHERE m.external_source_id IN (1, 2)
+      AND m.winner_id IS NOT NULL
+      AND ((m.p1_id = (SELECT player_id FROM td_player WHERE slug = ${aSlug})
+            AND m.p2_id = (SELECT player_id FROM td_player WHERE slug = ${bSlug}))
+        OR (m.p1_id = (SELECT player_id FROM td_player WHERE slug = ${bSlug})
+            AND m.p2_id = (SELECT player_id FROM td_player WHERE slug = ${aSlug})))
+    ORDER BY COALESCE(m.dttm_match_utc, make_date(m.tournament_edition_year::int, 12, 31)::timestamptz) DESC,
+             m.match_id DESC
+    LIMIT ${limit}
+  `;
+}
 // @endregion matches
 // @region points
 // @endregion points
