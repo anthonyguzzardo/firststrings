@@ -2,6 +2,80 @@
 
 A note from the previous agent to the next. Read CLAUDE.md first for the philosophy and conventions, then this for current state and what's next.
 
+## Update 2026-05-02 (evening) — First viz shipped, design is now the bottleneck
+
+The data layer is solid (sees previous update for the receipts). The first SQL-backed visualization landed: a server-rendered Elo career-arc chart on the curated player profile page, fed live from `th_player_elo`. **Federer's chart shows peaks at 2420 overall, 2338 hard, 2163 clay, 2068 grass — all sanity-passing.**
+
+That ships the *pattern*. Now there's a much bigger map of what to build, and a single source of truth for it: **`DESIGN.md` at the repo root** is a 1,054-line design manual covering palette, typography, motion, GPU policy, components, page architecture, and a numbered V1→V4 roadmap. The receipts behind every choice live in `tmp/design-research/{roland-garros,wimbledon,australian-open,us-open,broader-tennis,motion-and-gpu}.md`.
+
+**Read DESIGN.md before doing any visual work.** Don't reinvent a palette, a motion token, or a component pattern that's already specified.
+
+### What's been built this session (visual)
+
+- **`cmpEloCareerArc.astro`** — server-rendered SVG line chart (overall + hard/clay/grass). Peak markers, year ticks, Elo gridlines, scoped legend, methodology footnote. Uses design tokens (`--ink`, `--clay`, `--grass`) plus one ad-hoc slate blue (`#3a6da9`) for hard-court — that should graduate to a `--surface-hard` token per DESIGN.md §Palette.
+- **`getPlayerEloTrajectory()` + `getPlayerEloPeaks()`** added to `libDb.ts` (under new `@region elo`). The pattern for any future SQL-backed component: dedicated query function in `libDb.ts`, called from the component frontmatter, render server-side.
+- **Slot in `[slug].astro`** between Career stats and Trophy Case. The chart only renders when `th_player_elo` has rows — players too new for Sackmann's data (e.g. Jódar) get a clean omit, no broken UI.
+- **Env loading discipline** documented in GOTCHAS.md. Astro/Vite uses `import.meta.env`; tsx scripts use `process.env` via `--env-file`. `libDb.ts` reads from both. Replicate this pattern in any new lib that's used by both contexts.
+
+### What's next (the actual priorities now)
+
+The **data layer is over-built relative to what's visible.** Don't queue more ingest work unless a specific visual feature needs it. Follow DESIGN.md's V1 roadmap; here's the practical ordering, sorted by data-dependency:
+
+#### Tier 1 — pure CSS / Astro upgrades (no new data needed)
+
+These ship visible polish across the entire site in a single sprint. From DESIGN.md §Roadmap V1:
+
+1. **Update slam-color tokens** to brand-book values (`#b06835` RG, `#046a38` Wim, `#005eb8` AO, `#3d5265` USO). One-line palette upgrade. Mostly unifies things; my Federer chart's `--clay` will shift slightly.
+2. **`cmpUtilityBar.astro`** — Wimbledon-style 36px slam-colored strip above the main nav. Identity-defining at first paint.
+3. **View transitions** on player cards → profile pages (Astro 5 native `transition:name`). The single biggest premium-feel multiplier.
+4. **`text-wrap: balance`** on every heading; **`pretty`** on body copy. Free editorial-typography upgrade.
+5. **`.tabular`** utility class + apply to every score, rank, year, prize-money number. The Wimbledon scoreboard discipline.
+6. **`prefers-reduced-motion: no-preference`** gates on every animation. Philosophy at the CSS level.
+7. **Eyebrow + serif H2 + slam-color rule cadence** on every section header. Mostly already there; needs unification.
+8. **`content-visibility: auto`** on `.fs-card`. Future-proof for big roster.
+9. **Court-line SVG + `animation-timeline: view()`** draw-in. Signature gesture.
+
+#### Tier 2 — SQL-backed components using data we already have
+
+10. **`cmpHeadToHead.astro`** — two-portrait, one-number module. Needs a new `getHeadToHead(slug, opponentSlug)` query in `libDb.ts` that aggregates over `tb_match`. We have all 353k matches loaded; building H2H is a single SQL with WHERE on (p1_id, p2_id) IN both orderings.
+11. **`cmpRankingSparkline.astro`** — career ranking line. We don't have official rankings ingested yet, but **Elo can stand in as a proxy** (`th_player_elo.elo_overall`) for v1. Swap in real ATP/WTA rankings once ingested.
+12. **Refine `cmpEloCareerArc`** — adopt the new `--surface-*` tokens from DESIGN.md, add the methodology footer styling per DESIGN.md "headline + chart + footnote" pattern, consider a moving-average smoothing option.
+
+#### Tier 3 — needs new data, but the data is one cheap script away
+
+13. **Sackmann rankings ingest** → `th_player_ranking`. Same engine pattern as ATP/WTA matches. Powers `cmpRankingSparkline` properly. Cheap.
+14. **Refresh aggregates** — populate `tb_player_career_stats`, `tb_player_serve_zones`, `tb_player_clutch_metrics`. Each is a focused `lib*` + `refresh-*.ts` pair. Unlocks: surface splits, ace-rate panels, clutch comparisons.
+
+#### Tier 4 — needs more data work that's worth doing
+
+15. **`tb_shot` ingest from MCP** — `npm run ingest:mcp -- --shots` (flag exists, run hasn't). Expected ~10M rows, several minutes. Required before serve-placement roses (`cmpServeRose`), court heatmaps (`cmpShotHeatmap`), shot-direction visualizations.
+16. **MCP/Sackmann match dedupe.** Currently MCP-charted matches exist twice in `tb_match` (sources 1/2 and source 3). Heuristic merge at ingest time (date + slug pair + tournament name fuzzy match) is the right path.
+
+#### Tier 5 — DESIGN.md V2/V3 territory (defer until V1 is stable)
+
+- `cmpLiveDock` (live tournament heartbeat) — needs a live feed
+- `cmpAiInsightCard` (Claude-generated match recaps) — needs Claude integration
+- `cmpDrawCanvas` (Bracketry-based tournament draws) — needs draw data
+- Paper Shaders mesh-gradient hero on `/`
+- `cmpQuickSearch` (`Cmd+K` / `/`) with Fuse.js
+- Magnetic premium buttons (3 spots site-wide)
+- `cmpStyleNeighbours` (pgvector kNN) — needs the embedding pipeline (`py/embed_players.py`)
+- `/venues` MapLibre atlas — needs venue ingest from Wikidata
+- `/announcers/<slug>` — needs ICDb ingest
+
+### Things to not do
+
+- **Don't add more data without a visual feature asking for it.** The 365k matches and 1.75M points and 371k Elo snapshots are way ahead of what's surfaced.
+- **Don't reinvent the palette.** DESIGN.md §Palette is canonical. Slam tokens are scheduled to update from current approximations to brand-book hex.
+- **Don't ship GSAP, Three.js, Lenis, custom cursors, or pink/magenta as primary** — DESIGN.md §Anti-patterns enumerates the no's with reasons.
+- **Don't write a parallel design doc.** Add to DESIGN.md or to a research file in `tmp/design-research/`.
+
+### The 30-second mental model for the next session
+
+> The site is the philosophy: depth over speed, editorial restraint, surface-tinted everything, EB Garamond display + tabular numerals. Read DESIGN.md. The data layer is solid (Sackmann + MCP + Elo). The Federer Elo chart proved the SSR-SVG pattern. Now ship the V1 design roadmap component-by-component. Most of V1 needs zero new data — just CSS, Astro, and view transitions.
+
+---
+
 ## Update 2026-05-02 (later same day) — SQL/Sackmann/MCP layer is now live
 
 The "match-level data" thread (previously sketched as a TS-types + research-JSON expansion — see "Then: 'fine-grain detail on matches'" further down) **was rerouted into a Postgres-backed analytics layer** after a research pass surfaced Jeff Sackmann's open datasets, the Match Charting Project (10.4M shot-level rows), Wikidata SPARQL for pre-Open-era and venues, ICDb for commentators, and `glad94/infotennis` for Court Vision. The TS-curated roster stays as-is for editorial content; the SQL layer takes everything data-dense.

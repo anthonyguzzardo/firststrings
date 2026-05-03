@@ -28,3 +28,23 @@ There are two player data sources, both authoritative for their domain:
 A curated player has both: a `td_player` row with `is_curated = TRUE` and a `tm_player_external_id` row mapping its `td_player.player_id` to the TS slug (`source = MANUAL`). A non-curated player from Sackmann ingest has `is_curated = FALSE` and only the SQL side.
 
 Don't try to collapse the two. Editorial content does not belong in SQL; 10M shots do not belong in TS files.
+
+---
+
+## Env vars: Astro reads `import.meta.env`, Node scripts read `process.env`
+**Category:** discipline rule.
+
+`.env` is loaded by two different mechanisms depending on where code runs:
+- **Astro dev / build / SSR** → Vite injects `.env` vars into `import.meta.env` (server-side). `process.env` is **empty** in this context unless something else populated it.
+- **`tsx` ingest scripts** → Node 20+'s `--env-file=.env` flag (already wired into every `npm run ingest:*` / `npm run refresh:*` script) populates `process.env`. `import.meta.env` is undefined here.
+
+`src/lib/libDb.ts` reads from both with a fallback:
+
+```ts
+const importMetaEnv = typeof import.meta !== 'undefined'
+  && (import.meta as { env?: Record<string,string|undefined> }).env
+  ? (import.meta as { env: Record<string,string|undefined> }).env : undefined;
+const url = importMetaEnv?.['FIRSTSTRINGS_PG_URL'] ?? process.env['FIRSTSTRINGS_PG_URL'];
+```
+
+**If you add a new env-reading lib that's used by both contexts, mirror this pattern.** Reading from only one will fail silently in the other.

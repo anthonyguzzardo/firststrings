@@ -20,8 +20,10 @@ npm run dev                  # Astro dev server on :4321
 `.env` (gitignored) holds `FIRSTSTRINGS_PG_URL`. See `.env.example`.
 
 ## Agent Navigation
-- Data-layer work: `grep '@region' db/sql/dbFirstStrings_Tables.sql` (schema TOC), `grep '@region' src/lib/libDb.ts` (function TOC). Update nearest `@region` when adding tables/exports.
+- **Visual / design / component work:** read `DESIGN.md` first (1k+ line manual — palette, typography, motion, GPU policy, components, page architecture, V1→V4 roadmap). Receipts in `tmp/design-research/{roland-garros,wimbledon,australian-open,us-open,broader-tennis,motion-and-gpu}.md`.
+- **Data-layer work:** `grep '@region' db/sql/dbFirstStrings_Tables.sql` (schema TOC), `grep '@region' src/lib/libDb.ts` (function TOC). Update nearest `@region` when adding tables/exports.
 - Curated TS roster lives in `src/lib/libPlayersData.ts` (~13.4k lines). The SQL `td_player` row for a curated player carries `is_curated = TRUE` and is bridged to its slug via `tm_player_external_id` (source = `MANUAL`).
+- **Current state, milestones, and what's next:** `HANDOFF.md`.
 - Unfamiliar areas: check `GOTCHAS.md`.
 - `GOTCHAS.md` entry categories (only): necessary friction, historical landmines (with fix date), discipline rules, philosophy-driven choices (with principle). "Semi-intentional" or "matches pattern of X being best-effort" = rationalizing a bug. Fix it.
 
