@@ -80,6 +80,72 @@ export interface EloPeaks {
   peak_grass_dt: Date | string | null;
 }
 
+export interface SparklinePoint {
+  year: number;
+  value: number;
+}
+
+/**
+ * Year-bucketed peak overall Elo per player, batched. Returns a Map keyed by
+ * slug. The `value` field carries the year's peak Elo (higher = better) — the
+ * sparkline component renders this with `inverted=false`.
+ */
+export async function getEloAnnualPeaksBySlug(slugs: string[]): Promise<Map<string, SparklinePoint[]>> {
+  if (slugs.length === 0) return new Map();
+  const rows = await sql<Array<{ slug: string; year: number; value: number }>>`
+    SELECT
+      p.slug,
+      EXTRACT(YEAR FROM e.as_of_dt)::int AS year,
+      MAX(e.elo_overall)::int            AS value
+    FROM th_player_elo e
+    JOIN td_player p ON p.player_id = e.player_id
+    WHERE p.slug = ANY(${slugs as unknown as string[]})
+    GROUP BY p.slug, year
+    ORDER BY p.slug, year
+  `;
+  const out = new Map<string, SparklinePoint[]>();
+  for (const r of rows) {
+    const arr = out.get(r.slug) ?? [];
+    arr.push({ year: r.year, value: r.value });
+    out.set(r.slug, arr);
+  }
+  return out;
+}
+
+/**
+ * Year-bucketed best (minimum) ATP/WTA rank per player, batched. Returns the
+ * year's career-best rank — the sparkline renders this with `inverted=true`
+ * so rank 1 sits at the top. Source: th_player_ranking from Sackmann's
+ * weekly-rankings dataset.
+ *
+ * Use this in preference to the Elo proxy whenever it returns a non-empty
+ * trajectory; fall back to Elo for players without ranking history.
+ */
+export async function getRankingAnnualBestBySlug(slugs: string[]): Promise<Map<string, SparklinePoint[]>> {
+  if (slugs.length === 0) return new Map();
+  const rows = await sql<Array<{ slug: string; year: number; value: number }>>`
+    SELECT
+      p.slug,
+      EXTRACT(YEAR FROM r.week_dt)::int AS year,
+      MIN(r.rank)::int                  AS value
+    FROM th_player_ranking r
+    JOIN td_player p ON p.player_id = r.player_id
+    WHERE p.slug = ANY(${slugs as unknown as string[]})
+    GROUP BY p.slug, year
+    ORDER BY p.slug, year
+  `;
+  const out = new Map<string, SparklinePoint[]>();
+  for (const r of rows) {
+    const arr = out.get(r.slug) ?? [];
+    arr.push({ year: r.year, value: r.value });
+    out.set(r.slug, arr);
+  }
+  return out;
+}
+
+/** Legacy alias retained while the call sites migrate. */
+export type EloAnnualPoint = SparklinePoint;
+
 /** Career peak Elo per track for a curated player, with the date each peak was hit. */
 export async function getPlayerEloPeaks(slug: string): Promise<EloPeaks | null> {
   const rows = await sql<EloPeaks[]>`
@@ -105,6 +171,66 @@ export async function getPlayerEloPeaks(slug: string): Promise<EloPeaks | null> 
 // Future regions (add as helpers materialize):
 // @region players
 // @endregion players
+
+// @region aggregates
+export interface PlayerSurfaceStats {
+  matchesWon: number;
+  matchesLost: number;
+  setsWon: number;
+  setsLost: number;
+  gamesWon: number;
+  gamesLost: number;
+}
+
+export interface PlayerCareerStats {
+  overall: PlayerSurfaceStats;
+  hard:   PlayerSurfaceStats | null;
+  clay:   PlayerSurfaceStats | null;
+  grass:  PlayerSurfaceStats | null;
+  carpet: PlayerSurfaceStats | null;
+}
+
+/**
+ * All cached career-stats slices for a curated player. Pulls overall + per
+ * canonical surface (1=Hard incl. indoor/acrylic, 2=Clay incl. indoor-clay,
+ * 3=Grass, 4=Carpet) from tb_player_career_stats. Returns null only when
+ * the player has never appeared in tb_match (e.g. brand new pros Sackmann
+ * hasn't ingested yet).
+ */
+export async function getCareerStatsBySlug(slug: string): Promise<PlayerCareerStats | null> {
+  const rows = await sql<Array<{
+    surface_id: number | null;
+    matches_won: number; matches_lost: number;
+    sets_won: number; sets_lost: number;
+    games_won: number; games_lost: number;
+  }>>`
+    SELECT
+      cs.surface_id, cs.matches_won, cs.matches_lost,
+      cs.sets_won, cs.sets_lost, cs.games_won, cs.games_lost
+    FROM tb_player_career_stats cs
+    JOIN td_player p ON p.player_id = cs.player_id
+    WHERE p.slug = ${slug} AND cs.level_id IS NULL
+  `;
+  if (rows.length === 0) return null;
+  const blank: PlayerSurfaceStats = {
+    matchesWon: 0, matchesLost: 0, setsWon: 0, setsLost: 0, gamesWon: 0, gamesLost: 0,
+  };
+  const out: PlayerCareerStats = { overall: blank, hard: null, clay: null, grass: null, carpet: null };
+  for (const r of rows) {
+    const stats: PlayerSurfaceStats = {
+      matchesWon: r.matches_won, matchesLost: r.matches_lost,
+      setsWon: r.sets_won, setsLost: r.sets_lost,
+      gamesWon: r.games_won, gamesLost: r.games_lost,
+    };
+    if      (r.surface_id === null) out.overall = stats;
+    else if (r.surface_id === 1)    out.hard    = stats;
+    else if (r.surface_id === 2)    out.clay    = stats;
+    else if (r.surface_id === 3)    out.grass   = stats;
+    else if (r.surface_id === 4)    out.carpet  = stats;
+  }
+  return out;
+}
+// @endregion aggregates
 
 // @region matches
 export interface HeadToHeadSurfaceCount {

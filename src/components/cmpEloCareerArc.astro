@@ -194,11 +194,20 @@ const peakLookup: Record<SurfaceKey, number | null> = {
       </svg>
     </div>
 
-    <p class="fs-elo__note">
-      Elo computed from {data.length.toLocaleString()} match results in Sackmann's open dataset (1968-present).
-      K-factor 64 → 40 → 32 across the first 30 matches; surface tracks update only on matches of that surface.
-      Peak markers show the all-time high for each track.
-    </p>
+    <dl class="fs-elo__meta">
+      <div class="fs-elo__meta-row">
+        <dt>Source</dt>
+        <dd>Sackmann tennis_atp + tennis_wta · 1968–present</dd>
+      </div>
+      <div class="fs-elo__meta-row">
+        <dt>Sample</dt>
+        <dd><span class="tabular">{data.length.toLocaleString()}</span> match-day snapshots</dd>
+      </div>
+      <div class="fs-elo__meta-row">
+        <dt>Method</dt>
+        <dd>K-factor schedule <span class="tabular">64 → 40 → 32</span>; surface tracks update only on matches played on that surface. Peaks marked at career maximum.</dd>
+      </div>
+    </dl>
   </section>
 )}
 
@@ -254,12 +263,31 @@ const peakLookup: Record<SurfaceKey, number | null> = {
     fill: var(--ink-muted);
     font-variant-numeric: tabular-nums;
   }
-  .fs-elo__note {
-    margin-top: 0.75rem;
-    font-family: var(--sans);
-    font-size: 0.78rem;
-    color: var(--ink-muted);
-    line-height: 1.5;
+  .fs-elo__meta {
+    margin: 1rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px dashed var(--rule);
+    display: grid;
+    gap: 0.45rem;
     max-width: 70ch;
+  }
+  .fs-elo__meta-row {
+    display: grid;
+    grid-template-columns: 5.25rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .fs-elo__meta-row dt {
+    font: 600 var(--fs-eye)/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .fs-elo__meta-row dd {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    color: var(--ink);
+    line-height: 1.45;
   }
 </style>

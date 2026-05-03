@@ -2,6 +2,80 @@
 
 A note from the previous agent to the next. Read CLAUDE.md first for the philosophy and conventions, then this for current state and what's next.
 
+## Update 2026-05-03 — V1 design polish + Tier 2/3 SQL-backed components
+
+Big session. The site went from "Elo chart on one page" to a coherent V1 design system with three SQL-backed visualizations and a real ranking layer. **Postgres is now load-bearing for the player profile** — when Docker is down, the chart, sparkline, H2H module, and live career stats all silently omit (clean fallback), but you'll see the curated content only.
+
+### What landed (in passes; see git log for the diff)
+
+**Design system foundation**
+- `styBase.css` rewritten: brand-book slam tokens (`#b06835`/`#046a38`/`#005eb8`/`#3d5265`), full surface palette (`--surface-clay/grass/hard/indoor`), typography scale (`--fs-mega/h1/h2/h3/body/small/eye`), motion tokens (`--ease`, `--t-fast`…`--t-hero`), accent palette (`--ball`, `--live`, `--court-line-mute`), layout containers (`--reading-max`, `--hero-max`). Legacy `--clay`/`--grass` aliased to slam tokens for backward compat.
+- `.tabular` utility, `text-wrap: balance` on headings, `pretty` on body, `:focus-visible` slam-rg ring, reduced-motion safety net + per-component `(prefers-reduced-motion: no-preference)` gates.
+- `.fs-section__title` now carries a terracotta bottom rule. New `.fs-section__head` for the DESIGN.md vertical eyebrow + serif H2 + slam-color rule cadence.
+- `.fs-eyebrow--block` utility — replaced the recurring inline `style="margin-bottom: 0.6rem"` pattern across components.
+
+**New components**
+- `cmpUtilityBar.astro` — Wimbledon-style 36px `--slam-rg-deep` strip above the nav; ATP/WTA functional, Compare/Venues marked `is-soon` with disabled-link styling. Live intentionally omitted (no live feed yet; a fake pulse would be engagement bait).
+- `cmpCourtLine.astro` — single-stroke SVG divider, 5 tones, scroll-driven `animation-timeline: view()` draw-in gated on `prefers-reduced-motion` + `@supports`. Slotted between hero and bio in terracotta.
+- `cmpHeadToHead.astro` — DESIGN.md two-portrait one-number module with surface-tinted gradient bars (`linear-gradient` keyed off `--a-pct`). Refactored to drop its outer section so the page can stack top-3 modules under one shared "Head to Head" header.
+- `cmpRankingSparkline.astro` — generic `{year, value}` sparkline with `inverted` prop. Used in two contexts: 700×68 axis-mode trajectory preview on the player profile, 120×28 compact on every roster card.
+
+**View transitions** — `<ClientRouter />` + `transition:name="photo-{slug}|name-{slug}|slams-{slug}"` on cards → matching elements on hero. Card photos morph to profile heros, names lift up.
+
+**SQL data layer**
+
+- `getHeadToHead(slugA, slugB)` — H2H aggregate + last meeting. Filters `external_source_id IN (1,2)` to dodge MCP double-counts. Surface buckets fold INDOOR_HARD/ACRYLIC into Hard, INDOOR_CLAY into Clay.
+- `getEloAnnualPeaksBySlug(slugs[])` + `getRankingAnnualBestBySlug(slugs[])` — batch sparkline data. Page logic prefers real ranking; falls back to Elo proxy for players Sackmann's rankings dataset doesn't cover (pre-1973 careers).
+- `getCareerStatsBySlug(slug)` — overall + per-surface (hard/clay/grass/carpet) match record. Sourced from `tb_player_career_stats`.
+- **`th_player_ranking` ingest**: `npm run ingest:rankings` walks `atp_rankings_*.csv` + `wta_rankings_*.csv` into the table. **5,334,298 rows · 25,975 players · 2,418 weeks · Aug 1973 → Dec 2024.** Sackmann's `*_current.csv` was last updated late 2024 — re-pull the repo to pick up 2025+ ranking weeks.
+- **`tb_player_career_stats` refresh**: `npm run refresh:career-stats` truncate-and-rebuilds from `tb_match` (sources 1,2 only). Writes overall + 4 surface slices per player. **Federer overall 1265-280 (matches HANDOFF sanity check exactly).** 15,202 overall + 27,693 surface rows.
+
+### UI integration — what each component now shows on Federer's profile
+
+| Component | Source | Federer values |
+|---|---|---|
+| Court line | client SVG | terracotta hairline, draws in on scroll |
+| Trajectory preview spark (axis mode) | `getRankingAnnualBestBySlug` → Elo fallback | "no. 1 in 2004", inverted Y axis (#1 at top) |
+| Career stats grid | curated TS | unchanged |
+| Career arc (full Elo chart) | `getPlayerEloTrajectory` | Overall 2420, Hard 2338, Clay 2163, Grass 2068 — methodology footer is now a 3-row dl fact-box (SOURCE / SAMPLE / METHOD) |
+| Trophy case | curated TS | unchanged |
+| Career Ledger | curated **+ SQL override** | Match record now reads from `tb_player_career_stats` (1,265–280 · 81.9%); surface splits all from SQL with surface-tinted top borders |
+| Equipment Bag, Quotes, Projection | curated TS | unchanged |
+| Pull-quote curly | new CSS | hangs in the gutter at -0.15rem in `--slam-rg`, EB Garamond 4.5rem |
+| Style/Surfaces | curated TS | extracted to `.fs-style-grid` class; surface tags now use `--surface-*` tokens not `--slam-*` |
+| **Head to Head** (top 3 rivals) | `getHeadToHead` × 3 in parallel | Federer–Nadal 17–24 (Hard 12–9, Clay 2–14, Grass 3–1), Federer–Djokovic 23–28 |
+| Rivalries chip list | curated TS | only renders when no H2H records exist (fallback) |
+
+Roster page: 22 cards now carry a 120×28 sparkline (one batch SQL fetch feeds them all). Jódar omits cleanly — too new for ranking data.
+
+### What's next, sorted by visible payoff
+
+1. **Tier 3 #14 cont. — `tb_player_clutch_metrics` refresh.** Needs `tb_point` data (we have 1.75M MCP-charted points). Powers BLR / break-point save % / tiebreak record on the profile. Clutch tab on the profile would be a meaningful new section.
+2. **Tier 4 #15 — `tb_shot` ingest from MCP.** `npm run ingest:mcp -- --shots`. ~10M rows, several minutes. Required before serve-placement roses (`cmpServeRose`), court heatmaps, shot-direction visualizations.
+3. **Sackmann `git pull` for 2025+ ranking weeks.** Today the rankings dataset stops at Dec 2024. The current top players (Sinner, Alcaraz, etc.) have arc trajectories that flatline at end of 2024 instead of continuing through 2026.
+4. **Player card visual hierarchy refresh.** With the sparkline now carrying real ranking signal (rather than decoration), the card layout could promote it — current rank inline, sparkline larger.
+5. **`tb_player_serve_zones` refresh.** Less visible than clutch; defer until shot-level data lands.
+6. **MCP/Sackmann match dedupe** (still open from prior handoff).
+7. **`/compare/<a>-vs-<b>` page** using `cmpHeadToHead` as the hero (DESIGN.md spec).
+
+### Things to not do
+
+- **Don't add new ingest scripts without a UI need.** The current data layer powers the profile thoroughly; queue for visible features, not data hoarding.
+- **Don't reinvent the design language.** The DESIGN.md token system is now load-bearing; new components must read from `--slam-*` / `--surface-*` / `--fs-*` / `--ease` / `--t-*`. Inline styles are an anti-pattern — use existing classes or add new `.fs-*` rules.
+- **Don't modify `.fs-section__title` without considering the terracotta rule.** It's the page-wide editorial cadence now; every section reads on it.
+- **Don't try to render the H2H module without a section wrapper.** The component is now content-only; the page owns the section/title.
+
+### Local dev reminder
+
+```sh
+docker compose up -d         # Postgres + pgvector on 5433
+npm run dev                  # Astro on 4321
+```
+
+If the dev log is full of `[cmpEloCareerArc] DB unreachable (ECONNREFUSED)`, OrbStack's daemon isn't ready — `open -a OrbStack` and wait ~10s.
+
+---
+
 ## Update 2026-05-02 (evening) — First viz shipped, design is now the bottleneck
 
 The data layer is solid (sees previous update for the receipts). The first SQL-backed visualization landed: a server-rendered Elo career-arc chart on the curated player profile page, fed live from `th_player_elo`. **Federer's chart shows peaks at 2420 overall, 2338 hard, 2163 clay, 2068 grass — all sanity-passing.**

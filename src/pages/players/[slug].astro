@@ -11,8 +11,17 @@ import CmpProjection from '../../components/cmpProjection.astro';
 import CmpEloCareerArc from '../../components/cmpEloCareerArc.astro';
 import CmpCourtLine from '../../components/cmpCourtLine.astro';
 import CmpHeadToHead from '../../components/cmpHeadToHead.astro';
+import CmpRankingSparkline from '../../components/cmpRankingSparkline.astro';
 import { getPlayerBySlug, getAllPlayers, formatAge, formatHeight, eraLabel, getPlayerImagePath } from '../../lib/libPlayers';
-import { getHeadToHead, type HeadToHead } from '../../lib/libDb';
+import {
+  getHeadToHead,
+  getEloAnnualPeaksBySlug,
+  getRankingAnnualBestBySlug,
+  getCareerStatsBySlug,
+  type HeadToHead,
+  type SparklinePoint,
+  type PlayerCareerStats,
+} from '../../lib/libDb';
 import '../../styles/styPlayerProfile.css';
 
 const { slug } = Astro.params;
@@ -40,17 +49,52 @@ const rivalEntries = (player.rivalries ?? []).map((rivalSlug) => {
   return { slug: rivalSlug, rival };
 });
 
-// Head-to-head against the player's top curated rival. Wrapped in try/catch
-// so a missing DB (ECONNREFUSED) degrades cleanly instead of 500-ing the page.
-const featuredRival = rivalEntries.find((r) => r.rival)?.rival ?? null;
-let featuredH2H: HeadToHead | null = null;
-if (featuredRival) {
-  try {
-    featuredH2H = await getHeadToHead(player.slug, featuredRival.slug);
-  } catch (e) {
-    const code = (e as { code?: string } | null)?.code;
-    if (code !== 'ECONNREFUSED') console.error('[H2H] DB query failed:', e);
+// Head-to-head against up to 3 curated rivals (DESIGN.md spec). Each call
+// is independent so we Promise.all the lot. Missing DB / no-meetings entries
+// drop out via filter — section disappears entirely if all three are empty.
+const topRivals = rivalEntries.filter((r) => r.rival).slice(0, 3).map((r) => r.rival!);
+const h2hResults = await Promise.all(
+  topRivals.map(async (rival) => {
+    try {
+      const h2h = await getHeadToHead(player.slug, rival.slug);
+      return h2h ? { rival, h2h } : null;
+    } catch (e) {
+      const code = (e as { code?: string } | null)?.code;
+      if (code !== 'ECONNREFUSED') console.error('[H2H] DB query failed:', e);
+      return null;
+    }
+  }),
+);
+const headToHeads = h2hResults.filter((x): x is { rival: typeof topRivals[number]; h2h: HeadToHead } => x !== null);
+
+// Live career stats from tb_player_career_stats. When present, overrides the
+// curated record + surface splits in the Career Ledger (the SQL number is
+// canonical; curated values were approximations).
+let liveStats: PlayerCareerStats | null = null;
+try {
+  liveStats = await getCareerStatsBySlug(player.slug);
+} catch (e) {
+  const code = (e as { code?: string } | null)?.code;
+  if (code !== 'ECONNREFUSED') console.error('[career-stats] DB query failed:', e);
+}
+
+// Career-arc sparkline. Prefer official ATP/WTA rankings (lower = better);
+// fall back to Elo proxy for players too historic for Sackmann's rankings
+// dataset (rankings start ~1973 ATP, ~1975 WTA — and only ~1500 ranked
+// players per week). DB-down catch keeps the page renderable.
+let arcData: SparklinePoint[] = [];
+let arcInverted = false;
+try {
+  const rankMap = await getRankingAnnualBestBySlug([player.slug]);
+  arcData = rankMap.get(player.slug) ?? [];
+  arcInverted = arcData.length > 1;
+  if (!arcInverted) {
+    const eloMap = await getEloAnnualPeaksBySlug([player.slug]);
+    arcData = eloMap.get(player.slug) ?? [];
   }
+} catch (e) {
+  const code = (e as { code?: string } | null)?.code;
+  if (code !== 'ECONNREFUSED') console.error('[arc] DB query failed:', e);
 }
 
 const isApprox = player.dataConfidence === 'approximate';
@@ -107,6 +151,23 @@ const isApprox = player.dataConfidence === 'approximate';
         <h2>Career</h2>
         <span class="fs-eyebrow">{player.status === 'active' ? 'In progress' : 'Final ledger'}</span>
       </div>
+      {arcData.length > 1 && (
+        <div class="fs-arc-preview">
+          <div class="fs-arc-preview__head">
+            <span class="fs-eyebrow">Trajectory</span>
+            <span class="fs-arc-preview__hint">
+              {arcInverted ? 'ATP/WTA ranking · annual best' : 'Elo proxy · annual peaks'}
+            </span>
+          </div>
+          <CmpRankingSparkline
+            data={arcData}
+            width={700}
+            height={68}
+            showAxis
+            inverted={arcInverted}
+          />
+        </div>
+      )}
       <div class="fs-stats">
         <CmpStatTile label="Grand Slams" value={player.career.grandSlams} transitionName={`slams-${player.slug}`} />
         <CmpStatTile label="Career-high" value={`#${player.career.careerHighRanking}`} small />
@@ -125,7 +186,7 @@ const isApprox = player.dataConfidence === 'approximate';
 
     <CmpTrophyCase player={player} />
 
-    {player.ledger && <CmpCareerLedger ledger={player.ledger} status={player.status} />}
+    {player.ledger && <CmpCareerLedger ledger={player.ledger} status={player.status} liveStats={liveStats} />}
 
     {player.equipment && (
       <>
@@ -156,18 +217,21 @@ const isApprox = player.dataConfidence === 'approximate';
       <div class="fs-section__title">
         <h2>Style &amp; Surfaces</h2>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem;">
+      <div class="fs-style-grid">
         <div>
-          <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Style of play</div>
+          <span class="fs-eyebrow fs-eyebrow--block">Style of play</span>
           <ul class="fs-tag-list">
             {player.styleOfPlay.map((s) => <li class="fs-tag fs-tag--solid">{s}</li>)}
           </ul>
         </div>
         <div>
-          <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Surface strengths</div>
+          <span class="fs-eyebrow fs-eyebrow--block">Surface strengths</span>
           <ul class="fs-tag-list">
             {player.surfaceStrengths.map((s) => (
-              <li class={`fs-tag ${s === 'clay' ? 'fs-tag--clay' : s === 'grass' ? 'fs-tag--grass' : ''}`}>{s}</li>
+              <li class={`fs-tag ${
+                s === 'clay'  ? 'fs-tag--clay'  :
+                s === 'grass' ? 'fs-tag--grass' :
+                s === 'hard'  ? 'fs-tag--hard'  : ''}`}>{s}</li>
             ))}
           </ul>
         </div>
@@ -183,23 +247,32 @@ const isApprox = player.dataConfidence === 'approximate';
       </section>
     )}
 
-    {featuredH2H && featuredRival && (
-      <CmpHeadToHead playerA={player} playerB={featuredRival} h2h={featuredH2H} />
+    {headToHeads.length > 0 && (
+      <section class="fs-section fs-h2h-section">
+        <div class="fs-section__title">
+          <h2>Head to Head</h2>
+          <span class="fs-eyebrow">Top {headToHeads.length} {headToHeads.length === 1 ? 'rivalry' : 'rivalries'}</span>
+        </div>
+        {headToHeads.map(({ rival, h2h }, i) => (
+          <>
+            {i > 0 && <CmpCourtLine tone="neutral" animate={false} />}
+            <CmpHeadToHead playerA={player} playerB={rival} h2h={h2h} />
+          </>
+        ))}
+      </section>
     )}
 
-    {rivalEntries.length > 0 && (
+    {headToHeads.length === 0 && rivalEntries.length > 0 && (
       <section class="fs-section">
         <div class="fs-section__title">
-          <h2>{featuredH2H ? 'Other Rivalries' : 'Rivalries'}</h2>
+          <h2>Rivalries</h2>
         </div>
         <ul class="fs-rivals">
-          {rivalEntries
-            .filter((r) => !featuredH2H || r.slug !== featuredRival?.slug)
-            .map((r) => (
-              r.rival
-                ? <li><a href={`/players/${r.rival.slug}`}>{r.rival.fullName}</a></li>
-                : <li><span class="fs-rivals__missing">{r.slug.replace(/-/g, ' ')}</span></li>
-            ))}
+          {rivalEntries.map((r) => (
+            r.rival
+              ? <li><a href={`/players/${r.rival.slug}`}>{r.rival.fullName}</a></li>
+              : <li><span class="fs-rivals__missing">{r.slug.replace(/-/g, ' ')}</span></li>
+          ))}
         </ul>
       </section>
     )}

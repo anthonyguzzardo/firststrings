@@ -70,7 +70,7 @@ const { racket, strings, shoes, apparelSponsor, otherSponsors, notes } = equipme
 
   {otherSponsors && otherSponsors.length > 0 && (
     <div class="fs-bag__sponsors">
-      <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Other sponsors</div>
+      <span class="fs-eyebrow fs-eyebrow--block">Other sponsors</span>
       <ul class="fs-tag-list">
         {otherSponsors.map((s) => (
           <li class="fs-tag" title={sponsorMeta(s)}>{sponsorBrand(s)}</li>

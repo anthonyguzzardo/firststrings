@@ -31,7 +31,7 @@ const present = metrics.filter((m): m is Metric & { value: number } => m.value !
 
 {palette.signatureShots.length > 0 && (
   <div class="fs-shots">
-    <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Signature shots</div>
+    <span class="fs-eyebrow fs-eyebrow--block">Signature shots</span>
     <ul class="fs-tag-list">
       {palette.signatureShots.map((shot) => (
         <li class="fs-tag fs-tag--clay">{shot}</li>

@@ -1,15 +1,20 @@
 ---
 import type { Player } from '../lib/libPlayers';
+import type { SparklinePoint } from '../lib/libDb';
 import { formatAge, getPlayerImagePath } from '../lib/libPlayers';
+import CmpRankingSparkline from './cmpRankingSparkline.astro';
 
 interface Props {
   player: Player;
+  arc?: SparklinePoint[];
+  arcInverted?: boolean;
 }
 
-const { player } = Astro.props;
+const { player, arc, arcInverted = false } = Astro.props;
 const handLabel = player.handedness === 'left' ? 'L' : 'R';
 const bhLabel = player.backhandStyle === 'one-handed' ? '1HBH' : '2HBH';
 const status = player.status === 'active' ? `Age ${formatAge(player.bornIso)}` : 'Retired';
+const hasArc = arc && arc.length > 1;
 ---
 <a href={`/players/${player.slug}`} class="fs-card">
   <div class="fs-card__topwrap">
@@ -31,5 +36,10 @@ const status = player.status === 'active' ? `Age ${formatAge(player.bornIso)}` :
   <div class="fs-card__slams">
     <span class="fs-card__slams-value" transition:name={`slams-${player.slug}`}>{player.career.grandSlams}</span>
     <span class="fs-card__slams-label">Grand Slam{player.career.grandSlams === 1 ? '' : 's'}</span>
+    {hasArc && (
+      <div class="fs-card__arc" aria-hidden="true">
+        <CmpRankingSparkline data={arc!} width={120} height={28} inverted={arcInverted} />
+      </div>
+    )}
   </div>
 </a>

@@ -17,7 +17,9 @@
     "ingest:atp": "tsx --env-file=.env src/scripts/ingest-sackmann-atp.ts",
     "ingest:wta": "tsx --env-file=.env src/scripts/ingest-sackmann-wta.ts",
     "ingest:mcp": "tsx --env-file=.env src/scripts/ingest-sackmann-mcp.ts",
-    "refresh:elo": "tsx --env-file=.env src/scripts/refresh-elo.ts"
+    "ingest:rankings": "tsx --env-file=.env src/scripts/ingest-sackmann-rankings.ts",
+    "refresh:elo": "tsx --env-file=.env src/scripts/refresh-elo.ts",
+    "refresh:career-stats": "tsx --env-file=.env src/scripts/refresh-career-stats.ts"
   },
   "dependencies": {
     "@astrojs/node": "^9.0.0",

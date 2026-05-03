@@ -20,7 +20,7 @@ const present = items.filter((i): i is Required<Item> => typeof i.value === 'str
 ---
 {(present.length > 0 || accessories.notes) && (
   <div class="fs-acc">
-    <div class="fs-eyebrow" style="margin-bottom: 0.6rem;">Accessories</div>
+    <span class="fs-eyebrow fs-eyebrow--block">Accessories</span>
     {present.length > 0 && (
       <dl class="fs-acc__list">
         {present.map((i) => (

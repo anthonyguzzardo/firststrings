@@ -2,6 +2,11 @@
 import LayBase from '../layouts/layBase.astro';
 import CmpPlayerCard from '../components/cmpPlayerCard.astro';
 import { getAllPlayers } from '../lib/libPlayers';
+import {
+  getEloAnnualPeaksBySlug,
+  getRankingAnnualBestBySlug,
+  type SparklinePoint,
+} from '../lib/libDb';
 import '../styles/styPlayerProfile.css';
 
 const url = new URL(Astro.request.url);
@@ -14,6 +19,30 @@ const active = filtered.filter((p) => p.status === 'active');
 const legends = filtered.filter((p) => p.status === 'retired');
 
 const tourTitle = tourFilter ? `${tourFilter} · ` : '';
+
+// Batch-fetch trajectories for every visible card. Prefer real rankings
+// (inverted=true, lower rank = higher on chart); fall back to Elo for any
+// player Sackmann's rankings dataset doesn't cover (pre-1973 careers, etc.).
+// DB-down: empty maps → cards hide their arc cleanly.
+const slugs = filtered.map((p) => p.slug);
+const arcMap = new Map<string, { data: SparklinePoint[]; inverted: boolean }>();
+try {
+  const rankMap = await getRankingAnnualBestBySlug(slugs);
+  const eloFallbackSlugs = slugs.filter((s) => !(rankMap.get(s) && rankMap.get(s)!.length > 1));
+  const eloMap = eloFallbackSlugs.length > 0 ? await getEloAnnualPeaksBySlug(eloFallbackSlugs) : new Map();
+  for (const s of slugs) {
+    const rk = rankMap.get(s);
+    if (rk && rk.length > 1) {
+      arcMap.set(s, { data: rk, inverted: true });
+    } else {
+      const el = eloMap.get(s);
+      if (el && el.length > 1) arcMap.set(s, { data: el, inverted: false });
+    }
+  }
+} catch (e) {
+  const code = (e as { code?: string } | null)?.code;
+  if (code !== 'ECONNREFUSED') console.error('[roster arcs] DB query failed:', e);
+}
 ---
 <LayBase title={`${tourTitle}Roster`}>
   <header class="fs-roster-hero">
@@ -41,7 +70,7 @@ const tourTitle = tourFilter ? `${tourFilter} · ` : '';
           <span class="fs-roster-section__count">{active.length} player{active.length === 1 ? '' : 's'}</span>
         </div>
         <div class="fs-roster-grid">
-          {active.map((p) => <CmpPlayerCard player={p} />)}
+          {active.map((p) => <CmpPlayerCard player={p} arc={arcMap.get(p.slug)?.data} arcInverted={arcMap.get(p.slug)?.inverted} />)}
         </div>
       </section>
     )}
@@ -53,7 +82,7 @@ const tourTitle = tourFilter ? `${tourFilter} · ` : '';
           <span class="fs-roster-section__count">{legends.length} player{legends.length === 1 ? '' : 's'}</span>
         </div>
         <div class="fs-roster-grid">
-          {legends.map((p) => <CmpPlayerCard player={p} />)}
+          {legends.map((p) => <CmpPlayerCard player={p} arc={arcMap.get(p.slug)?.data} arcInverted={arcMap.get(p.slug)?.inverted} />)}
         </div>
       </section>
     )}

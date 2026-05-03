@@ -252,6 +252,12 @@ blockquote { text-wrap: balance; }
   text-transform: uppercase;
   color: var(--ink-muted);
 }
+/* Used when the eyebrow is a block-level label above a chunk of content
+   (replaces the recurring inline `style="margin-bottom: 0.6rem"` pattern). */
+.fs-eyebrow--block {
+  display: block;
+  margin-bottom: 0.6rem;
+}
 
 /* DESIGN.md §Typography "the cadence" — vertical eyebrow + serif H2 + slam-color rule.
    Use this on new sections; existing pages still use the horizontal .fs-section__title
@@ -289,9 +295,10 @@ blockquote { text-wrap: balance; }
   background: transparent;
 }
 
-.fs-tag--clay { color: var(--clay); border-color: var(--clay); }
-.fs-tag--grass { color: var(--grass); border-color: var(--grass); }
-.fs-tag--gold { color: var(--gold); border-color: var(--gold); }
+.fs-tag--clay  { color: var(--surface-clay);   border-color: var(--surface-clay); }
+.fs-tag--grass { color: var(--surface-grass);  border-color: var(--surface-grass); }
+.fs-tag--hard  { color: var(--surface-hard);   border-color: var(--surface-hard); }
+.fs-tag--gold  { color: var(--gold);           border-color: var(--gold); }
 .fs-tag--solid {
   background: var(--ink);
   color: var(--bg);

@@ -1,0 +1,159 @@
+---
+// Reusable career-arc sparkline. Renders {year, value} points; the caller
+// supplies the data and tells the component which way "better" goes.
+//
+//   inverted=false → higher value = better (Elo). Best value sits at top.
+//   inverted=true  → lower value = better (rankings). Best value sits at top
+//                    via inverted Y-axis. Peak marker labels read e.g. "no. 1".
+//
+// The caller does the data fetching (and the rank-then-Elo fallback). This
+// component is pure SVG render.
+import type { SparklinePoint } from '../lib/libDb';
+
+interface Props {
+  data: SparklinePoint[];
+  width?: number;
+  height?: number;
+  showAxis?: boolean;
+  showPeak?: boolean;
+  ariaLabel?: string;
+  color?: string;
+  inverted?: boolean;
+  peakPrefix?: string;
+}
+
+const {
+  data,
+  width = 120,
+  height = 32,
+  showAxis = false,
+  showPeak = true,
+  ariaLabel = 'Career arc',
+  color = 'var(--slam-rg)',
+  inverted = false,
+  peakPrefix = inverted ? 'no.' : 'peak',
+} = Astro.props;
+
+const PAD = showAxis
+  ? { top: 8,  right: 8, bottom: 22, left: 40 }
+  : { top: 4,  right: 4, bottom: 4,  left: 4  };
+const innerW = width - PAD.left - PAD.right;
+const innerH = height - PAD.top - PAD.bottom;
+
+let path = '';
+let peakX = 0;
+let peakY = 0;
+let peakYear = 0;
+let peakValue = 0;
+let xTicks: Array<{ x: number; label: string }> = [];
+let yTicks: Array<{ y: number; label: string }> = [];
+
+if (data.length > 0) {
+  const dataMax = Math.max(...data.map((d) => d.value));
+  const dataMin = Math.min(...data.map((d) => d.value));
+  const span = Math.max(dataMax - dataMin, 1);
+  const xMin = data[0]!.year;
+  const xMax = data[data.length - 1]!.year;
+  const xSpan = Math.max(xMax - xMin, 1);
+
+  const xScale = (year: number): number => PAD.left + ((year - xMin) / xSpan) * innerW;
+  // Best value should always sit at the top (low Y).
+  const yScale = (v: number): number => inverted
+    ? PAD.top + ((v - dataMin) / span) * innerH
+    : PAD.top + ((dataMax - v) / span) * innerH;
+
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i]!;
+    path += `${i === 0 ? 'M' : 'L'}${xScale(d.year).toFixed(1)},${yScale(d.value).toFixed(1)}`;
+  }
+
+  const bestValue = inverted ? dataMin : dataMax;
+  const peakIdx = data.findIndex((d) => d.value === bestValue);
+  const peak = data[peakIdx]!;
+  peakX = xScale(peak.year);
+  peakY = yScale(peak.value);
+  peakYear = peak.year;
+  peakValue = peak.value;
+
+  if (showAxis) {
+    const yearSpan = xMax - xMin;
+    const step = yearSpan > 25 ? 5 : yearSpan > 12 ? 3 : yearSpan > 6 ? 2 : 1;
+    const start = Math.ceil(xMin / step) * step;
+    for (let y = start; y <= xMax; y += step) {
+      xTicks.push({ x: xScale(y), label: y.toString() });
+    }
+    yTicks = inverted
+      ? [
+          { y: yScale(dataMin), label: `#${dataMin}` },
+          { y: yScale(dataMax), label: `#${dataMax}` },
+        ]
+      : [
+          { y: yScale(dataMax), label: dataMax.toString() },
+          { y: yScale(dataMin), label: dataMin.toString() },
+        ];
+  }
+}
+---
+{data.length > 0 && (
+  <svg
+    viewBox={`0 0 ${width} ${height}`}
+    preserveAspectRatio="xMidYMid meet"
+    class="fs-spark"
+    role="img"
+    aria-label={`${ariaLabel} — ${peakPrefix} ${peakValue} in ${peakYear}`}
+  >
+    {showAxis && yTicks.map((t) => (
+      <text x={PAD.left - 6} y={t.y + 3} text-anchor="end" class="fs-spark__tick">{t.label}</text>
+    ))}
+    {showAxis && xTicks.map((t) => (
+      <text x={t.x} y={height - 6} text-anchor="middle" class="fs-spark__tick">{t.label}</text>
+    ))}
+    <path
+      d={path}
+      fill="none"
+      stroke={color}
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    {showPeak && (
+      <>
+        <circle cx={peakX} cy={peakY} r="2.5" fill={color} stroke="var(--bg)" stroke-width="1" />
+        {showAxis && (
+          <text
+            x={peakX}
+            y={peakY - 8}
+            text-anchor="middle"
+            class="fs-spark__peak"
+          >{peakPrefix} {inverted ? `#${peakValue}` : peakValue}</text>
+        )}
+      </>
+    )}
+  </svg>
+)}
+
+<style>
+  .fs-spark {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .fs-spark__tick {
+    font-family: var(--sans);
+    font-size: 9px;
+    fill: var(--ink-muted);
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .fs-spark__peak {
+    font-family: var(--sans);
+    font-size: 9px;
+    fill: var(--slam-rg);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+</style>

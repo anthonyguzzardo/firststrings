@@ -1,24 +1,41 @@
 ---
 import type { CareerLedger, MatchRecord } from '../lib/libPlayers';
+import type { PlayerCareerStats, PlayerSurfaceStats } from '../lib/libDb';
 import { formatPrizeMoneyUsd, winPct, formatMilesTraveled } from '../lib/libPlayers';
 
 interface Props {
   ledger: CareerLedger;
   status: 'active' | 'retired';
+  liveStats?: PlayerCareerStats | null;
 }
 
-const { ledger, status } = Astro.props;
+const { ledger, status, liveStats } = Astro.props;
 const { prizeMoneyUsd, matchRecord, surfaceSplits, asOfIso, source, estimatedMilesTraveled, milesTraveledNote } = ledger;
 const hasPrize = prizeMoneyUsd !== null && prizeMoneyUsd !== undefined;
-const hasRecord = matchRecord !== null && matchRecord !== undefined;
 const hasMiles = typeof estimatedMilesTraveled === 'number' && estimatedMilesTraveled > 0;
 
-const surfaces: Array<{ key: 'hard' | 'clay' | 'grass' | 'carpet'; label: string; record?: MatchRecord }> = [
-  { key: 'hard',   label: 'Hard',   record: surfaceSplits?.hard },
-  { key: 'clay',   label: 'Clay',   record: surfaceSplits?.clay },
-  { key: 'grass',  label: 'Grass',  record: surfaceSplits?.grass },
-  { key: 'carpet', label: 'Carpet', record: surfaceSplits?.carpet },
-].filter((s) => s.record !== undefined);
+// SQL career-stats override curated when present. Source line below picks up
+// the difference and credits Sackmann.
+const liveToRecord = (s: PlayerSurfaceStats): MatchRecord => ({ wins: s.matchesWon, losses: s.matchesLost });
+const liveOverall = liveStats?.overall;
+const effectiveRecord: MatchRecord | undefined = liveOverall
+  ? liveToRecord(liveOverall)
+  : (matchRecord ?? undefined);
+const hasRecord = effectiveRecord !== undefined;
+
+const surfaces: Array<{ key: 'hard' | 'clay' | 'grass' | 'carpet'; label: string; record?: MatchRecord }> = liveStats
+  ? [
+      { key: 'hard',   label: 'Hard',   record: liveStats.hard   ? liveToRecord(liveStats.hard)   : undefined },
+      { key: 'clay',   label: 'Clay',   record: liveStats.clay   ? liveToRecord(liveStats.clay)   : undefined },
+      { key: 'grass',  label: 'Grass',  record: liveStats.grass  ? liveToRecord(liveStats.grass)  : undefined },
+      { key: 'carpet', label: 'Carpet', record: liveStats.carpet ? liveToRecord(liveStats.carpet) : undefined },
+    ].filter((s) => s.record !== undefined)
+  : [
+      { key: 'hard',   label: 'Hard',   record: surfaceSplits?.hard   },
+      { key: 'clay',   label: 'Clay',   record: surfaceSplits?.clay   },
+      { key: 'grass',  label: 'Grass',  record: surfaceSplits?.grass  },
+      { key: 'carpet', label: 'Carpet', record: surfaceSplits?.carpet },
+    ].filter((s) => s.record !== undefined);
 
 const asOfFormatted = asOfIso
   ? new Date(asOfIso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
@@ -42,10 +59,10 @@ const asOfFormatted = asOfIso
       <div class="fs-ledger__record">
         <div class="fs-ledger__record-label">Career record (singles)</div>
         <div class="fs-ledger__record-value">
-          <span class="fs-ledger__wins">{matchRecord!.wins.toLocaleString('en-US')}</span>
+          <span class="fs-ledger__wins">{effectiveRecord!.wins.toLocaleString('en-US')}</span>
           <span class="fs-ledger__sep">–</span>
-          <span class="fs-ledger__losses">{matchRecord!.losses.toLocaleString('en-US')}</span>
-          {winPct(matchRecord!) && <span class="fs-ledger__pct">{winPct(matchRecord!)}</span>}
+          <span class="fs-ledger__losses">{effectiveRecord!.losses.toLocaleString('en-US')}</span>
+          {winPct(effectiveRecord!) && <span class="fs-ledger__pct">{winPct(effectiveRecord!)}</span>}
         </div>
       </div>
     )}
@@ -80,9 +97,10 @@ const asOfFormatted = asOfIso
     </div>
   )}
 
-  {(asOfFormatted || source) && (
+  {(asOfFormatted || source || liveStats) && (
     <p class="fs-ledger__footer">
-      {asOfFormatted && <span>As of {asOfFormatted}</span>}
+      {liveStats && <span>Match record + surface splits from Sackmann tour-level singles · </span>}
+      {asOfFormatted && <span>Curated as of {asOfFormatted}</span>}
       {asOfFormatted && source && <span> · </span>}
       {source && <span>{Array.isArray(source) ? `${source.length} sources` : source}</span>}
     </p>
