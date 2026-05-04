@@ -2,6 +2,84 @@
 
 A note from the previous agent to the next. Read CLAUDE.md first for the philosophy and conventions, then this for current state and what's next.
 
+## Update 2026-05-03 (evening) — shot ingest, leverage, serve rose, AI cards, OG, dedupe
+
+Big push that closed out the entire post-clutch backlog. Most of what the previous handoff queued is now in.
+
+### What landed
+
+**1. MCP shot-level ingest (Tier 4 #15).**
+Ran `npm run ingest:mcp -- --shots`. **`tb_shot` now holds 7,893,011 rows** across 1,669,451 charted points (≈4.7 shots/point — typical rally length). Forehands lead (2.75M), backhands second (2.27M), serve / slice / volley / smash in expected proportions. The first run got SIGHUP'd mid women's-2020s batch when I backgrounded it without `disown`; a second run completed cleanly thanks to the `ON CONFLICT DO NOTHING` clause already in `libMcpIngest`.
+
+**2. Leverage backfill — `tb_point.leverage` is now populated for every charted point.**
+- New: `src/lib/libDerivedLeverage.ts`, `src/scripts/refresh-leverage.ts`, `npm run refresh:leverage`.
+- Decomposes `leverage = |importance_in_game| × |swing_of_game|` so we never recurse through deuce-cycles. Closed-form `GAME_PWIN[a][b]` table for normal scoring; iterative `TB_PWIN[a][b][nextServerWasFirst]` table for tiebreaks. Match-level prob table built bottom-up via BFS over reachable game-start states (only ~517 unique states across bo3 + bo5 — way smaller than the in-game state space).
+- Universal `P_SERVE = 0.62`. Robust to ±0.05.
+- Ships with two known wrinkles: (a) one row across 1.75M has the 0.5 fallback (a single edge-case state our BFS doesn't reach); (b) the parity-resync logic in `computeMatchLeverage` papered over rather than reconciled the rare cases where the data's server flag drifts from the model. Neither is load-bearing.
+- Heap & stack: needs `--stack-size=16000 --max-old-space-size=4096` (already wired into the npm script). The `node` invocation imports `tsx` via `--import tsx` because `tsx` itself doesn't pass through `--stack-size`.
+- UPDATE pattern: postgres.js's `sql(arr, …cols)` helper does NOT play nice inside `FROM (VALUES …)` — it inserts a literal `VALUES` keyword that explodes the syntax silently (zero rows updated, no error). Switched to a transaction-scoped TEMP table populated by `INSERT INTO … VALUES …` and then a single `UPDATE … FROM tmp_leverage`. Use this pattern for any future bulk update.
+- After the backfill, **re-ran `refresh:clutch`** so the panel surfaces real BLR + leverage_avg. Federer overall: **BLR 0.536**, leverage_avg 0.0185, BP save 62.2%, BP convert 41.1%, TB SPW 69.8%, TB RPW 37.1%. Świątek tops the curated roster at BLR 0.562; Roddick / Connors / McEnroe sit just under 0.5 (their reputational pattern).
+
+**3. `tb_player_serve_zones` + `cmpServeRose`.**
+- `npm run refresh:serve-zones`. **10,153 overall + 17,354 surface rows.** The MCP parser doesn't distinguish 1st-vs-2nd serve placements (a faulted first serve isn't kept with its location), so v1 stores `serve_no = 1` for every row representing "the in-play serve". `faults` is intentionally 0 for the same reason — fault placements would need a parser upgrade.
+- `cmpServeRose.astro` renders two service-box columns (deuce / ad), each split into 3 zones (Wide / Body / T). Background tint = ace-rate heat ramp (saturated terracotta = high ace rate). Numbers per cell: % of side, ace %, raw count. Federer's deuce-T does 15.1% aces on 11,923 serves; ad-Body does 0.1% aces — exactly the body-jam pattern you'd expect.
+- Slotted into `[slug].astro` after `cmpClutch`, before `cmpEquipmentBag`. Returns null below 200 charted serves so we don't render thin samples.
+
+**4. AI editorial card (`cmpAiInsightCard` + cache pipeline).**
+- Installed `@anthropic-ai/sdk` (0.92.0).
+- `npm run refresh:ai-cards [slug...]` generates an ~80–110 word editorial paragraph per curated player using Claude Haiku 4.5. Filesystem cache at `data/ai-cards/<slug>.json`.
+- Voice prompt explicitly bans "X is one of the greatest", first-name-only openers, exclamation marks, and stat-dumps; asks for a single specific angle. Context blob bundles match record, surface splits, the full clutch slice, recent rivalry meetings, and signature-match copy.
+- `cmpAiInsightCard` reads from disk via `loadAiCard(slug)` at SSR. Component renders only when the JSON exists — **no card files are checked in yet** because no `ANTHROPIC_API_KEY` was set during this session. To turn on: set the env var, run `npm run refresh:ai-cards`, commit (or gitignore) the resulting `data/ai-cards/*.json` per preference.
+- Slotted between bio and Career section on the player profile.
+
+**5. Open Graph endpoint for `/compare/<a>-vs-<b>`.**
+- New: `src/pages/og/compare/[matchup].svg.ts`. Returns a 1200×630 SVG OG card with the two names, the H2H score, surface bars, and brand mark. `Cache-Control: public, max-age=3600, s-maxage=86400` so social-platform crawlers can hit it cheaply.
+- `LayBase` now accepts `ogImage`; the compare page passes it through. `meta property="og:image"` + Twitter card meta wired.
+- SVG is the v1 because most modern social platforms accept it. If a strict PNG-only target shows up, swap to `satori` + `resvg` — the layout will translate.
+
+**6. MCP/Sackmann match dedupe (canonical xref).**
+- Added `tb_match.canonical_match_id BIGINT` (schema rewrite + migration `002_match_canonical_xref.sql`).
+- `npm run refresh:match-canonical` populates it via a year + unordered-pair + round + score heuristic. **7,714 of 10,999 MCP rows linked to a Sackmann canonical (70%).** Remaining 3,285 stay NULL — they're MCP-only matches (some exhibitions / pre-Open-era charts), or matches whose score string doesn't byte-match the Sackmann row.
+- **No callers read `canonical_match_id` yet** — H2H, career-stats, clutch, etc. continue to filter `external_source_id IN (1, 2)`. The column is forward-compat foundation for any future query that wants to surface MCP-charted detail (point counts, shot densities) joined cleanly to the canonical Sackmann row.
+
+**7. Player card visual hierarchy refresh.**
+- Sparkline promoted from a 120×28 decoration in the slams row to a full-width trajectory module (`fs-card__trajectory`) with a tinted background, 260×44 sparkline, and a "career best · N yr" tagline. For ranking-backed arcs the tagline reads `#3 career best · 22 yr`; Elo-proxy arcs read `peak Elo · 22 yr`. Hand / backhand pulled out of the meta line (already on the profile page); only country + age/retired remain.
+- `cmpPlayerCard.astro` updated; new styles in `styPlayerProfile.css` under `.fs-card__trajectory*`. Old `.fs-card__arc` retained for any callsite still on the legacy class.
+
+### What did NOT land
+
+- **Compare page enhancements** (year-by-year mini-bars, set-score detail per meeting). Still queued.
+- **`cmpStyleNeighbours`** (pgvector "plays like X"). Needs the `py/embed_players.py` pipeline that doesn't exist yet.
+- **AI cards in the repo.** The pipeline is built; you need an API key + a run to populate `data/ai-cards/`.
+- **PNG-rendered OG images.** SVG is fine for Twitter/Mastodon/iMessage but some platforms (LinkedIn, certain Slack workspaces) want PNG. Add `satori` + `resvg-js` if that becomes a need.
+
+### Known issues
+
+- **One row** out of 1,751,575 has `leverage = 0.5` (the fallback). Hunting it down means tightening the BFS state-graph enumeration vs. real-data state shapes; not worth the engineering for one row.
+- **Match dedupe is 70%, not 100%.** The 30% residue is mostly score-string drift between sources (one has `7-6(5)` vs `7-6 (5)`). A relaxed normalize-then-compare pass would lift it to ~95%; deferred.
+- **`first_serve_in` is `0/1751575`.** The MCP point parser doesn't set the flag, so `cmpServeRose` collapses 1st and 2nd serve into one "in-play serve" view. Splitting them needs a parser upgrade — would also unlock 1st-serve % and 2nd-serve win % per zone.
+- **AI cards live on disk, not in DB.** Trade-off: editable in git, no schema migration, no DB hit at render. If the roster grows much past curated ~30, consider a `tb_player_ai_card` table to make per-card invalidation simpler.
+
+### For the next agent — what's next
+
+The roadmap is now thin. Realistic candidates, in rough order of payoff:
+
+1. **Generate the AI cards.** Set `ANTHROPIC_API_KEY`, run `npm run refresh:ai-cards`, eyeball the output, commit `data/ai-cards/*.json`. ~$0.10 at Haiku rates for the full curated set.
+2. **Compare page enhancements.** Year-by-year H2H mini-bars, AI-summary card per matchup, set-score detail. Most data already there.
+3. **Loosen the dedupe heuristic** to bring match-canonical from 70% → 95% (score normalization + tolerance for missing rounds).
+4. **Player style embeddings** (`py/embed_players.py`) — the pgvector column has been waiting for this since the schema landed. Powers a "plays like" surface.
+5. **Live scoring widget** — finally a real-time element, but it's its own ops question (rate limits, caching).
+6. **Serve-fault parser upgrade** so `tb_player_serve_zones.faults` and a 1st-vs-2nd toggle on `cmpServeRose` can light up.
+
+### Things to not do
+
+- **Don't write bulk UPDATEs via `FROM (VALUES ${sql(arr, ...cols)})`** — postgres.js's helper inserts a `VALUES` keyword that breaks the syntax silently. Use a transaction-scoped TEMP table (see `libDerivedLeverage` for the pattern).
+- **Don't drop the `--stack-size` / `--max-old-space-size` flags from `refresh:leverage`** without testing. The default Node stack gets close to the limit on long bo5 matches; heap default is too small for the 1.75M-row read-modify-write loop.
+- **Don't set `canonical_match_id = match_id` on canonical rows.** NULL means "this row IS canonical." Self-pointing values would obscure the unmerged residue.
+- **Don't read AI cards from a deferred render.** They're SSR-only — the file system isn't available client-side.
+
+---
+
 ## Update 2026-05-03 (later same day) — Clutch panel landed
 
 The Tier 3 #14 "Clutch" panel is live on every curated profile that clears a 5-match MCP threshold. Same SQL-override pattern as `cmpCareerLedger` — pure SQL aggregation off `tb_point`, cached in `tb_player_clutch_metrics`, read once at page render.

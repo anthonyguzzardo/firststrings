@@ -20,9 +20,14 @@
     "ingest:rankings": "tsx --env-file=.env src/scripts/ingest-sackmann-rankings.ts",
     "refresh:elo": "tsx --env-file=.env src/scripts/refresh-elo.ts",
     "refresh:career-stats": "tsx --env-file=.env src/scripts/refresh-career-stats.ts",
-    "refresh:clutch": "tsx --env-file=.env src/scripts/refresh-clutch.ts"
+    "refresh:clutch": "tsx --env-file=.env src/scripts/refresh-clutch.ts",
+    "refresh:leverage": "node --stack-size=16000 --max-old-space-size=4096 --import tsx --env-file=.env src/scripts/refresh-leverage.ts",
+    "refresh:serve-zones": "tsx --env-file=.env src/scripts/refresh-serve-zones.ts",
+    "refresh:ai-cards": "tsx --env-file=.env src/scripts/refresh-ai-cards.ts",
+    "refresh:match-canonical": "tsx --env-file=.env src/scripts/refresh-match-canonical.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
     "@astrojs/node": "^9.0.0",
     "astro": "^5.0.0",
     "postgres": "^3.4.9",

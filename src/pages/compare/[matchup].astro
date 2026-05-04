@@ -64,8 +64,9 @@ try {
 }
 
 const title = `${playerA.fullName} vs ${playerB.fullName}`;
+const ogImage = new URL(`/og/compare/${playerA.slug}-vs-${playerB.slug}.svg`, Astro.url).toString();
 ---
-<LayBase title={title} description={`Career head-to-head: ${title}.`}>
+<LayBase title={title} description={`Career head-to-head: ${title}.`} ogImage={ogImage}>
   <header class="fs-compare-hero">
     <div class="fs-container">
       <div class="fs-eyebrow fs-eyebrow--block">Head to Head</div>

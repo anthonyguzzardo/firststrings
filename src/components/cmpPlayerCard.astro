@@ -11,35 +11,49 @@ interface Props {
 }
 
 const { player, arc, arcInverted = false } = Astro.props;
-const handLabel = player.handedness === 'left' ? 'L' : 'R';
-const bhLabel = player.backhandStyle === 'one-handed' ? '1HBH' : '2HBH';
 const status = player.status === 'active' ? `Age ${formatAge(player.bornIso)}` : 'Retired';
+const country = player.birthplace.split(',').slice(-1)[0]?.trim();
 const hasArc = arc && arc.length > 1;
+// When the sparkline carries real ranking data (arcInverted = lower is better),
+// surface the player's career-best rank as a tagline below the chart. For Elo
+// proxy series we don't have a comparable scalar to highlight.
+const careerBest = hasArc && arcInverted
+  ? Math.min(...arc!.map((p) => p.value))
+  : null;
+const yearsTrended = hasArc ? arc!.length : 0;
 ---
 <a href={`/players/${player.slug}`} class="fs-card">
   <div class="fs-card__topwrap">
     <div class="fs-card__photo" transition:name={`photo-${player.slug}`}>
       <img src={getPlayerImagePath(player)} alt="" loading="lazy" />
     </div>
-    <div>
+    <div class="fs-card__head">
       <div class="fs-card__top">
         <div class="fs-card__name" transition:name={`name-${player.slug}`}>{player.fullName}</div>
         <div class="fs-card__tour">{player.tour}</div>
       </div>
       <div class="fs-card__meta">
-        <span>{handLabel} · {bhLabel}</span>
+        <span>{country}</span>
         <span>{status}</span>
-        <span>{player.birthplace.split(',').slice(-1)[0]?.trim()}</span>
       </div>
     </div>
   </div>
+
+  {hasArc && (
+    <div class="fs-card__trajectory" aria-hidden="true">
+      <div class="fs-card__trajectory-spark">
+        <CmpRankingSparkline data={arc!} width={260} height={44} inverted={arcInverted} />
+      </div>
+      <div class="fs-card__trajectory-tag">
+        {careerBest !== null
+          ? <><span class="fs-card__rank tabular">#{careerBest}</span> <span class="fs-card__rank-label">career best · {yearsTrended} yr</span></>
+          : <span class="fs-card__rank-label">peak Elo · {yearsTrended} yr</span>}
+      </div>
+    </div>
+  )}
+
   <div class="fs-card__slams">
     <span class="fs-card__slams-value" transition:name={`slams-${player.slug}`}>{player.career.grandSlams}</span>
     <span class="fs-card__slams-label">Grand Slam{player.career.grandSlams === 1 ? '' : 's'}</span>
-    {hasArc && (
-      <div class="fs-card__arc" aria-hidden="true">
-        <CmpRankingSparkline data={arc!} width={120} height={28} inverted={arcInverted} />
-      </div>
-    )}
   </div>
 </a>

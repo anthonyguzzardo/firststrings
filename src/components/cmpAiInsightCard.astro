@@ -1,0 +1,52 @@
+---
+import type { AiCard } from '../lib/libAiCards';
+
+interface Props {
+  card: AiCard;
+}
+
+const { card } = Astro.props;
+const generatedDate = new Date(card.generatedAtIso).toLocaleDateString('en-US', {
+  year: 'numeric', month: 'short', day: 'numeric',
+});
+---
+<aside class="fs-ai-insight">
+  <div class="fs-ai-insight__head">
+    <span class="fs-eyebrow">Editor's note · AI</span>
+    <span class="fs-ai-insight__model" title={`Generated ${generatedDate} · ${card.modelId}`}>
+      {generatedDate}
+    </span>
+  </div>
+  <p class="fs-ai-insight__body">{card.paragraph}</p>
+</aside>
+
+<style>
+  .fs-ai-insight {
+    background: var(--bg-elevated);
+    border-left: 3px solid var(--slam-rg);
+    padding: 1.25rem 1.5rem 1.4rem;
+    margin: 1.75rem 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .fs-ai-insight__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .fs-ai-insight__model {
+    font-size: var(--fs-eye);
+    color: var(--ink-soft);
+    letter-spacing: 0.06em;
+    font-style: italic;
+  }
+  .fs-ai-insight__body {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    line-height: 1.55;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+</style>

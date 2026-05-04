@@ -1144,6 +1144,47 @@ details.fs-tier > summary { cursor: pointer; }
   gap: 0.5rem;
 }
 
+.fs-card__head { flex: 1; min-width: 0; }
+
+.fs-card__trajectory {
+  /* The sparkline is now the card's signal, not its decoration. Sits in
+     the middle of the card so it reads as a chart, not an afterthought. */
+  margin-top: 0.65rem;
+  padding: 0.6rem 0.7rem 0.55rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.fs-card__trajectory-spark {
+  width: 100%;
+  display: flex;
+  justify-content: stretch;
+}
+.fs-card__trajectory-spark > * {
+  width: 100% !important;
+  max-width: 100%;
+}
+.fs-card__trajectory-tag {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+}
+.fs-card__rank {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--clay);
+}
+.fs-card__rank-label {
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+
+/* Legacy fallback for any callsite still using the old class. */
 .fs-card__arc {
   margin-left: auto;
   width: 120px;

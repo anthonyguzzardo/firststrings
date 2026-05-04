@@ -1,0 +1,193 @@
+---
+import type { ServeZones, ServeZoneCell } from '../lib/libDb';
+
+interface Props {
+  zones: ServeZones;
+}
+
+const { zones } = Astro.props;
+
+// Group cells by side & direction.
+type Side = 'deuce' | 'ad';
+type Dir  = 'wide' | 'body' | 't';
+
+const grid: Record<Side, Record<Dir, ServeZoneCell | null>> = {
+  deuce: { wide: null, body: null, t: null },
+  ad:    { wide: null, body: null, t: null },
+};
+for (const c of zones.cells) grid[c.side][c.direction] = c;
+
+const totalServes = zones.totalServes;
+const sideTotals = {
+  deuce: (['wide', 'body', 't'] as const).reduce((s, d) => s + (grid.deuce[d]?.serves ?? 0), 0),
+  ad:    (['wide', 'body', 't'] as const).reduce((s, d) => s + (grid.ad[d]?.serves ?? 0), 0),
+};
+
+// Visual order WITHIN each box: deuce reads outside→inside as Wide-Body-T;
+// ad reads outside→inside as Wide-Body-T (mirror image, T near the centerline).
+const deuceOrder: Dir[] = ['wide', 'body', 't'];
+const adOrder:    Dir[] = ['t', 'body', 'wide'];
+
+const fmtPct = (n: number | null, digits = 0): string =>
+  n === null ? '—' : `${(n * 100).toFixed(digits)}%`;
+
+// Heat gradient: saturated = high ace rate. Cap at 25% for the upper anchor.
+const aceCap = 0.25;
+function heatColor(acePct: number | null): string {
+  if (acePct === null) return 'var(--bg-elevated)';
+  const t = Math.min(acePct / aceCap, 1);
+  return `color-mix(in srgb, var(--slam-rg) ${(t * 100).toFixed(0)}%, var(--bg-elevated))`;
+}
+
+const dirLabel: Record<Dir, string> = { wide: 'Wide', body: 'Body', t: 'T' };
+---
+<section class="fs-section fs-serve">
+  <div class="fs-section__title">
+    <h2>Serve Placement</h2>
+    <span class="fs-eyebrow">{totalServes.toLocaleString('en-US')} charted serves · color = ace rate</span>
+  </div>
+
+  <div class="fs-serve__diagram">
+    <div class="fs-serve__box fs-serve__box--deuce">
+      <div class="fs-serve__caption">Deuce side · {sideTotals.deuce.toLocaleString('en-US')} serves</div>
+      <div class="fs-serve__zones">
+        {deuceOrder.map((d) => {
+          const c = grid.deuce[d];
+          return (
+            <div
+              class={`fs-serve__zone fs-serve__zone--${d}`}
+              style={`background: ${heatColor(c?.acePct ?? null)};`}
+              data-direction={d}
+            >
+              <div class="fs-serve__zone-label">{dirLabel[d]}</div>
+              <div class="fs-serve__zone-share tabular">{fmtPct(c?.pctOfSide ?? null)}</div>
+              <div class="fs-serve__zone-ace tabular">{fmtPct(c?.acePct ?? null, 1)} aces</div>
+              <div class="fs-serve__zone-count">{(c?.serves ?? 0).toLocaleString('en-US')}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <div class="fs-serve__box fs-serve__box--ad">
+      <div class="fs-serve__caption">Ad side · {sideTotals.ad.toLocaleString('en-US')} serves</div>
+      <div class="fs-serve__zones">
+        {adOrder.map((d) => {
+          const c = grid.ad[d];
+          return (
+            <div
+              class={`fs-serve__zone fs-serve__zone--${d}`}
+              style={`background: ${heatColor(c?.acePct ?? null)};`}
+              data-direction={d}
+            >
+              <div class="fs-serve__zone-label">{dirLabel[d]}</div>
+              <div class="fs-serve__zone-share tabular">{fmtPct(c?.pctOfSide ?? null)}</div>
+              <div class="fs-serve__zone-ace tabular">{fmtPct(c?.acePct ?? null, 1)} aces</div>
+              <div class="fs-serve__zone-count">{(c?.serves ?? 0).toLocaleString('en-US')}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+
+  <p class="fs-serve__footer">
+    From the Match Charting Project. T-corner serves typically yield the highest ace
+    rates; body serves the lowest. Faulted first serves aren&rsquo;t in the placement
+    sample (the chart only carries the in-play serve).
+  </p>
+</section>
+
+<style>
+  .fs-serve__diagram {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .fs-serve__box {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .fs-serve__caption {
+    font: 600 var(--fs-eye)/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+  .fs-serve__zones {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 220px;
+    border: 1px solid var(--rule);
+    background: var(--bg);
+    overflow: hidden;
+  }
+  /* Each zone is a column. The deuce box reads Wide→Body→T (outside-in);
+     the ad box reads T→Body→Wide. T zones get a subtle inner edge to suggest
+     the centerline; Wide zones get a slight outer edge. */
+  .fs-serve__zone {
+    position: relative;
+    padding: 0.85rem 0.6rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    color: var(--ink);
+    border-right: 1px solid color-mix(in srgb, var(--rule) 50%, transparent);
+    transition: filter var(--t-base) var(--ease);
+  }
+  .fs-serve__zone:last-child { border-right: none; }
+  .fs-serve__zone:hover { filter: brightness(0.96); }
+
+  .fs-serve__zone-label {
+    font: 600 var(--fs-eye)/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.4rem;
+  }
+  .fs-serve__zone-share {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .fs-serve__zone-ace {
+    margin-top: 0.45rem;
+    font-size: 0.78rem;
+    color: var(--ink);
+  }
+  .fs-serve__zone-count {
+    margin-top: auto;
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-variant-numeric: tabular-nums lining-nums;
+    padding-top: 0.4rem;
+  }
+
+  .fs-serve__footer {
+    margin: 1rem 0 0;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 720px) {
+    .fs-serve__diagram {
+      grid-template-columns: 1fr;
+    }
+    .fs-serve__zones {
+      height: 180px;
+    }
+    .fs-serve__zone-share { font-size: 1.3rem; }
+  }
+</style>

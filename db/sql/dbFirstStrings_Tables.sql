@@ -569,6 +569,9 @@ CREATE TABLE tb_match (
   has_court_vision         BOOLEAN NOT NULL DEFAULT FALSE,
   external_source_id       INT NOT NULL DEFAULT 10,    -- ref te_external_source; default MANUAL
   external_match_id        TEXT,                       -- id in source system; null = manual
+  canonical_match_id       BIGINT,                     -- ref tb_match (self) — null = this row IS canonical;
+                                                       -- set when this row duplicates another (e.g. MCP charts
+                                                       -- of an ATP/WTA match). Populated by refresh-match-canonical.
   notes                    TEXT,
   dttm_created_utc         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by               TEXT NOT NULL DEFAULT 'system',

@@ -316,6 +316,73 @@ export async function getPlayerClutchMetrics(slug: string): Promise<PlayerClutch
 }
 
 const CLUTCH_MIN_MATCHES = 5;
+
+export interface ServeZoneCell {
+  side: 'deuce' | 'ad';
+  direction: 'wide' | 'body' | 't';
+  serves: number;
+  aces: number;
+  serviceWinners: number;
+  ptsWon: number;
+  acePct: number | null;
+  pctOfSide: number | null;
+}
+
+export interface ServeZones {
+  totalServes: number;
+  cells: ServeZoneCell[];
+}
+
+const DIR_NAME: Record<number, ServeZoneCell['direction']> = { 1: 'wide', 2: 'body', 3: 't' };
+
+/**
+ * Server placement zones for a curated player. Returns the overall slice
+ * (surface_id IS NULL) — the per-surface rows are also stored but the
+ * v1 cmpServeRose only renders overall. Returns null when the player has
+ * no MCP-charted serves on record.
+ */
+export async function getPlayerServeZones(slug: string): Promise<ServeZones | null> {
+  const rows = await sql<Array<{
+    side_court: 'deuce' | 'ad';
+    serve_direction_id: number;
+    serves_in: number;
+    aces: number;
+    service_winners: number;
+    pts_won: number;
+  }>>`
+    SELECT sz.side_court, sz.serve_direction_id, sz.serves_in, sz.aces,
+           sz.service_winners, sz.pts_won
+    FROM tb_player_serve_zones sz
+    JOIN td_player p ON p.player_id = sz.player_id
+    WHERE p.slug = ${slug} AND sz.surface_id IS NULL
+  `;
+  if (rows.length === 0) return null;
+
+  const totalsBySide: Record<'deuce' | 'ad', number> = { deuce: 0, ad: 0 };
+  for (const r of rows) totalsBySide[r.side_court] += r.serves_in;
+  const totalServes = totalsBySide.deuce + totalsBySide.ad;
+  if (totalServes < SERVE_ROSE_MIN_SERVES) return null;
+
+  const cells: ServeZoneCell[] = rows
+    .filter((r) => DIR_NAME[r.serve_direction_id])
+    .map((r) => {
+      const dir = DIR_NAME[r.serve_direction_id]!;
+      const sideTotal = totalsBySide[r.side_court];
+      return {
+        side: r.side_court,
+        direction: dir,
+        serves: r.serves_in,
+        aces: r.aces,
+        serviceWinners: r.service_winners,
+        ptsWon: r.pts_won,
+        acePct: r.serves_in > 0 ? r.aces / r.serves_in : null,
+        pctOfSide: sideTotal > 0 ? r.serves_in / sideTotal : null,
+      };
+    });
+  return { totalServes, cells };
+}
+
+const SERVE_ROSE_MIN_SERVES = 200;
 // @endregion aggregates
 
 // @region matches
