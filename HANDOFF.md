@@ -2,6 +2,76 @@
 
 A note from the previous agent to the next. Read CLAUDE.md first for the philosophy and conventions, then this for current state and what's next.
 
+## Update 2026-05-03 (late) — compare polish, /venues, Cmd+K, dedupe v2
+
+Closed out everything in the queue from the previous handoff. Main themes: the compare page is now genuinely deep (year-by-year + set scores + AI summary), `/venues` exists as a real page populated from Wikidata (400 venues), `Cmd+K` quick-search works site-wide, and the match-canonical heuristic jumped from 70% → 82.5%.
+
+### What landed
+
+**Compare page is now full-fat.**
+- New `cmpYearlyMeetings` — column-strip viz of every year the rivalry has met, A wins (terracotta) stacked over B wins (USO blue). Bar height proportional to that year's meeting count. Backed by `getMeetingsByYear` in libDb (`@region matches`).
+- `parseScore` in `src/lib/utlScore.ts` — Sackmann score-string parser handling tiebreak parens (`7-6(5)`) and terminator codes (`RET`, `W/O`, `DEF`, `ABN`). Drives the new set-chip layout in the meetings list: each set is its own micro-scoreboard column with the winner's digit in slam-rg and the tiebreak loser's pts as a `<sup>`.
+- AI matchup summary: `cmpAiInsightCard` reused for compare cards, sourced from `data/ai-cards/compare/<sortedSlug>-vs-<sortedSlug>.json`. New script `npm run refresh:compare-cards` walks every curated rivalry pair (deduped via sorted-slug key) and writes one paragraph each. Pass two slugs to generate a single matchup.
+- Meeting limit on compare is now 20 (was 12) since the visualization handles longer lists gracefully.
+
+**Match-canonical dedupe → 82.5%.**
+- Multi-pass heuristic in `refresh-match-canonical`: exact-score → normalized-score → tournament-name → no-score → no-round. Each pass commits only unambiguous matches.
+- The big win was the **tournament-name pass** — Sackmann ATP/WTA and MCP both create their own `td_tournament` rows for the same event (so `tournament_id` differs), but `lower(name)` matches across sources. Picked up 8,447 links over the round+year+pair baseline.
+- Score-string passes still got 0 because **MCP doesn't store the score string** — `tb_match.score` is NULL for all source-3 rows. Backfilling from the per-set point data would unlock those, deferred.
+
+**`cmpQuickSearch` — Cmd+K / `/` overlay.**
+- New `cmpQuickSearch.astro` mounted globally in `layBase` (so every page gets it). No external deps — a tiny inline scorer (name-prefix > full-name substring > initials > haystack substring) plus the curated roster shipped at SSR as a JS variable.
+- Shortcuts: `Cmd/Ctrl+K` or `/` (when not typing in another input) opens. `↑/↓` navigates results. `↵` opens the player. `Esc` closes.
+- Roster-only for v1. To extend later: append entries from `getAllVenues()` and / or `td_player` for non-curated names.
+
+**`/venues` page + Wikidata SPARQL ingest.**
+- `npm run ingest:venues` runs a SPARQL query against `query.wikidata.org/sparql` for venues with `P641 = tennis`. Pulls name, capacity, lat/lon, year built, city, country (+ ISO2 code → `td_country` upsert). Limit 500, `>1000` cap floor. Idempotent: matches on `lower(name)` for re-runs.
+- **400 venues** loaded on this run. Caveat: many are general-purpose stadiums that have HOSTED tennis (Hard Rock Stadium, Ellis Park) — not tennis-primary venues. The SPARQL needs a `P31 = tennis stadium` (Q15916252) tightening, but for v1 the noise is OK because the page sorts by capacity and visually the wrong-stadium ones are obvious from their oversized seat counts.
+- `/venues` (`src/pages/venues.astro`) — hero with biggest / oldest / total seats, plus a 280px-min auto-fill grid of cards. Each card: name, country code, city, capacity, year built, "on map ↗" → OpenStreetMap deep-link.
+- `getAllVenues({ minCapacity, limit })` in libDb under `@region venues`. Defaults to top-200 by capacity.
+- Utility bar: Venues link is no longer disabled — routes to `/venues`, gets `is-active` styling on `/venues/*`.
+
+### How to reproduce a fresh database
+
+```sh
+docker compose up -d
+npm run db:psql                 # or apply migrations via psql redirect
+npm run bootstrap
+npm run ingest:atp
+npm run ingest:wta
+npm run ingest:mcp -- --shots
+npm run ingest:rankings
+npm run ingest:venues           # NEW — Wikidata venues
+npm run refresh:elo
+npm run refresh:career-stats
+npm run refresh:leverage        # NEW — populates tb_point.leverage
+npm run refresh:clutch          # uses leverage now
+npm run refresh:serve-zones     # NEW — fed by tb_shot
+npm run refresh:match-canonical # NEW — populates canonical_match_id (~82%)
+npm run refresh:ai-cards        # OPTIONAL — needs ANTHROPIC_API_KEY
+npm run refresh:compare-cards   # OPTIONAL — needs ANTHROPIC_API_KEY
+```
+
+### Things to not do
+
+- **Don't ship the `is-soon` styling on Venues again.** It's live now.
+- **Don't merge MCP `tournament_id` into Sackmann's directly** without thinking about the dedupe direction. Tournament rows on the MCP side legitimately exist (some events are ONLY MCP-charted, like exhibitions). The xref pattern (canonical_match_id) is the safer abstraction.
+- **Don't add Fuse.js to `cmpQuickSearch`** unless the roster grows past ~200 entries. The inline scorer is faster, smaller, and matches our needs precisely.
+- **Don't return the OG SVG with no Cache-Control.** It's set to `s-maxage=86400`; social crawlers will hammer the route.
+
+### For the next agent — concrete pickup
+
+The DESIGN.md V1 roadmap is now substantively done. Open candidates:
+
+1. **MCP score backfill.** Walk per-match points → infer per-set games → render the score string into `tb_match.score` for source-3 rows. Lights up the dedupe's score-pass (could push canonical to ~95%), and gives MCP-only matches a displayable score.
+2. **`cmpStyleNeighbours` — pgvector kNN "plays like".** The HNSW index is empty. Build `py/embed_players.py` (sentence-transformers all-MiniLM-L6-v2 via `uv`); features = ace rate, BLR, DR+, surface preference, shot mix from `tb_player_shot_distribution` (which itself needs a `refresh:shot-distribution` derive script — small lift). Then a sidebar on the player profile.
+3. **Tighten the venues SPARQL.** Add `P31 = Q15916252 (tennis stadium)` filter — drops the football/cricket venues. Or layer a manual whitelist of canonical tennis-primary venues (~30 total: All-England, Court Philippe-Chatrier, Rod Laver Arena, etc.).
+4. **`/announcers/<slug>`** — ICDb is the source. Different shape (people, not places), but reusing the curated-profile template should be straightforward.
+5. **MapLibre on `/venues`.** Add a real map at the top of the page using the lat/lon column. We have it — just need MapLibre GL JS and a tile provider.
+6. **Live scoring** — still deferred until there's an ops decision.
+
+---
+
 ## Update 2026-05-03 (evening) — shot ingest, leverage, serve rose, AI cards, OG, dedupe
 
 Big push that closed out the entire post-clutch backlog. Most of what the previous handoff queued is now in.
