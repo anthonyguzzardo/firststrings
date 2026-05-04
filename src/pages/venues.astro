@@ -1,0 +1,215 @@
+---
+import LayBase from '../layouts/layBase.astro';
+import { getAllVenues, type VenueRow } from '../lib/libDb';
+
+let venues: VenueRow[] = [];
+try {
+  venues = await getAllVenues({ minCapacity: 5000, limit: 120 });
+} catch (e) {
+  const code = (e as { code?: string } | null)?.code;
+  if (code !== 'ECONNREFUSED') console.error('[venues] DB query failed:', e);
+}
+
+const totalSeats = venues.reduce((s, v) => s + (v.capacity ?? 0), 0);
+const oldest = venues
+  .filter((v) => v.yearBuilt !== null)
+  .reduce<VenueRow | null>((best, v) => !best || (v.yearBuilt! < (best.yearBuilt ?? Infinity)) ? v : best, null);
+const biggest = venues[0] ?? null;
+---
+<LayBase title="Venues" description="The grounds, courts, and stadiums where the game gets played.">
+  <header class="fs-venues-hero">
+    <div class="fs-container">
+      <div class="fs-eyebrow fs-eyebrow--block">Honor the venues</div>
+      <h1 class="fs-venues-hero__title">The grounds.</h1>
+      <p class="fs-venues-hero__lede">
+        Tennis is played in places. The cathedral courts, the satellite hardcourts,
+        the centre courts of cities most maps would skip. {venues.length} of them, sorted
+        by the number of seats that have ever watched a serve land.
+      </p>
+      {venues.length > 0 && (
+        <div class="fs-venues-hero__stats">
+          {biggest && (
+            <div class="fs-venues-stat">
+              <span class="fs-venues-stat__value tabular">{biggest.capacity?.toLocaleString('en-US') ?? '—'}</span>
+              <span class="fs-venues-stat__label">Largest · {biggest.name}</span>
+            </div>
+          )}
+          {oldest && (
+            <div class="fs-venues-stat">
+              <span class="fs-venues-stat__value tabular">{oldest.yearBuilt}</span>
+              <span class="fs-venues-stat__label">Oldest · {oldest.name}</span>
+            </div>
+          )}
+          <div class="fs-venues-stat">
+            <span class="fs-venues-stat__value tabular">{totalSeats.toLocaleString('en-US')}</span>
+            <span class="fs-venues-stat__label">Seats charted in this list</span>
+          </div>
+        </div>
+      )}
+    </div>
+  </header>
+
+  <article class="fs-container">
+    {venues.length === 0 ? (
+      <p class="fs-venues-empty">
+        No venues yet. Run <code>npm run ingest:venues</code> to pull from Wikidata.
+      </p>
+    ) : (
+      <ul class="fs-venues-grid">
+        {venues.map((v) => (
+          <li class="fs-venue">
+            <div class="fs-venue__head">
+              <h2 class="fs-venue__name">{v.name}</h2>
+              {v.countryIso && <span class="fs-venue__flag">{v.countryIso}</span>}
+            </div>
+            <div class="fs-venue__where">
+              {v.city ? `${v.city}` : ''}{v.city && v.country ? ', ' : ''}{v.country ?? ''}
+            </div>
+            <div class="fs-venue__stats">
+              {v.capacity !== null && (
+                <div class="fs-venue__stat">
+                  <span class="fs-venue__stat-label">Capacity</span>
+                  <span class="fs-venue__stat-value tabular">{v.capacity.toLocaleString('en-US')}</span>
+                </div>
+              )}
+              {v.yearBuilt !== null && (
+                <div class="fs-venue__stat">
+                  <span class="fs-venue__stat-label">Built</span>
+                  <span class="fs-venue__stat-value tabular">{v.yearBuilt}</span>
+                </div>
+              )}
+              {v.lat !== null && v.lon !== null && (
+                <a class="fs-venue__map" href={`https://www.openstreetmap.org/?mlat=${v.lat}&mlon=${v.lon}#map=15/${v.lat}/${v.lon}`} target="_blank" rel="noopener">
+                  on map ↗
+                </a>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </article>
+
+  <style>
+    .fs-venues-hero {
+      padding: 4rem 0 2rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .fs-venues-hero__title {
+      margin: 0.25rem 0 0.6rem;
+      font-size: var(--fs-h1);
+      line-height: 1.05;
+    }
+    .fs-venues-hero__lede {
+      max-width: 640px;
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      color: var(--ink-muted);
+      margin: 0 0 1.5rem;
+    }
+    .fs-venues-hero__stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+    }
+    .fs-venues-stat {
+      background: var(--bg);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .fs-venues-stat__value {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      color: var(--ink);
+    }
+    .fs-venues-stat__label {
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: var(--ink-muted);
+    }
+
+    .fs-venues-grid {
+      list-style: none;
+      margin: 2.5rem 0 4rem;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+    }
+    .fs-venue {
+      background: var(--bg);
+      padding: 1rem 1.15rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      content-visibility: auto;
+      contain-intrinsic-size: 0 160px;
+    }
+    .fs-venue__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    .fs-venue__name {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 500;
+      line-height: 1.1;
+      margin: 0;
+    }
+    .fs-venue__flag {
+      font: 600 var(--fs-eye)/1 var(--sans);
+      letter-spacing: 0.14em;
+      color: var(--ink-soft);
+    }
+    .fs-venue__where {
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+    }
+    .fs-venue__stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1rem;
+      margin-top: auto;
+      padding-top: 0.4rem;
+      border-top: 1px dashed var(--rule);
+    }
+    .fs-venue__stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .fs-venue__stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .fs-venue__stat-value {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+    .fs-venue__map {
+      align-self: flex-end;
+      margin-left: auto;
+      font-size: 0.78rem;
+      color: var(--slam-rg);
+    }
+    .fs-venue__map:hover { text-decoration: underline; }
+
+    .fs-venues-empty {
+      margin: 2rem 0;
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--ink-muted);
+    }
+  </style>
+</LayBase>

@@ -29,3 +29,26 @@ export function loadAiCard(slug: string): AiCard | null {
     return null;
   }
 }
+
+/**
+ * Compare-page AI cards live at data/ai-cards/compare/<a>-vs-<b>.json,
+ * keyed by the alphabetically-sorted slug pair so /compare/x-vs-y and
+ * /compare/y-vs-x resolve to the same file.
+ */
+export function compareCardKey(slugA: string, slugB: string): string {
+  return [slugA, slugB].sort().join('-vs-');
+}
+
+export function loadCompareAiCard(slugA: string, slugB: string): AiCard | null {
+  const key = compareCardKey(slugA, slugB);
+  const path = join(CARDS_DIR, 'compare', `${key}.json`);
+  if (!existsSync(path)) return null;
+  try {
+    const raw = readFileSync(path, 'utf-8');
+    const obj = JSON.parse(raw) as AiCard;
+    if (!obj.paragraph || !obj.slug) return null;
+    return obj;
+  } catch {
+    return null;
+  }
+}

@@ -1,6 +1,7 @@
 ---
 import '../styles/styBase.css';
 import CmpUtilityBar from '../components/cmpUtilityBar.astro';
+import CmpQuickSearch from '../components/cmpQuickSearch.astro';
 import { ClientRouter } from 'astro:transitions';
 
 interface Props {
@@ -47,6 +48,8 @@ const fullTitle = `${title} · First Strings`;
     <main>
       <slot />
     </main>
+
+    <CmpQuickSearch />
 
     <footer class="fs-foot">
       <div class="fs-container fs-foot__inner">

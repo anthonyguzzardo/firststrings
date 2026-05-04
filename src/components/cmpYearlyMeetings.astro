@@ -1,0 +1,139 @@
+---
+import type { Player } from '../lib/libPlayers';
+import type { YearlyMeetings } from '../lib/libDb';
+
+interface Props {
+  playerA: Player;
+  playerB: Player;
+  yearly: YearlyMeetings[];
+}
+
+const { playerA, playerB, yearly } = Astro.props;
+const maxMeetings = yearly.reduce((m, y) => Math.max(m, y.aWins + y.bWins), 0);
+
+// Render bars proportional to that year's meeting volume so a 5-meeting year
+// (Slam + Masters runs) reads bigger than a 1-meeting year. Min height keeps
+// thin years legible.
+const minPx = 6;
+const maxPx = 56;
+const barHeight = (n: number): number =>
+  maxMeetings === 0 ? minPx : Math.round(minPx + ((n / maxMeetings) * (maxPx - minPx)));
+---
+<section class="fs-section fs-yearly">
+  <div class="fs-section__title">
+    <h2>Year by year</h2>
+    <span class="fs-eyebrow">{yearly.length} year{yearly.length === 1 ? '' : 's'} of meetings</span>
+  </div>
+
+  <div class="fs-yearly__legend">
+    <span><span class="fs-yearly__swatch fs-yearly__swatch--a"></span>{playerA.fullName}</span>
+    <span><span class="fs-yearly__swatch fs-yearly__swatch--b"></span>{playerB.fullName}</span>
+  </div>
+
+  <div class="fs-yearly__strip" role="img" aria-label={`Year-by-year meeting tally between ${playerA.fullName} and ${playerB.fullName}`}>
+    {yearly.map((y) => {
+      const total = y.aWins + y.bWins;
+      const aH = barHeight(y.aWins);
+      const bH = barHeight(y.bWins);
+      return (
+        <div class="fs-yearly__col" data-year={y.year}>
+          <div class="fs-yearly__bars">
+            <div class="fs-yearly__bar fs-yearly__bar--a" style={`height: ${aH}px`} aria-hidden="true">
+              {y.aWins > 0 && <span class="fs-yearly__count">{y.aWins}</span>}
+            </div>
+            <div class="fs-yearly__bar fs-yearly__bar--b" style={`height: ${bH}px`} aria-hidden="true">
+              {y.bWins > 0 && <span class="fs-yearly__count">{y.bWins}</span>}
+            </div>
+          </div>
+          <div class="fs-yearly__year tabular">{`'${String(y.year).slice(-2)}`}</div>
+          <div class="fs-yearly__total tabular" title={`${total} meeting${total === 1 ? '' : 's'} in ${y.year}`}>
+            {total}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<style>
+  .fs-yearly__legend {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+  }
+  .fs-yearly__swatch {
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 1px;
+    margin-right: 0.4rem;
+    vertical-align: -1px;
+  }
+  .fs-yearly__swatch--a { background: var(--slam-rg); }
+  .fs-yearly__swatch--b { background: var(--slam-uso); }
+
+  .fs-yearly__strip {
+    display: flex;
+    align-items: stretch;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    /* a horizontal hairline grounds the bars to a "ground line" */
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .fs-yearly__col {
+    flex: 1 0 32px;
+    min-width: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .fs-yearly__bars {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    height: 64px;
+    gap: 1px;
+  }
+  .fs-yearly__bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    color: var(--bg);
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    overflow: hidden;
+  }
+  .fs-yearly__bar--a { background: var(--slam-rg); }
+  .fs-yearly__bar--b { background: var(--slam-uso); }
+  .fs-yearly__count {
+    line-height: 1;
+    padding: 2px 0 0;
+    letter-spacing: 0;
+  }
+
+  .fs-yearly__year {
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    margin-top: 0.3rem;
+    letter-spacing: 0.04em;
+  }
+  .fs-yearly__total {
+    font-family: var(--serif);
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    margin-top: 0.05rem;
+  }
+
+  @media (max-width: 720px) {
+    .fs-yearly__col { flex: 1 0 26px; min-width: 26px; }
+    .fs-yearly__bars { height: 48px; }
+  }
+</style>

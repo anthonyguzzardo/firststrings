@@ -15,9 +15,7 @@ const onRoster = url.pathname === '/' || url.pathname === '';
     <a href="/?tour=WTA" class:list={['fs-utility__link', onRoster && tour === 'WTA' && 'is-active']}>WTA</a>
     <span class="fs-utility__sep" aria-hidden="true">·</span>
     <a href="/compare" class:list={['fs-utility__link', url.pathname.startsWith('/compare') && 'is-active']}>Compare</a>
-    <a href="/venues" class="fs-utility__link is-soon" aria-disabled="true" tabindex="-1">
-      Venues<span class="fs-utility__soon" aria-hidden="true">soon</span>
-    </a>
+    <a href="/venues" class:list={['fs-utility__link', url.pathname.startsWith('/venues') && 'is-active']}>Venues</a>
   </div>
 </div>
 

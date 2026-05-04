@@ -3,16 +3,22 @@ import LayBase from '../../layouts/layBase.astro';
 import CmpHeadToHead from '../../components/cmpHeadToHead.astro';
 import CmpRankingSparkline from '../../components/cmpRankingSparkline.astro';
 import CmpCourtLine from '../../components/cmpCourtLine.astro';
+import CmpYearlyMeetings from '../../components/cmpYearlyMeetings.astro';
+import CmpAiInsightCard from '../../components/cmpAiInsightCard.astro';
 import { getPlayerBySlug, getPlayerImagePath } from '../../lib/libPlayers';
 import {
   getHeadToHead,
   getMatchHistoryBetween,
+  getMeetingsByYear,
   getRankingAnnualBestBySlug,
   getEloAnnualPeaksBySlug,
   type SparklinePoint,
   type HeadToHead,
   type MatchBetween,
+  type YearlyMeetings,
 } from '../../lib/libDb';
+import { parseScore } from '../../lib/utlScore';
+import { loadCompareAiCard } from '../../lib/libAiCards';
 import '../../styles/styPlayerProfile.css';
 
 const { matchup } = Astro.params;
@@ -32,18 +38,21 @@ if (!playerA || !playerB) {
 
 let h2h: HeadToHead | null = null;
 let history: MatchBetween[] = [];
+let yearly: YearlyMeetings[] = [];
 let arcA: { data: SparklinePoint[]; inverted: boolean } = { data: [], inverted: false };
 let arcB: { data: SparklinePoint[]; inverted: boolean } = { data: [], inverted: false };
 
 try {
-  const [h2hRes, histRes, rankMap, eloMap] = await Promise.all([
+  const [h2hRes, histRes, yearlyRes, rankMap, eloMap] = await Promise.all([
     getHeadToHead(aSlug, bSlug),
-    getMatchHistoryBetween(aSlug, bSlug, 12),
+    getMatchHistoryBetween(aSlug, bSlug, 20),
+    getMeetingsByYear(aSlug, bSlug),
     getRankingAnnualBestBySlug([aSlug, bSlug]),
     getEloAnnualPeaksBySlug([aSlug, bSlug]),
   ]);
   h2h = h2hRes;
   history = histRes;
+  yearly = yearlyRes;
   for (const slug of [aSlug, bSlug]) {
     const rk = rankMap.get(slug);
     const target = slug === aSlug ? arcA : arcB;
@@ -65,6 +74,7 @@ try {
 
 const title = `${playerA.fullName} vs ${playerB.fullName}`;
 const ogImage = new URL(`/og/compare/${playerA.slug}-vs-${playerB.slug}.svg`, Astro.url).toString();
+const compareCard = loadCompareAiCard(playerA.slug, playerB.slug);
 ---
 <LayBase title={title} description={`Career head-to-head: ${title}.`} ogImage={ogImage}>
   <header class="fs-compare-hero">
@@ -91,6 +101,12 @@ const ogImage = new URL(`/og/compare/${playerA.slug}-vs-${playerB.slug}.svg`, As
           No tour-level meetings recorded between these players in the Sackmann dataset.
         </p>
       </section>
+    )}
+
+    {compareCard && <CmpAiInsightCard card={compareCard} />}
+
+    {yearly.length > 1 && (
+      <CmpYearlyMeetings playerA={playerA} playerB={playerB} yearly={yearly} />
     )}
 
     {(arcA.data.length > 1 || arcB.data.length > 1) && (
@@ -136,15 +152,14 @@ const ogImage = new URL(`/og/compare/${playerA.slug}-vs-${playerB.slug}.svg`, As
         </div>
         <ol class="fs-compare-history">
           {history.map((m) => {
-            const winnerName = m.winnerSlug === playerA.slug
-              ? playerA.fullName
-              : m.winnerSlug === playerB.slug
-                ? playerB.fullName
-                : null;
-            const loserName = winnerName === playerA.fullName ? playerB.fullName : playerA.fullName;
+            const winnerIsA = m.winnerSlug === playerA.slug;
+            const winnerName = winnerIsA ? playerA.fullName : (m.winnerSlug === playerB.slug ? playerB.fullName : null);
+            const loserName = winnerIsA ? playerB.fullName : playerA.fullName;
+            const parsed = parseScore(m.score);
+            const surfaceClass = m.surface ? `fs-compare-meeting--${m.surface.toLowerCase().replace(/[^a-z]/g, '')}` : '';
             return (
-              <li class="fs-compare-meeting">
-                <span class="fs-compare-meeting__year">{m.year}</span>
+              <li class={`fs-compare-meeting ${surfaceClass}`}>
+                <span class="fs-compare-meeting__year tabular">{m.year}</span>
                 <div class="fs-compare-meeting__main">
                   <div class="fs-compare-meeting__where">
                     {m.tournament ?? '—'}
@@ -153,7 +168,26 @@ const ogImage = new URL(`/og/compare/${playerA.slug}-vs-${playerB.slug}.svg`, As
                   </div>
                   {winnerName && (
                     <div class="fs-compare-meeting__result">
-                      {winnerName} d. {loserName}{m.score && <> · <span class="fs-compare-meeting__score">{m.score}</span></>}
+                      <span class="fs-compare-meeting__verdict">{winnerName} d. {loserName}</span>
+                      {parsed ? (
+                        <ol class="fs-compare-sets" aria-label={`Set scores: ${parsed.sets.map((s) => `${s.a}-${s.b}`).join(', ')}`}>
+                          {parsed.sets.map((s) => {
+                            const aWonSet = s.a > s.b;
+                            return (
+                              <li class={`fs-compare-set ${aWonSet ? 'fs-compare-set--a' : 'fs-compare-set--b'}`}>
+                                <span class="fs-compare-set__a tabular">{s.a}</span>
+                                <span class="fs-compare-set__b tabular">{s.b}</span>
+                                {s.tb !== null && <sup class="fs-compare-set__tb tabular">{s.tb}</sup>}
+                              </li>
+                            );
+                          })}
+                          {parsed.terminator && (
+                            <li class="fs-compare-set fs-compare-set--terminator">{parsed.terminator}</li>
+                          )}
+                        </ol>
+                      ) : (
+                        m.score && <span class="fs-compare-meeting__score">{m.score}</span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -277,5 +311,71 @@ const ogImage = new URL(`/og/compare/${playerA.slug}-vs-${playerB.slug}.svg`, As
     font-family: var(--mono);
     font-size: 0.85rem;
     color: var(--ink);
+  }
+
+  .fs-compare-meeting__verdict {
+    font-family: var(--serif);
+    color: var(--ink);
+  }
+
+  /* Set chips: each set is a tiny scoreboard column. Winner of the set
+     gets the slam-rg accent on their digit. Tiebreak loser's pts as a
+     sup mark. */
+  .fs-compare-sets {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+    display: inline-flex;
+    gap: 0.35rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .fs-compare-set {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    gap: 0;
+    padding: 0.2rem 0.4rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    font-family: var(--serif);
+    line-height: 1;
+    position: relative;
+  }
+  .fs-compare-set__a, .fs-compare-set__b {
+    font-size: 0.92rem;
+    text-align: center;
+    min-width: 0.85rem;
+    padding: 0 0.15rem;
+  }
+  .fs-compare-set__a { grid-row: 1; grid-column: 1; }
+  .fs-compare-set__b { grid-row: 2; grid-column: 1; }
+  .fs-compare-set__tb {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    align-self: end;
+    font-size: 0.62rem;
+    color: var(--ink-soft);
+    padding-left: 0.05rem;
+    line-height: 1;
+  }
+  .fs-compare-set--a .fs-compare-set__a { color: var(--slam-rg); font-weight: 600; }
+  .fs-compare-set--a .fs-compare-set__b { color: var(--ink-muted); }
+  .fs-compare-set--b .fs-compare-set__b { color: var(--slam-uso); font-weight: 600; }
+  .fs-compare-set--b .fs-compare-set__a { color: var(--ink-muted); }
+
+  .fs-compare-set--terminator {
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-style: italic;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    grid-template-columns: none;
   }
 </style>

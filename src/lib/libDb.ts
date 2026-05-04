@@ -385,6 +385,41 @@ export async function getPlayerServeZones(slug: string): Promise<ServeZones | nu
 const SERVE_ROSE_MIN_SERVES = 200;
 // @endregion aggregates
 
+// @region venues
+export interface VenueRow {
+  venue_id:   bigint;
+  name:       string;
+  city:       string | null;
+  country:    string | null;
+  countryIso: string | null;
+  capacity:   number | null;
+  yearBuilt:  number | null;
+  lat:        number | null;
+  lon:        number | null;
+}
+
+export async function getAllVenues(opts?: { minCapacity?: number; limit?: number }): Promise<VenueRow[]> {
+  const minCap = opts?.minCapacity ?? 0;
+  const limit  = opts?.limit ?? 200;
+  return await sql<VenueRow[]>`
+    SELECT v.venue_id,
+           v.name,
+           v.city,
+           c.name      AS country,
+           c.code_iso2 AS "countryIso",
+           v.capacity,
+           v.year_built AS "yearBuilt",
+           v.lat,
+           v.lon
+    FROM td_venue v
+    LEFT JOIN td_country c ON c.country_id = v.country_id
+    WHERE v.capacity IS NULL OR v.capacity >= ${minCap}
+    ORDER BY v.capacity DESC NULLS LAST, v.name ASC
+    LIMIT ${limit}
+  `;
+}
+// @endregion venues
+
 // @region matches
 export interface HeadToHeadSurfaceCount {
   a: number;
@@ -566,6 +601,38 @@ export async function getMatchHistoryBetween(aSlug: string, bSlug: string, limit
     ORDER BY COALESCE(m.dttm_match_utc, make_date(m.tournament_edition_year::int, 12, 31)::timestamptz) DESC,
              m.match_id DESC
     LIMIT ${limit}
+  `;
+}
+export interface YearlyMeetings {
+  year: number;
+  aWins: number;
+  bWins: number;
+}
+
+/**
+ * Year-bucketed meeting tally between two players. Returns one row per
+ * calendar year either side won at least one meeting. Same source filter
+ * as `getHeadToHead` (1, 2 only) so the totals match.
+ */
+export async function getMeetingsByYear(aSlug: string, bSlug: string): Promise<YearlyMeetings[]> {
+  return await sql<YearlyMeetings[]>`
+    WITH ids AS (
+      SELECT
+        (SELECT player_id FROM td_player WHERE slug = ${aSlug}) AS a_id,
+        (SELECT player_id FROM td_player WHERE slug = ${bSlug}) AS b_id
+    )
+    SELECT
+      m.tournament_edition_year::int AS year,
+      COUNT(*) FILTER (WHERE m.winner_id = (SELECT a_id FROM ids))::int AS "aWins",
+      COUNT(*) FILTER (WHERE m.winner_id = (SELECT b_id FROM ids))::int AS "bWins"
+    FROM tb_match m, ids
+    WHERE m.external_source_id IN (1, 2)
+      AND m.winner_id IS NOT NULL
+      AND ((m.p1_id = ids.a_id AND m.p2_id = ids.b_id)
+        OR (m.p1_id = ids.b_id AND m.p2_id = ids.a_id))
+    GROUP BY year
+    HAVING COUNT(*) > 0
+    ORDER BY year ASC
   `;
 }
 // @endregion matches
