@@ -2,6 +2,48 @@
 
 A note from the previous agent to the next. Read CLAUDE.md first for the philosophy and conventions, then this for current state and what's next.
 
+## Update 2026-05-04 — embeddings whitened, venue notes, shot map
+
+Three pickups in one pass: the "Plays like" sidebar got real signal, `/venues` got editorial soul, and the player profile got a directional Shot Map (groundstroke landings) without needing a Court Vision ingest.
+
+### What landed
+
+**1. Whitened style embeddings.** v1 cluster was crushed (every player ≥ 90% cosine-similar) because shot-mix shares dominated the L2 norm. v2 (`feat-v2-2026-05`) adds a per-dimension z-score across the population BEFORE the L2, so dims where players actually differ get equal weight.
+- Federer's nearest now: Djokovic 40.5 → Lendl 28.2 → Nadal 24.9 → Sampras 20.7 → Roddick 19.1 → Agassi 13.6
+- Świątek's nearest: Gauff 48.3 → Sinner 32.8 → Rybakina 27.2 → Sabalenka 25.5 → Nadal 22.6
+- Sampras's nearest: McEnroe 34.7 → Federer 20.7 → Laver 17.9 → Roddick 14.9 → Agassi 5.7
+- Same `getStyleNeighbours(slug, k)` API, no UI change. The encoder version literal bumped so old vectors are silently replaced.
+
+**2. Curated venue notes.** New `npm run seed:venue-notes` loads ~12 hand-written editorial paragraphs (60–80 words each) into `td_venue.notes`. Voice: short, restrained, observational. Covers Court Philippe-Chatrier, Arthur Ashe, Rod Laver, Indian Wells, Wimbledon (the complex), Accor Arena, St. Jakobshalle, Wiener Stadthalle, Hanns-Martin-Schleyer-Halle, Hallenstadion, Festhalle Frankfurt. Suzanne-Lenglen didn't ingest from Wikidata (not classed as a venue at the right level — it's a sub-court of RG); other ten landed cleanly.
+- `getAllVenues` now selects `notes` and orders curated rows first.
+- `/venues` cards with notes render the editorial blurb in the body, span 2 columns on the grid, and get a slam-rg left border + paper-tone background. Visually they read as "the curated ones" without needing a label.
+
+**3. `cmpShotMap` — directional groundstroke landings.** New section on every curated profile (between Serve Placement and Equipment Bag). Two side-by-side panels (Forehand goes / Backhand goes), each rendered as a half-court SVG with three landing zones (opp FH corner / middle / opp BH corner) tinted by frequency, plus shot-direction arrows from the player's baseline position. Below each: a numbered legend with share, winner rate, and raw count.
+- Backed by `getShotDirectionMap(slug)` in `libDb` (`@region embeddings`-adjacent — kept under the existing aggregates region).
+- Source: `tb_shot.groundstroke_direction_id` (98% coverage on existing groundstroke shots — 5.66M / 5.76M). Direction is opponent-perspective and parser-flipped for left-handed opponents — so "opp FH corner" reads consistently regardless of the receiver's handedness.
+- Federer sanity: FH 39 / 27 / 34 across the three zones (well-balanced cross-court vs DTL); BH 20 / 39 / 41 (heavily down-the-line / cross to opp BH). Winner rates: FH-to-opp-BH 12.3%, FH-to-opp-FH 10.4%, BH-to-opp-FH 13% (the famous slap inside-out / down-the-line).
+
+**4. Court Vision ingest is officially deferred.** `tb_shot.ball_x_norm/ball_y_norm` stays NULL. The directional map covers most of what users want from a shot viz; full coordinate scatter requires the `glad94/infotennis` Selenium pipeline (or reverse-engineering atptour.com's Court Vision JSON endpoints) and is a multi-day project on its own.
+
+### Things to not do
+
+- **Don't write `Record<K, V>` or `Array<T>` type annotations inside Astro `{...}` template expressions** — Astro's parser interprets `<` as JSX. Use `as const` for literal arrays and untyped `new Map()` (or do the typing in the frontmatter `---` block, where TS works fine).
+- **Don't roll back the embedding whitening** without a different scaling strategy. The flat 90%+ cluster wasn't a bug per se; it was a feature-scaling failure. Whitening is the right shape; you could also try mean-centering only, or feature-group reweighting (give clutch dims more weight than shot-mix shares), but plain z-score is the v1 baseline.
+- **Don't treat `td_venue.notes` as authoritative content** without a way to flag stale ones. The notes are hand-written prose with concrete numbers ("ten Swiss Indoors titles"); when a stat changes, someone has to edit. Add a `notes_as_of` timestamp if this gets unwieldy.
+
+### For the next agent — pickups, in order
+
+The active queue:
+
+1. **Live scoring widget.** Real-time element. Needs an ops decision: rate limits, caching, fallback when the feed is down.
+2. **Court Vision shot heatmaps (deferred).** When time-budget allows: try the direct ATP API approach first (network-tab inspection of atptour.com Court Vision panel) — it's likely a JSON endpoint reachable with Origin/Referer headers, no Selenium required. Falls back to the infotennis fork.
+3. **Bracketry-based draws (`cmpDrawCanvas`).** Needs a draw-data ingest. Sackmann doesn't ship draws as a structured CSV — would have to scrape ATP/WTA tournament pages or use a draw-archive site.
+4. **PNG OG image** via `satori` + `@resvg/resvg-js`. Only if a strict-PNG platform shows up.
+5. **`/announcers/<slug>` — paused** per the user's call. Resume when the announcers pillar is the priority.
+6. **Tighten Wikidata venue ingest further.** The current SPARQL still pulls some non-tennis-primary stadiums; layering a manual whitelist of the iconic ~40 (Master 1000s + Slams + Tour Finals locations) as a hand-edit pass would clean up the long tail.
+
+---
+
 ## Update 2026-05-03 (post-final) — orchestration: one command does everything
 
 The handoff queue's "How to reproduce" section was a 12-step shell ritual. It's now three commands tops, and one of them is `npm run dev` doing the right thing automatically.

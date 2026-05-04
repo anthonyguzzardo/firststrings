@@ -1,0 +1,226 @@
+---
+import type { ShotDirectionMap, ShotDirectionCell } from '../lib/libDb';
+
+interface Props {
+  map: ShotDirectionMap;
+}
+
+const { map } = Astro.props;
+
+const fmtPct = (n: number | null, digits = 0): string =>
+  n === null ? '—' : `${(n * 100).toFixed(digits)}%`;
+
+// Court geometry — pixels, abstract single half (opponent's side, ball-lands view).
+const W = 360;
+const H = 240;
+const lineColor = 'var(--court-line-mute)';
+const courtFill = 'var(--surface-hard)';
+
+// Zone widths along the baseline. The middle zone is narrower than the
+// corners — that's how Sackmann's groundstroke encoding labels them
+// (corners are roughly the 1/3 wedges by court width).
+const zoneSplits = [0.33, 0.67] as const;
+
+// Pick max share to scale the heat ramp consistently across both panels
+// so a 50% panel reads "denser" than a 30% panel without re-anchoring.
+const allCells = [...map.forehand, ...map.backhand];
+const maxShare = allCells.reduce((m, c) => Math.max(m, c.share ?? 0), 0);
+
+function heatPct(share: number | null): number {
+  if (share === null || maxShare === 0) return 0;
+  return Math.min((share / maxShare) * 100, 100);
+}
+
+interface PanelProps { title: string; cells: ShotDirectionCell[] }
+
+const panels: PanelProps[] = [
+  { title: 'Forehand goes',  cells: map.forehand },
+  { title: 'Backhand goes',  cells: map.backhand },
+];
+---
+<section class="fs-section fs-shotmap">
+  <div class="fs-section__title">
+    <h2>Shot Map</h2>
+    <span class="fs-eyebrow">{map.totalGroundstrokes.toLocaleString('en-US')} charted groundstrokes</span>
+  </div>
+
+  <div class="fs-shotmap__panels">
+    {panels.map((panel) => {
+      const cellByDir = new Map();
+      for (const c of panel.cells) cellByDir.set(c.direction, c);
+      // Reorder for display: opp FH corner on the LEFT (the way you'd see
+      // the shot land if you're looking at the opponent's right-handed
+      // forehand side from the player's stance). Middle, then opp BH.
+      const order = ['opp_fh', 'middle', 'opp_bh'] as const;
+      return (
+        <figure class="fs-shotmap__panel">
+          <figcaption class="fs-shotmap__caption">{panel.title}</figcaption>
+          <svg class="fs-shotmap__court" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={panel.title}>
+            <rect x="0" y="0" width={W} height={H} fill={courtFill} fill-opacity="0.04" />
+            {/* baseline (top of opp half), service line, centre line */}
+            <line x1="0" y1={2} x2={W} y2={2} stroke={lineColor} stroke-width="2" />
+            <line x1="0" y1={H * 0.45} x2={W} y2={H * 0.45} stroke={lineColor} stroke-width="1" />
+            <line x1={W / 2} y1={H * 0.45} x2={W / 2} y2={H} stroke={lineColor} stroke-width="1" />
+            <line x1="0" y1={H} x2={W} y2={H} stroke={lineColor} stroke-width="1" />
+            {/* sidelines */}
+            <line x1="2" y1="0" x2="2" y2={H} stroke={lineColor} stroke-width="2" />
+            <line x1={W - 2} y1="0" x2={W - 2} y2={H} stroke={lineColor} stroke-width="2" />
+
+            {/* Three landing zones along the baseline (thin slab at top). */}
+            {order.map((dir, i) => {
+              const cell = cellByDir.get(dir);
+              const x0 = i === 0 ? 0 : zoneSplits[i - 1]! * W;
+              const x1 = i === order.length - 1 ? W : zoneSplits[i]! * W;
+              const heat = heatPct(cell?.share ?? null);
+              return (
+                <g>
+                  <rect
+                    x={x0}
+                    y={0}
+                    width={x1 - x0}
+                    height={H * 0.34}
+                    fill="var(--slam-rg)"
+                    fill-opacity={heat / 100}
+                  />
+                  {i > 0 && (
+                    <line x1={x0} y1="0" x2={x0} y2={H * 0.34} stroke={lineColor} stroke-width="1" />
+                  )}
+                  <text
+                    x={(x0 + x1) / 2}
+                    y={H * 0.16}
+                    text-anchor="middle"
+                    class="fs-shotmap__share tabular"
+                  >{fmtPct(cell?.share ?? null)}</text>
+                  <text
+                    x={(x0 + x1) / 2}
+                    y={H * 0.27}
+                    text-anchor="middle"
+                    class="fs-shotmap__win tabular"
+                  >{cell ? `${fmtPct(cell.winnerRate, 1)} W` : ''}</text>
+                </g>
+              );
+            })}
+
+            {/* Shot-direction arrows from the player's side (bottom centre). */}
+            {order.map((dir, i) => {
+              const cell = cellByDir.get(dir);
+              const share = cell?.share ?? 0;
+              const x0 = i === 0 ? 0 : zoneSplits[i - 1]! * W;
+              const x1 = i === order.length - 1 ? W : zoneSplits[i]! * W;
+              const targetX = (x0 + x1) / 2;
+              return (
+                <line
+                  x1={W / 2}
+                  y1={H - 8}
+                  x2={targetX}
+                  y2={H * 0.34 + 4}
+                  stroke="var(--slam-rg)"
+                  stroke-width={Math.max(1, share * 6)}
+                  stroke-opacity={Math.max(0.18, share)}
+                  stroke-linecap="round"
+                />
+              );
+            })}
+
+            {/* Player marker. */}
+            <circle cx={W / 2} cy={H - 8} r="4" fill="var(--ink)" />
+          </svg>
+          <ol class="fs-shotmap__legend">
+            {order.map((dir, i) => {
+              const cell = cellByDir.get(dir);
+              const dirLabel = dir === 'opp_fh' ? 'Opp. FH corner' : dir === 'middle' ? 'Middle' : 'Opp. BH corner';
+              return (
+                <li class="fs-shotmap__row">
+                  <span class="fs-shotmap__row-label">{dirLabel}</span>
+                  <span class="fs-shotmap__row-share tabular">{fmtPct(cell?.share ?? null)}</span>
+                  <span class="fs-shotmap__row-win tabular">{fmtPct(cell?.winnerRate ?? null, 1)} winners</span>
+                  <span class="fs-shotmap__row-count tabular">{(cell?.count ?? 0).toLocaleString('en-US')}</span>
+                </li>
+              );
+            })}
+          </ol>
+        </figure>
+      );
+    })}
+  </div>
+
+  <p class="fs-shotmap__footer">
+    Direction is opponent-relative — &ldquo;opp. FH corner&rdquo; means the corner
+    where the receiver&rsquo;s forehand lives, regardless of their handedness.
+    Heat saturation = share of the player&rsquo;s shots on that wing; W = winner rate.
+  </p>
+</section>
+
+<style>
+  .fs-shotmap__panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.75rem 2rem;
+  }
+  .fs-shotmap__panel {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .fs-shotmap__caption {
+    font: 600 var(--fs-eye)/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .fs-shotmap__court {
+    width: 100%;
+    height: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+  .fs-shotmap__share {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    fill: var(--ink);
+  }
+  .fs-shotmap__win {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    fill: var(--ink-muted);
+  }
+  .fs-shotmap__legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .fs-shotmap__row {
+    display: grid;
+    grid-template-columns: 9rem 3.5rem 7rem auto;
+    gap: 0.6rem;
+    align-items: baseline;
+    font-size: 0.85rem;
+  }
+  .fs-shotmap__row-label {
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+  }
+  .fs-shotmap__row-share {
+    font-family: var(--serif);
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .fs-shotmap__row-win {
+    color: var(--ink-muted);
+  }
+  .fs-shotmap__row-count {
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    text-align: right;
+  }
+  .fs-shotmap__footer {
+    margin: 1rem 0 0;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+</style>

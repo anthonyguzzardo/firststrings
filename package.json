@@ -23,6 +23,7 @@
     "ingest:mcp": "tsx --env-file=.env src/scripts/ingest-sackmann-mcp.ts",
     "ingest:rankings": "tsx --env-file=.env src/scripts/ingest-sackmann-rankings.ts",
     "ingest:venues": "tsx --env-file=.env src/scripts/ingest-wikidata-venues.ts",
+    "seed:venue-notes": "tsx --env-file=.env src/scripts/seed-venue-notes.ts",
     "refresh:elo": "tsx --env-file=.env src/scripts/refresh-elo.ts",
     "refresh:career-stats": "tsx --env-file=.env src/scripts/refresh-career-stats.ts",
     "refresh:clutch": "tsx --env-file=.env src/scripts/refresh-clutch.ts",

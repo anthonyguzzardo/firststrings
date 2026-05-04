@@ -386,6 +386,88 @@ export async function getPlayerServeZones(slug: string): Promise<ServeZones | nu
 }
 
 const SERVE_ROSE_MIN_SERVES = 200;
+
+export interface ShotDirectionCell {
+  direction: 'opp_fh' | 'middle' | 'opp_bh';
+  count:     number;
+  winners:   number;
+  winnerRate: number | null;
+  share:     number | null;
+}
+
+export interface ShotDirectionMap {
+  forehand: ShotDirectionCell[];
+  backhand: ShotDirectionCell[];
+  totalGroundstrokes: number;
+}
+
+const DIR_TO_KEY: Record<number, ShotDirectionCell['direction']> = {
+  1: 'opp_fh',
+  2: 'middle',
+  3: 'opp_bh',
+};
+
+/**
+ * Where the player's groundstrokes land — split FH vs BH, three zones
+ * (opp FH corner / middle / opp BH corner). Returns null when the player
+ * has fewer than SHOT_MAP_MIN_SHOTS charted groundstrokes.
+ *
+ * Direction is opponent-perspective and parser-flipped for left-handed
+ * opponents — so "opp FH corner" reads consistently regardless of the
+ * receiver's handedness.
+ */
+export async function getShotDirectionMap(slug: string): Promise<ShotDirectionMap | null> {
+  const rows = await sql<Array<{
+    shot_type_id: number;
+    groundstroke_direction_id: number;
+    n: number;
+    winners: number;
+  }>>`
+    SELECT s.shot_type_id, s.groundstroke_direction_id,
+           COUNT(*)::int AS n,
+           COUNT(*) FILTER (WHERE s.outcome_id = 2)::int AS winners
+    FROM tb_shot s
+    JOIN td_player p ON p.player_id = s.hitter_id
+    WHERE p.slug = ${slug}
+      AND s.shot_type_id IN (2, 3)
+      AND s.groundstroke_direction_id IS NOT NULL
+      AND s.groundstroke_direction_id IN (1, 2, 3)
+    GROUP BY s.shot_type_id, s.groundstroke_direction_id
+  `;
+  if (rows.length === 0) return null;
+
+  const fhRows = rows.filter((r) => r.shot_type_id === 2);
+  const bhRows = rows.filter((r) => r.shot_type_id === 3);
+  const fhTotal = fhRows.reduce((s, r) => s + r.n, 0);
+  const bhTotal = bhRows.reduce((s, r) => s + r.n, 0);
+  const total   = fhTotal + bhTotal;
+  if (total < SHOT_MAP_MIN_SHOTS) return null;
+
+  const expand = (subset: typeof rows, totalForSide: number): ShotDirectionCell[] => {
+    const dirs: Array<ShotDirectionCell['direction']> = ['opp_fh', 'middle', 'opp_bh'];
+    return dirs.map((dir) => {
+      const dirId = dir === 'opp_fh' ? 1 : dir === 'middle' ? 2 : 3;
+      const r = subset.find((x) => x.groundstroke_direction_id === dirId);
+      const count = r?.n ?? 0;
+      const winners = r?.winners ?? 0;
+      return {
+        direction: dir,
+        count,
+        winners,
+        winnerRate: count > 0 ? winners / count : null,
+        share:      totalForSide > 0 ? count / totalForSide : null,
+      };
+    });
+  };
+
+  return {
+    forehand: expand(fhRows, fhTotal),
+    backhand: expand(bhRows, bhTotal),
+    totalGroundstrokes: total,
+  };
+}
+
+const SHOT_MAP_MIN_SHOTS = 1000;
 // @endregion aggregates
 
 // @region venues
@@ -399,6 +481,7 @@ export interface VenueRow {
   yearBuilt:  number | null;
   lat:        number | null;
   lon:        number | null;
+  notes:      string | null;
 }
 
 export async function getAllVenues(opts?: { minCapacity?: number; limit?: number }): Promise<VenueRow[]> {
@@ -413,11 +496,14 @@ export async function getAllVenues(opts?: { minCapacity?: number; limit?: number
            v.capacity,
            v.year_built AS "yearBuilt",
            v.lat,
-           v.lon
+           v.lon,
+           v.notes
     FROM td_venue v
     LEFT JOIN td_country c ON c.country_id = v.country_id
     WHERE v.capacity IS NULL OR v.capacity >= ${minCap}
-    ORDER BY v.capacity DESC NULLS LAST, v.name ASC
+    ORDER BY (v.notes IS NOT NULL) DESC,
+             v.capacity DESC NULLS LAST,
+             v.name ASC
     LIMIT ${limit}
   `;
 }

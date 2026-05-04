@@ -77,7 +77,7 @@ const biggest = venues[0] ?? null;
     ) : (
       <ul class="fs-venues-grid">
         {venues.map((v) => (
-          <li class="fs-venue">
+          <li class={`fs-venue ${v.notes ? 'fs-venue--curated' : ''}`}>
             <div class="fs-venue__head">
               <h2 class="fs-venue__name">{v.name}</h2>
               {v.countryIso && <span class="fs-venue__flag">{v.countryIso}</span>}
@@ -85,6 +85,7 @@ const biggest = venues[0] ?? null;
             <div class="fs-venue__where">
               {v.city ? `${v.city}` : ''}{v.city && v.country ? ', ' : ''}{v.country ?? ''}
             </div>
+            {v.notes && <p class="fs-venue__notes">{v.notes}</p>}
             <div class="fs-venue__stats">
               {v.capacity !== null && (
                 <div class="fs-venue__stat">
@@ -216,6 +217,22 @@ const biggest = venues[0] ?? null;
       font-family: var(--serif);
       font-size: 1.05rem;
       color: var(--ink);
+    }
+    .fs-venue--curated {
+      grid-column: span 2;
+      background: var(--paper);
+      border-left: 3px solid var(--slam-rg);
+    }
+    @media (max-width: 720px) {
+      .fs-venue--curated { grid-column: span 1; }
+    }
+    .fs-venue__notes {
+      margin: 0.4rem 0 0.6rem;
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: var(--ink);
+      text-wrap: pretty;
     }
     .fs-venue__map {
       align-self: flex-end;

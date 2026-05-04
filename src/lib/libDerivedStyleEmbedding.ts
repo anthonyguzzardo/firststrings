@@ -20,8 +20,9 @@
  */
 import { sql } from './libDb';
 
-const EMBED_VERSION = 'feat-v1-2026-05';
+const EMBED_VERSION = 'feat-v2-2026-05';
 const EMBED_DIMS    = 384;
+const EPSILON       = 1e-6;
 
 // te_shot_type rows — keep in stable order so dim positions are reproducible.
 const SHOT_TYPE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] as const;
@@ -90,6 +91,11 @@ interface FeatureBlob {
   bio: { handedness_id: number | null; backhand_style_id: number | null; status_id: number | null; born_iso: string | null };
 }
 
+/**
+ * Build the RAW (un-whitened, un-normalized) feature vector. Whitening
+ * across the roster + L2 happens AFTER all raw vectors are collected so
+ * we can z-score per dim against the population.
+ */
 function buildVector(
   player: CuratedPlayer,
   career: Map<number | 'overall', CareerStatsRow>,
@@ -246,8 +252,9 @@ export async function refreshStyleEmbedding(): Promise<void> {
     serveByPlayer.set(k, arr);
   }
 
-  console.log('[style-embed] building vectors...');
-  let upserted = 0;
+  console.log('[style-embed] building raw vectors...');
+  interface Built { player: CuratedPlayer; vec: number[]; blob: FeatureBlob }
+  const built: Built[] = [];
   let skipped = 0;
   for (const p of players) {
     const k = p.player_id.toString();
@@ -260,13 +267,62 @@ export async function refreshStyleEmbedding(): Promise<void> {
       continue;
     }
     const { vec, blob } = buildVector(p, career, clutch, shots, serve);
-    // Format vector literal for pgvector: "[0.1,0.2,0.3,...]"
-    const vecLit = `[${vec.map((x) => Number.isFinite(x) ? x.toFixed(8) : '0').join(',')}]`;
+    built.push({ player: p, vec, blob });
+  }
+
+  // ---- Whitening pass ---------------------------------------------------
+  // The raw vector mixes shares (0..1), centered ratios (~-0.5..0.5), and
+  // one-hot bio flags (0/1). Without normalization the shares dominate the
+  // L2 norm and every player ends up cosine-similar to every other, since
+  // most shot-mix shares are roughly the same across the curated roster.
+  //
+  // Per-dim z-score across the population spreads the distribution so the
+  // dimensions where players actually differ get equal say. We only z-score
+  // dims that are NOT in the zero-pad tail (i.e. variance > epsilon).
+  const dim = built[0]?.vec.length ?? EMBED_DIMS;
+  const means = new Array(dim).fill(0) as number[];
+  const sds   = new Array(dim).fill(0) as number[];
+  for (let i = 0; i < dim; i++) {
+    let sum = 0;
+    for (const b of built) sum += b.vec[i] ?? 0;
+    means[i] = sum / Math.max(1, built.length);
+    let varAcc = 0;
+    for (const b of built) {
+      const d = (b.vec[i] ?? 0) - means[i]!;
+      varAcc += d * d;
+    }
+    sds[i] = Math.sqrt(varAcc / Math.max(1, built.length));
+  }
+  for (const b of built) {
+    for (let i = 0; i < dim; i++) {
+      const sd = sds[i]!;
+      if (sd < EPSILON) {
+        // No variance across the roster (typically a zero-padded dim or a
+        // feature everyone scores identically). Drop to 0 so it contributes
+        // nothing to cosine similarity.
+        b.vec[i] = 0;
+      } else {
+        b.vec[i] = ((b.vec[i] ?? 0) - means[i]!) / sd;
+      }
+    }
+    // Re-L2 after whitening so the resulting vector is unit-norm.
+    let s = 0;
+    for (const x of b.vec) s += x * x;
+    const norm = Math.sqrt(s);
+    if (norm > 0) {
+      for (let i = 0; i < dim; i++) b.vec[i] = b.vec[i]! / norm;
+    }
+  }
+
+  console.log('[style-embed] writing whitened vectors...');
+  let upserted = 0;
+  for (const b of built) {
+    const vecLit = `[${b.vec.map((x) => Number.isFinite(x) ? x.toFixed(8) : '0').join(',')}]`;
     await sql`
       INSERT INTO tb_player_style_embedding
         (player_id, embedding_version, embedding, feature_blob,
          computed_through_dt, created_by, modified_by)
-      VALUES (${p.player_id}, ${EMBED_VERSION}, ${vecLit}::vector, ${JSON.stringify(blob)}::jsonb,
+      VALUES (${b.player.player_id}, ${EMBED_VERSION}, ${vecLit}::vector, ${JSON.stringify(b.blob)}::jsonb,
               CURRENT_DATE, 'refresh-style-embedding', 'refresh-style-embedding')
       ON CONFLICT (player_id, embedding_version) DO UPDATE
         SET embedding = EXCLUDED.embedding,
