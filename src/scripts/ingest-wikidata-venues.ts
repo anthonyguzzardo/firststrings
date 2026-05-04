@@ -10,6 +10,10 @@ import { sql } from '../lib/libDb';
 
 const ENDPOINT = 'https://query.wikidata.org/sparql';
 
+// Tightened: the venue must EITHER be an instance/subclass of a tennis-
+// specific class OR be the named venue (P115) of an actual tennis tournament.
+// This drops generic stadiums (Hard Rock, Ellis Park, etc.) that have hosted
+// tennis once or twice but aren't tennis-primary.
 const QUERY = `
 SELECT DISTINCT
   ?venue ?venueLabel
@@ -20,9 +24,31 @@ SELECT DISTINCT
   (SAMPLE(?countryCode)  AS ?countryCode)
   (SAMPLE(?cityLabel)    AS ?city)
 WHERE {
-  ?venue wdt:P641 wd:Q847.                   # sport = tennis
-  ?venue wdt:P31/wdt:P279* wd:Q1076486.       # subclass of sports venue
-  OPTIONAL { ?venue wdt:P1083 ?capacity. FILTER(?capacity > 1000) }
+  {
+    # tennis-specific venue classes: tennis stadium / tennis venue / tennis center
+    ?venue wdt:P31/wdt:P279* wd:Q15916252.
+  } UNION {
+    # explicit "tennis venue" P31
+    ?venue wdt:P31 wd:Q1076486.
+    ?venue wdt:P641 wd:Q847.
+  } UNION {
+    # named home of any kind of tennis tournament (covers the Slams,
+    # Masters, ATP/WTA tour stops). P115 = home venue, walked through any
+    # subclass of tennis tournament.
+    ?tournament wdt:P31/wdt:P279* ?tt.
+    VALUES ?tt {
+      wd:Q47498        # tennis tournament series
+      wd:Q26129378     # tennis tournament
+      wd:Q1361932      # Grand Slam tennis tournament
+      wd:Q11467359     # ATP Tour tournament
+    }
+    ?tournament wdt:P115 ?venue.
+  } UNION {
+    # held-in venue of any tennis tournament event/edition
+    ?event wdt:P641 wd:Q847.
+    ?event wdt:P276 ?venue.
+  }
+  OPTIONAL { ?venue wdt:P1083 ?capacity. }
   OPTIONAL { ?venue wdt:P625 ?coord. }
   OPTIONAL {
     ?venue wdt:P571 ?inception.
@@ -41,7 +67,7 @@ WHERE {
 }
 GROUP BY ?venue ?venueLabel
 ORDER BY DESC(?cap)
-LIMIT 500
+LIMIT 600
 `.trim();
 
 interface Binding<T> { type: string; value: T }

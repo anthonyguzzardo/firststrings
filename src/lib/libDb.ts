@@ -20,6 +20,9 @@ export const sql = postgres(url, {
   connection: { search_path: 'first_strings, public' },
   prepare: false,
   transform: { undefined: null },
+  // IF NOT EXISTS migration steps emit chatty NOTICE rows that are harmless
+  // but pollute orchestrator output. Swallow them.
+  onnotice: () => undefined,
 });
 
 export type Sql = typeof sql;
@@ -645,4 +648,43 @@ export async function getMeetingsByYear(aSlug: string, bSlug: string): Promise<Y
 // @region aggregates
 // @endregion aggregates
 // @region embeddings
+export interface StyleNeighbour {
+  slug: string;
+  fullName: string;
+  similarity: number;  // 0..1, cosine
+}
+
+/**
+ * Top-k nearest curated players to `slug` in the style-embedding space.
+ * Uses pgvector's `<=>` (cosine distance) operator with the HNSW index
+ * on tb_player_style_embedding. Returns null when the player has no
+ * embedding row yet.
+ */
+export async function getStyleNeighbours(slug: string, k: number = 5): Promise<StyleNeighbour[] | null> {
+  const exists = await sql<Array<{ ok: boolean }>>`
+    SELECT TRUE AS ok FROM tb_player_style_embedding e
+    JOIN td_player p ON p.player_id = e.player_id
+    WHERE p.slug = ${slug} LIMIT 1
+  `;
+  if (exists.length === 0) return null;
+  const rows = await sql<Array<{ slug: string; full_name: string; sim: number }>>`
+    WITH q AS (
+      SELECT e.embedding, e.embedding_version
+      FROM tb_player_style_embedding e
+      JOIN td_player p ON p.player_id = e.player_id
+      WHERE p.slug = ${slug}
+      ORDER BY e.dttm_modified_utc DESC
+      LIMIT 1
+    )
+    SELECT p.slug, p.full_name,
+           (1 - (e.embedding <=> (SELECT embedding FROM q)))::real AS sim
+    FROM tb_player_style_embedding e
+    JOIN td_player p ON p.player_id = e.player_id
+    WHERE e.embedding_version = (SELECT embedding_version FROM q)
+      AND p.slug != ${slug}
+    ORDER BY e.embedding <=> (SELECT embedding FROM q) ASC
+    LIMIT ${k}
+  `;
+  return rows.map((r) => ({ slug: r.slug, fullName: r.full_name, similarity: r.sim }));
+}
 // @endregion embeddings

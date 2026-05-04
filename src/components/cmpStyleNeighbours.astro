@@ -1,0 +1,129 @@
+---
+import type { StyleNeighbour } from '../lib/libDb';
+import { getPlayerBySlug, getPlayerImagePath } from '../lib/libPlayers';
+
+interface Props {
+  neighbours: StyleNeighbour[];
+}
+
+const { neighbours } = Astro.props;
+if (neighbours.length === 0) return null;
+---
+<aside class="fs-style-near">
+  <div class="fs-style-near__head">
+    <span class="fs-eyebrow">Plays like</span>
+    <span class="fs-style-near__hint">style-vector cosine, curated roster only</span>
+  </div>
+  <ol class="fs-style-near__list">
+    {neighbours.map((n, i) => {
+      const p = getPlayerBySlug(n.slug);
+      const photo = p ? getPlayerImagePath(p) : null;
+      const pct = (n.similarity * 100).toFixed(1);
+      return (
+        <li class="fs-style-near__row">
+          <span class="fs-style-near__rank tabular">{i + 1}</span>
+          <a href={`/players/${n.slug}`} class="fs-style-near__link">
+            {photo && <img src={photo} alt="" class="fs-style-near__photo" loading="lazy" />}
+            <span class="fs-style-near__name">{n.fullName}</span>
+          </a>
+          <div class="fs-style-near__bar" style={`--fill: ${pct}%`} aria-hidden="true"></div>
+          <span class="fs-style-near__sim tabular">{pct}%</span>
+        </li>
+      );
+    })}
+  </ol>
+</aside>
+
+<style>
+  .fs-style-near {
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--slam-rg);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1.1rem 1.25rem 1rem;
+  }
+  .fs-style-near__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .fs-style-near__hint {
+    font-size: var(--fs-eye);
+    color: var(--ink-soft);
+    font-style: italic;
+    letter-spacing: 0.06em;
+  }
+  .fs-style-near__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .fs-style-near__row {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr 60px 3rem;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .fs-style-near__rank {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .fs-style-near__link {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--ink);
+    min-width: 0;
+  }
+  .fs-style-near__link:hover { color: var(--slam-rg); }
+  @media (prefers-reduced-motion: no-preference) {
+    .fs-style-near__link { transition: color var(--t-base) var(--ease); }
+  }
+  .fs-style-near__photo {
+    width: 28px;
+    height: 28px;
+    border-radius: 3px;
+    object-fit: cover;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    flex-shrink: 0;
+  }
+  .fs-style-near__name {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fs-style-near__bar {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(
+      to right,
+      var(--slam-rg) 0%,
+      var(--slam-rg) var(--fill, 0%),
+      color-mix(in srgb, var(--slam-rg) 18%, transparent) var(--fill, 0%),
+      color-mix(in srgb, var(--slam-rg) 18%, transparent) 100%
+    );
+  }
+  .fs-style-near__sim {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    text-align: right;
+    color: var(--ink-muted);
+  }
+
+  @media (max-width: 600px) {
+    .fs-style-near__row {
+      grid-template-columns: 1.4rem 1fr 2.5rem;
+    }
+    .fs-style-near__bar { display: none; }
+  }
+</style>

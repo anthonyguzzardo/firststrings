@@ -2,6 +2,136 @@
 
 A note from the previous agent to the next. Read CLAUDE.md first for the philosophy and conventions, then this for current state and what's next.
 
+## Update 2026-05-03 (post-final) — orchestration: one command does everything
+
+The handoff queue's "How to reproduce" section was a 12-step shell ritual. It's now three commands tops, and one of them is `npm run dev` doing the right thing automatically.
+
+### What landed
+
+- **`predev` hook** on `npm run dev` — brings up Postgres via `docker compose up -d`, waits until the connection answers, then runs `db:migrate`. So `npm run dev` from a cold machine just works.
+- **`npm run db:migrate`** — idempotent migration runner. Reads `db/sql/migrations/*.sql` in filename order, skips files already in the new `tb_migration` table, applies the rest one-per-transaction. Migration `000_migrations_table.sql` bootstraps the tracking table itself (uses `IF NOT EXISTS` so it's safe to apply on every cold start).
+- **`npm run refresh:all`** — runs every derivation in dependency order: elo → career-stats → mcp-score → match-canonical → leverage → clutch → serve-zones → shot-distribution → style-embedding. Skips the AI-card scripts (those need an API key, gated separately).
+- **`npm run setup`** — full bootstrap from a clean docker volume: `db:up-wait` → `db:migrate` → bootstrap → all ingests (atp, wta, mcp shots, rankings, venues) → refresh:all. ~20 minutes wall-clock on a cold machine; entirely hands-off.
+- **`onnotice: () => undefined`** in `libDb` — swallows postgres NOTICE rows from `IF NOT EXISTS` clauses so the orchestrator output is clean.
+
+### The new "what you actually type"
+
+Cold machine, never run before:
+```sh
+git clone …
+cp .env.example .env             # set FIRSTSTRINGS_PG_URL (already in example) + ANTHROPIC_API_KEY if you want AI cards
+npm install
+npm run setup                    # one shot, ~20 min
+npm run dev                      # ↑ predev runs db:up + db:migrate automatically
+```
+
+Already set up, returning the next morning:
+```sh
+npm run dev                      # that's it. predev wakes Postgres if needed.
+```
+
+After pulling new SQL changes:
+```sh
+npm run db:migrate               # or just `npm run dev` — predev handles it
+```
+
+After re-ingesting fresh Sackmann data:
+```sh
+npm run refresh:all              # rebuilds every derived table from scratch
+```
+
+### Things to not do
+
+- **Don't add a step to `setup` or `refresh:all` without thinking about ordering.** The chain is sensitive: leverage must run BEFORE clutch (clutch reads the leverage column), shot-distribution before style-embedding (style-embedding reads the shot distribution), mcp-score before match-canonical (the dedupe's exact-score pass needs the score). The orchestrator declares this order in `REFRESH_STEPS` / `INGEST_STEPS` arrays — keep them honest.
+- **Don't fall back to `psql < migrations/foo.sql`** if a migration is misbehaving. Investigate the migration; if you have to skip-and-mark, INSERT directly into `tb_migration` so the runner won't retry.
+- **Don't paste fresh SQL into `dbFirstStrings_Tables.sql` without also adding a numbered migration.** The CREATE TABLE there describes the desired state; the migrations folder is what brings an existing DB to that state.
+
+### For the next agent — what's left
+
+Outside this orchestration work, the queue is roughly the same as the prior handoff: tighten style embeddings (whitening / per-feature z-score), `/announcers`, live scoring, Court Vision shot heatmaps, PNG OG via satori, curated venue notes, Bracketry-based draws.
+
+---
+
+## Update 2026-05-03 (final) — MCP scores, shot dist, style embeddings, plays-like, MapLibre
+
+Closed out everything that was queued. Highlights: the Match Charting Project rows now have human-readable score strings, the empty pgvector index is full, the player profile has a "Plays like" sidebar, and `/venues` has a real world map.
+
+### What landed
+
+**1. MCP score backfill — every charted match now has `tb_match.score`.**
+- `src/lib/libDerivedMcpScore.ts` walks each MCP match's points, groups by `(set_no, game_no)`, takes the LAST point's winner as the game winner, tallies games per set, detects tiebreaks (and counts the loser's pts), and emits a Sackmann-style string.
+- **Gotcha:** the MCP point parser sets `point_no_in_game = 1` for every point (literally — no within-game numbering). Don't trust that field. We rely on the global `point_no_in_match` ordering and just overwrite the game-winner on every point — the last write per `(set, game)` wins.
+- 10,966 of 10,999 source-3 matches got reconstructed scores. The 33 skipped have no `tb_point` rows (they're stub matches with metadata only).
+- Re-ran `refresh:match-canonical` afterward — score-matching pass now picks up 4,608 high-confidence links (was 0). Final: 9,109 / 10,999 = **82.8% merged**, with the matched rows now confirmed by exact-score in addition to tournament-name.
+
+**2. `tb_player_shot_distribution` — populated.**
+- `npm run refresh:shot-distribution`. 23,043 overall + 39,026 per-surface rows (one per (player, surface, shot_type)). Sanity for Federer: forehand 86k shots / 8.4% winners, backhand 58k / 4.4%, BH slice 35k / 0.6% (defensive), volleys 32–42% winners, overhead 67% winners. Real Federer.
+- Joins `tb_shot` → `tb_point` → `tb_match` for surface bucketing and walkover/retirement filtering.
+
+**3. Style embeddings — pgvector HNSW index is no longer empty.**
+- `src/lib/libDerivedStyleEmbedding.ts` builds a deterministic 384-dim feature vector per curated player. Concatenates: shot mix (19 types × 4 metrics = 76 dims), clutch (8), serve placement (6), surface bias (8), bio flags (4), then pads with zeros to 384 and L2-normalizes (cosine similarity ignores the pad).
+- Skipped the Python pipeline (`py/embed_players.py`) entirely — TS works fine and avoids the `uv` setup. Encoder version literal `feat-v1-2026-05` so callers can detect drift.
+- 23 / 23 curated players embedded. Federer's nearest neighbours: Lendl 97.7% → Sampras 96.2% → Graf 94.0% → Agassi 92.9% → Roddick 91.6% → Serena 91.2%. The vectors cluster tight (everyone's ≥90% similar to everyone) because the roster is all top players, but the RANK ordering is what matters — Lendl-as-most-Federer-like is plausible, Sampras-second tracks the all-court / serve-leaning identity.
+
+**4. `cmpStyleNeighbours` — "Plays like" sidebar on the profile.**
+- New section between Clutch and Serve Placement. Top-5 cosine-nearest curated players with name, photo, and a slam-rg fill bar showing similarity %.
+- `getStyleNeighbours(slug, k)` in `libDb` (`@region embeddings`). Uses pgvector's `<=>` (cosine distance) operator with the HNSW index. Joins to the latest `embedding_version` so old vectors don't pollute results when the encoder bumps.
+
+**5. `/venues` — tightened SPARQL + MapLibre.**
+- SPARQL rewritten with three UNION branches: tennis-stadium subclasses, tennis-tournament-home (P115), and held-in-venue (P276 of any tennis event). Dropped most of the false positives (Hard Rock, Ellis Park) and surfaced the iconic ones — Arthur Ashe (22,547), Indian Wells Tennis Garden (16,100), Court Philippe-Chatrier (14,911), Rod Laver Arena (14,820).
+- Now ingests **600 venues**. Some still mega-stadiums that hosted tennis once; the page filters to capacity ≥ 5000 which keeps the noise mostly off-screen.
+- MapLibre map at the top of `/venues` showing every venue with lat/lon as a slam-rg dot. Click a marker → popup with name, location, capacity. Uses `demotiles.maplibre.org/style.json` (no API key required); `maplibre-gl@5.6.0` CSS pulled from unpkg, JS bundled from npm.
+- Map is client-rendered via Astro's `<script type="module">` and dynamic `import('maplibre-gl')` — server side stays SVG-free / no Node-side WebGL nonsense.
+
+### How to reproduce a fresh database
+
+```sh
+docker compose up -d
+npm run bootstrap
+npm run ingest:atp
+npm run ingest:wta
+npm run ingest:mcp -- --shots
+npm run ingest:rankings
+npm run ingest:venues
+# Migrations live in db/sql/migrations/ — apply manually, oldest first:
+for f in db/sql/migrations/*.sql; do
+  docker exec -i first_strings_pg psql -U first_strings -d first_strings < "$f"
+done
+npm run refresh:elo
+npm run refresh:career-stats
+npm run refresh:leverage
+npm run refresh:clutch
+npm run refresh:serve-zones
+npm run refresh:mcp-score              # NEW — fills tb_match.score for source-3
+npm run refresh:match-canonical        # benefits from the score fill
+npm run refresh:shot-distribution      # NEW — tb_player_shot_distribution
+npm run refresh:style-embedding        # NEW — tb_player_style_embedding (curated only)
+npm run refresh:ai-cards               # OPTIONAL — needs ANTHROPIC_API_KEY
+npm run refresh:compare-cards          # OPTIONAL — same
+```
+
+### Things to not do
+
+- **Don't trust `tb_point.point_no_in_game`.** Parser sets it to 1 for every point. Use `point_no_in_match` for ordering and `(set_no, game_no)` for grouping.
+- **Don't bump the embedding `vector(384)` dimension** without a migration AND deleting all existing rows. pgvector pins the column type to a single dimension at create time.
+- **Don't switch the MapLibre tile style to a remote provider that requires an API key** (Mapbox, Stadia) without first wiring the key through `.env` and the Astro `import.meta.env`.
+- **Don't truncate `td_venue` between ingest passes** unless you're prepared to lose any manually-added rows. The script does an upsert by name; truncating is only safe when re-ingesting the full source.
+- **Don't write a Python embedding pipeline now.** The TS encoder is in place and producing reasonable kNN; switching adds an `uv` dependency and a second runtime to keep coherent. If the encoder needs sentence-transformers later, swap it under the same `tb_player_style_embedding` schema with a new version literal.
+
+### For the next agent — what's left
+
+V1 is comprehensively complete. Possible directions:
+
+1. **Tighten style embeddings.** Cluster is too compressed (all 90%+) — feature scaling is uneven (shot-mix shares 0..1 vs centered clutch values around 0). Whitening the matrix or per-feature z-scoring would spread the cluster. Or swap to learned embeddings (sentence-transformers via `uv` in `py/`).
+2. **`/announcers/<slug>`** — ICDb ingest, then per-commentator profiles. Same shape as players but smaller. Honors a project pillar from CLAUDE.md.
+3. **Live scoring widget.** Real-time element. Needs an ops decision: rate limits, caching strategy, fallback when feed is down.
+4. **Court Vision shot heatmaps** — `glad94/infotennis` ingest from Antwerp 2021+. Per-shot ball coordinates → 2D density maps overlaid on a court SVG.
+5. **PNG OG via satori + resvg-js** — only if a strict-PNG platform shows up (LinkedIn, some Slack workspaces). SVG works for Twitter/Mastodon/iMessage today.
+6. **Curated venue notes** — a `notes` column write-pass for the iconic venues (history, signature matches, best-known nicknames). Adds editorial soul to `/venues`.
+7. **Bracketry-based draws** (`cmpDrawCanvas`) — needs a draw-data ingest first.
+
+---
+
 ## Update 2026-05-03 (late) — compare polish, /venues, Cmd+K, dedupe v2
 
 Closed out everything in the queue from the previous handoff. Main themes: the compare page is now genuinely deep (year-by-year + set scores + AI summary), `/venues` exists as a real page populated from Wikidata (400 venues), `Cmd+K` quick-search works site-wide, and the match-canonical heuristic jumped from 70% → 82.5%.

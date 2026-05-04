@@ -10,6 +10,19 @@ try {
   if (code !== 'ECONNREFUSED') console.error('[venues] DB query failed:', e);
 }
 
+// Markers payload — only venues with both lat and lon, lighter shape than
+// the full row so we don't ship the kitchen sink to the browser.
+const markers = venues
+  .filter((v) => v.lat !== null && v.lon !== null)
+  .map((v) => ({
+    name: v.name,
+    city: v.city,
+    country: v.country,
+    capacity: v.capacity,
+    lat: v.lat,
+    lon: v.lon,
+  }));
+
 const totalSeats = venues.reduce((s, v) => s + (v.capacity ?? 0), 0);
 const oldest = venues
   .filter((v) => v.yearBuilt !== null)
@@ -48,6 +61,13 @@ const biggest = venues[0] ?? null;
       )}
     </div>
   </header>
+
+  {markers.length > 0 && (
+    <div class="fs-venues-map-wrap">
+      <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" />
+      <div id="fs-venues-map" class="fs-venues-map" aria-label="Tennis venues map" />
+    </div>
+  )}
 
   <article class="fs-container">
     {venues.length === 0 ? (
@@ -211,5 +231,66 @@ const biggest = venues[0] ?? null;
       font-style: italic;
       color: var(--ink-muted);
     }
+
+    .fs-venues-map-wrap {
+      max-width: var(--hero-max);
+      margin: 1.5rem auto 0;
+      padding: 0 1.5rem;
+    }
+    .fs-venues-map {
+      height: 480px;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+    .fs-venues-map :global(.fs-venue-marker) {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--slam-rg);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 1px var(--slam-rg);
+      cursor: pointer;
+    }
+    .fs-venues-map :global(.maplibregl-popup-content) {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--rule);
+    }
+    .fs-venues-map :global(.maplibregl-popup-tip) { display: none; }
   </style>
+
+  <script type="module" define:vars={{ markers }}>
+    if (markers.length > 0 && typeof window !== 'undefined') {
+      const { default: maplibregl } = await import('maplibre-gl');
+      const map = new maplibregl.Map({
+        container: 'fs-venues-map',
+        style: 'https://demotiles.maplibre.org/style.json',
+        center: [10, 30],
+        zoom: 1.5,
+        attributionControl: { compact: true },
+      });
+      map.on('load', () => {
+        for (const m of markers) {
+          if (m.lat == null || m.lon == null) continue;
+          const el = document.createElement('div');
+          el.className = 'fs-venue-marker';
+          el.title = m.name;
+          const popupHtml = [
+            `<strong>${m.name}</strong>`,
+            m.city || m.country ? `<br/>${[m.city, m.country].filter(Boolean).join(', ')}` : '',
+            m.capacity ? `<br/><small style="color:#6b655d">${m.capacity.toLocaleString()} seats</small>` : '',
+          ].join('');
+          new maplibregl.Marker({ element: el })
+            .setLngLat([m.lon, m.lat])
+            .setPopup(new maplibregl.Popup({ offset: 12, closeButton: false }).setHTML(popupHtml))
+            .addTo(map);
+        }
+      });
+    }
+  </script>
 </LayBase>
