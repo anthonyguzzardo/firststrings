@@ -1286,7 +1286,7 @@ export const players: Player[] = [
     career: {
       grandSlams: 24,
       weeksAtNumberOne: 428,
-      yearEndNumberOne: 8,
+      yearEndNumberOne: 9,
       careerHighRanking: 1,
       turnedPro: 2003,
     },
@@ -2362,12 +2362,12 @@ export const players: Player[] = [
     },
     career: {
       grandSlams: 4,
-      weeksAtNumberOne: 69,
+      weeksAtNumberOne: 70,
       yearEndNumberOne: 1,
       careerHighRanking: 1,
       turnedPro: 2018,
     },
-    bio: "Quiet feet and a quieter face — Sinner's tennis is precision tuned to a frequency the rest of the tour is still learning. Four majors (Australian Open '24 and '25, US Open '24, Wimbledon '25), the 2024 year-end #1, and a rivalry with Alcaraz that the next decade of men's tennis will be measured by.",
+    bio: "Quiet feet and a quieter face — Sinner's tennis is precision tuned to a frequency the rest of the tour is still learning. Four majors (Australian Open '24 and '25, US Open '24, Wimbledon '25), the 2024 year-end #1, a rivalry with Alcaraz that the next decade of men's tennis will be measured by — and a 2026 spring that finished with all four hard/clay Masters 1000s in his trophy case.",
     rivalries: ['carlos-alcaraz'],
     status: 'active',
     dataConfidence: 'verified',
@@ -2623,6 +2623,15 @@ export const players: Player[] = [
         "tier": "masters-1000",
         "opponent": "Carlos Alcaraz",
         "score": "7-6(5), 6-3"
+      },
+      {
+        "year": 2026,
+        "tournament": "Madrid Open",
+        "city": "Madrid",
+        "surface": "clay",
+        "tier": "masters-1000",
+        "opponent": "Alexander Zverev",
+        "score": "6-1, 6-2"
       }
     ],
 
@@ -9695,7 +9704,7 @@ export const players: Player[] = [
     career: {
       grandSlams: 0,
       careerHighRanking: 24,
-      turnedPro: 2023,
+      turnedPro: 2024,
     },
     bio: "Brazilian tennis hadn't had a star this exciting in a generation. Fonseca exploded into 2024 with the Next Gen Finals title, broke into the top 25 by late 2025, and arrived with a forehand that already produces ATP-tour winners. The ceiling is unwritten.",
     status: 'active',
@@ -10001,7 +10010,7 @@ export const players: Player[] = [
     career: {
       grandSlams: 0,
       careerHighRanking: 34,
-      turnedPro: 2023,
+      turnedPro: 2025,
     },
     bio: "A young Spanish star of the post-Nadal generation. Jódar broke through in early 2026 — winning the Grand Prix Hassan II in Marrakech and beating Alex de Minaur in Madrid — and arrived in the top 40 before his 20th birthday. The ceiling is being written in real time.",
     status: 'active',
